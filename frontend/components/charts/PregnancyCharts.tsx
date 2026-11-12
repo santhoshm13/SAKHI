@@ -53,8 +53,8 @@ const ChartAnimationDefs = () => (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-all transform scale-105">
-        <p className="font-semibold mb-1 text-xs uppercase tracking-wider text-plum-900/70">{label}</p>
+      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-[opacity,transform] transform scale-105">
+        <p className="font-semibold mb-1 text-xs text-plum-900/75">{label}</p>
         {payload.map((p: any, i: number) => (
           <p key={i} className="flex items-center gap-2 font-medium" style={{ color: p.color || p.fill || chartConfig.text }}>
             <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color || p.fill || "#ec4899" }} />
@@ -118,7 +118,7 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
             key={i} 
             whileHover={{ scale: 1.08, y: -3 }}
             transition={{ duration: 0.2 }}
-            className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl sm:rounded-[2rem] border-2 transition-all ${
+            className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl sm:rounded-[2rem] border-2 transition-[background-color,border-color,box-shadow,transform] ${
               isCurrent 
                 ? "border-pink-400 bg-pink-50/90 scale-105 shadow-[0_8px_25px_rgba(244,114,182,0.3)] ring-4 ring-pink-300/40 animate-pulse" 
                 : isPast 
@@ -423,7 +423,7 @@ export const AppointmentTimeline = ({
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
           onClick={() => onToggleAppointment?.(i)}
-          className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+          className={`flex items-center justify-between p-3.5 rounded-2xl border transition-[background-color,border-color,box-shadow] cursor-pointer select-none ${
             apt.completed 
               ? "bg-emerald-50/50 border-emerald-200/60 shadow-sm" 
               : "bg-white/80 border-pink-100/90 shadow-[0_2px_12px_rgba(244,114,182,0.06)] hover:border-pink-300"
@@ -432,7 +432,7 @@ export const AppointmentTimeline = ({
         >
           <div className="flex items-center gap-3">
             <div 
-              className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-[background-color,border-color] ${
                 apt.completed 
                   ? "bg-emerald-500 text-white shadow-sm" 
                   : "bg-white border-2 border-pink-300 hover:border-pink-500"
@@ -445,7 +445,7 @@ export const AppointmentTimeline = ({
               )}
             </div>
             <div>
-              <div className={`text-base font-medium transition-all ${
+              <div className={`text-base font-medium transition-colors ${
                 apt.completed 
                   ? "text-[#2D1B36]/40 line-through" 
                   : "text-[#2D1B36]"
@@ -460,7 +460,7 @@ export const AppointmentTimeline = ({
             </div>
           </div>
 
-          <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full ${
+          <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
             apt.completed 
               ? "bg-emerald-100 text-emerald-700" 
               : "bg-pink-100 text-pink-700 border border-pink-200/60"

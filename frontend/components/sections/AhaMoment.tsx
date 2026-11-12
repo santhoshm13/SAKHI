@@ -35,8 +35,8 @@ export function AhaMoment() {
             {/* Left: the message */}
             <div>
               <Reveal>
-                <p className="mb-4 text-xs uppercase tracking-[0.18em] text-ink-soft">
-                  the pattern sakhi sees
+                <p className="mb-4 text-xs font-medium text-ink-soft">
+                  The pattern Sakhi sees
                 </p>
               </Reveal>
 

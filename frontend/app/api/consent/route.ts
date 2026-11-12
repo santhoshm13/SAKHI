@@ -14,7 +14,21 @@ export async function GET() {
   });
 }
 
-// POST { accepted: true, aiProcessing: boolean }
+// PATCH { privateMode?: boolean, aiProcessing?: boolean } changes a setting
+// without asking for consent again. Private mode never sends chats to Gemini.
+export async function PATCH(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const owner = await getOwner();
+  const current = await readDoc<any>('consent', null, owner);
+  if (!current?.accepted) return NextResponse.json({ error: 'Consent not given yet' }, { status: 400 });
+  const next = { ...current };
+  if (typeof body.privateMode === 'boolean') next.privateMode = body.privateMode;
+  if (typeof body.aiProcessing === 'boolean') next.aiProcessing = body.aiProcessing;
+  await writeDoc('consent', next, owner);
+  return NextResponse.json({ success: true, consent: next });
+}
+
+// POST { accepted: true, aiProcessing: boolean, privateMode?: boolean }
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -26,6 +40,7 @@ export async function POST(req: Request) {
       accepted: true,
       version: CONSENT_VERSION,
       aiProcessing: body.aiProcessing !== false,
+      privateMode: body.privateMode === true,
       at: new Date().toISOString(),
     };
     await writeDoc('consent', record, owner);

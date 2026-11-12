@@ -33,7 +33,7 @@ export default function OnboardingChat({ onComplete }: OnboardingChatProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Type your name..."
-            className="w-full bg-white/60 border border-white/40 rounded-xl px-4 py-2 text-sm text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300 mb-3"
+            className="w-full bg-white/60 border border-white/40 rounded-xl px-4 py-2 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300 mb-3"
           />
           <button
             onClick={() => { if(name.trim()) setStep(1); }}

@@ -19,7 +19,7 @@ if (process.env.DATABASE_URL) {
       connectionString: process.env.DATABASE_URL,
       // For Serverless / Next.js, close idle connections after 10s
       idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 3000,
       ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
         ? { rejectUnauthorized: false } 
         : undefined
@@ -33,6 +33,27 @@ if (process.env.DATABASE_URL) {
   console.log("No DATABASE_URL found. Running in Graceful Mock Mode.");
   isMockMode = true;
   connectionError = "No DATABASE_URL configured in environment variables.";
+}
+
+// Circuit breaker: when the database is unreachable (wrong URL, paused project,
+// network), skip it for a minute instead of paying a connection timeout on
+// every single read. This is what made API calls take ~3 s each.
+const DOWN_MS = 60_000;
+let downUntil = 0;
+
+const CONNECTION_CODES = new Set(['ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET', 'EAI_AGAIN', '28P01', '28000', '3D000', '57P01', '57P03', 'XX000']);
+export function isConnectionError(err: any): boolean {
+  const msg = String(err?.message || '').toLowerCase();
+  return CONNECTION_CODES.has(err?.code) || /timeout|terminated|not found|getaddrinfo|connect|tenant|password authentication/.test(msg);
+}
+
+export function markDbUnavailable(err: any) {
+  downUntil = Date.now() + DOWN_MS;
+  connectionError = err?.message || String(err);
+}
+
+export function dbAvailable(): boolean {
+  return !isMockMode && Boolean(pool) && Date.now() >= downUntil;
 }
 
 // Check database connection status
@@ -58,15 +79,16 @@ let initPromise: Promise<void> | null = null;
  * or null when running in mock mode. Use this instead of creating new Pools.
  */
 export async function getPool(): Promise<Pool | null> {
-  if (isMockMode || !pool) return null;
+  if (!dbAvailable()) return null;
   if (!initPromise) {
     initPromise = initDatabase().catch((err) => {
       console.error("Database initialization failed:", err?.message || err);
+      markDbUnavailable(err);
       initPromise = null;
     });
   }
   await initPromise;
-  return isMockMode ? null : pool;
+  return dbAvailable() ? pool : null;
 }
 
 // Schema Migration
@@ -203,12 +225,13 @@ export async function initDatabase() {
 
 // Query helper that handles database queries and gracefully switches to mock store
 export async function query(text: string, params?: any[]) {
-  if (isMockMode || !pool) {
+  if (!dbAvailable() || !pool) {
     return mockQuery(text, params);
   }
   try {
     return await pool.query(text, params);
   } catch (err: any) {
+    if (isConnectionError(err)) markDbUnavailable(err);
     console.error("PostgreSQL query failed. Falling back to mock store for this operation. Error:", err.message);
     return mockQuery(text, params);
   }

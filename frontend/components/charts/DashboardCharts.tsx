@@ -65,8 +65,8 @@ const ChartAnimationDefs = () => (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-all transform scale-105">
-        <p className="font-semibold mb-1 text-xs uppercase tracking-wider text-plum-900/70">{label}</p>
+      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-[opacity,transform] transform scale-105">
+        <p className="font-semibold mb-1 text-xs text-plum-900/75">{label}</p>
         {payload.map((p: any, i: number) => (
           <p key={i} className="flex items-center gap-2 font-medium" style={{ color: p.color || chartConfig.text }}>
             <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color || "#ec4899" }} />
@@ -539,7 +539,7 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
               key={idx} 
               whileHover={{ scale: 1.08, y: -2 }}
               transition={{ duration: 0.2 }}
-              className={`shrink-0 w-[70px] h-[94px] rounded-2xl flex flex-col items-center justify-between py-2 transition-all relative ${
+              className={`shrink-0 w-[70px] h-[94px] rounded-2xl flex flex-col items-center justify-between py-2 transition-[background-color,border-color,box-shadow,transform] relative ${
                 isToday 
                   ? "bg-white ring-2 ring-pink-500 border-2 border-pink-400 shadow-[0_4px_20px_rgba(244,114,182,0.35)] scale-105 z-10 animate-pulse" 
                   : d.isPeriod 
@@ -549,8 +549,8 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
                       : "bg-white/60 border border-pink-100/80 shadow-sm"
               }`}
             >
-              <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                isToday ? "text-pink-600 font-extrabold" : "text-[#2D1B36]/60"
+              <span className={`text-[11px] font-semibold ${
+                isToday ? "text-pink-600 font-bold" : "text-[#2D1B36]/60"
               }`}>
                 {d.dayName}
               </span>
@@ -569,12 +569,12 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
 
               <div className="h-5 flex items-center justify-center">
                 {isToday ? (
-                  <span className="text-[9px] font-black uppercase tracking-wider bg-pink-500 text-white px-2 py-0.5 rounded-full shadow-sm">
-                    {d.isOvulation ? "TODAY • OVU" : "TODAY"}
+                  <span className="text-[10px] font-bold bg-pink-500 text-white px-2 py-0.5 rounded-full shadow-sm">
+                    {d.isOvulation ? "Today · Ovu" : "Today"}
                   </span>
                 ) : d.isOvulation ? (
-                  <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500 text-white px-1.5 py-0.5 rounded-full shadow-sm">
-                    OVU
+                  <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full shadow-sm">
+                    Ovu
                   </span>
                 ) : d.isPeriod ? (
                   <span className="text-[9px] font-semibold text-rose-500">Period</span>

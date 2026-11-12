@@ -15,6 +15,31 @@ const toList = (v: any): string[] => (Array.isArray(v) ? v : v ? [v] : []).map(S
 
 // ------------------------------------------------------------------ Her Mode
 
+const BLEED = /^(light|moderate|medium|heavy|very[ _]heavy)$/i;
+const dayMs = 86_400_000;
+const toDay = (v: string) => Math.floor(Date.parse(String(v).slice(0, 10) + 'T00:00:00Z') / dayMs);
+
+/**
+ * When a log shows real bleeding (not spotting) with no bleeding in the 10 days
+ * before, and the last recorded period began 15+ days earlier, treat it as a new
+ * period: early or late, it resets the cycle and records the finished one.
+ */
+export async function syncPeriodStartFromLog(owner: Owner, logs: any[], dayStr: string): Promise<any | null> {
+  const entry = logs.find(l => String(l?.log_date || '').slice(0, 10) === dayStr);
+  if (!entry || !BLEED.test(String(entry.flow_intensity || ''))) return null;
+  const d = toDay(dayStr);
+  const bledRecently = logs.some(l => {
+    const ld = toDay(String(l?.log_date || ''));
+    return ld < d && ld >= d - 10 && BLEED.test(String(l.flow_intensity || ''));
+  });
+  if (bledRecently) return null;
+  const profile = await readDoc<any>('her_profile', null, owner);
+  const last = profile?.last_period_start ? toDay(String(profile.last_period_start)) : NaN;
+  if (!isNaN(last) && d - last < 15) return null;
+  const outcome = await runHerTool('update_period_info', { last_period_date: dayStr }, owner);
+  return outcome?.chartData ?? null;
+}
+
 export async function runHerTool(name: string, args: any, owner: Owner): Promise<ToolOutcome | null> {
   if (name === 'log_health_entry') {
     const logs = await readDoc<any[]>('daily_logs', [], owner);
@@ -31,7 +56,8 @@ export async function runHerTool(name: string, args: any, owner: Owner): Promise
     const log = {
       ...existing,
       log_date: existing.log_date || todayIso,
-      flow_intensity: args.flow_intensity ?? existing.flow_intensity ?? 'None',
+      // Unmentioned flow stays unknown: defaulting to "None" would end her period early
+      ...((args.flow_intensity ?? existing.flow_intensity) !== undefined ? { flow_intensity: args.flow_intensity ?? existing.flow_intensity } : {}),
       cramps_severity: args.cramps_severity !== undefined ? Number(args.cramps_severity) : existing.cramps_severity ?? 0,
       symptoms: merged.length > 0 ? merged : existing.symptoms || ['None'],
       mood: args.mood || existing.mood || 'Calm',
@@ -41,9 +67,10 @@ export async function runHerTool(name: string, args: any, owner: Owner): Promise
     if (index >= 0) list[index] = log;
     else list.push(log);
     await writeDoc('daily_logs', list, owner);
+    const cycleUpdate = await syncPeriodStartFromLog(owner, list, dayStr);
     return {
-      apiResult: { success: true, message: 'Daily health log saved.', logged: log },
-      chartData: { type: 'daily_log', log },
+      apiResult: { success: true, message: cycleUpdate ? 'Daily log saved; a new period start was recorded.' : 'Daily health log saved.', logged: log },
+      chartData: { type: 'daily_log', log, cycleUpdate },
     };
   }
 

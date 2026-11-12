@@ -40,7 +40,7 @@ export default function DashboardTabs<T extends string>({ tabs, active, onChange
             key={id}
             onClick={() => onChange(id)}
             aria-current={active === id ? "page" : undefined}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all cursor-pointer ${active === id ? `bg-[#2D1B36] text-white shadow-sm` : "text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-[#2D1B36]/5"}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-[background-color,color,box-shadow] cursor-pointer ${active === id ? `bg-[#2D1B36] text-white shadow-sm` : "text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-[#2D1B36]/5"}`}
           >
             <I weight={active === id ? "fill" : "regular"} className="w-4 h-4" /> {label}
           </button>

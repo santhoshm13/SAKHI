@@ -11,7 +11,7 @@ const fmtDate = (d?: string | null) =>
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="break-inside-avoid mb-5">
-      <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#2D1B36]/55 border-b border-[#2D1B36]/10 pb-1 mb-2">{title}</h2>
+      <h2 className="text-xs font-semibold text-[#2D1B36]/60 border-b border-[#2D1B36]/10 pb-1 mb-2">{title}</h2>
       {children}
     </section>
   );
@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-[#2D1B36]/10 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-[#2D1B36]/50">{label}</div>
+      <div className="text-[11px] text-[#2D1B36]/55">{label}</div>
       <div className="text-sm font-semibold text-[#2D1B36]">{value ?? "—"}</div>
     </div>
   );
@@ -116,7 +116,7 @@ export default function DoctorSummaryPage() {
           <div>
             <div className="flex items-center gap-2 text-pink-600">
               <FirstAidKit weight="duotone" className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-[0.15em]">Sakhi · Doctor visit summary</span>
+              <span className="text-xs font-semibold">Sakhi · Doctor visit summary</span>
             </div>
             <h1 className="text-2xl font-semibold mt-1">
               {mode === "pregnancy" ? "Antenatal" : "Menstrual & hormonal"} health summary

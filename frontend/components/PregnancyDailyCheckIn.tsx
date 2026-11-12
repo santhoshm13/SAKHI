@@ -135,7 +135,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                       setFetalMovement(opt);
                       setTimeout(() => setStep(1), 300);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       fetalMovement === opt
                         ? "bg-[#2D1B36] text-white"
                         : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
@@ -181,7 +181,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                       setBloodPressure(opt);
                       setTimeout(() => setStep(2), 300);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       bloodPressure === opt
                         ? "bg-[#2D1B36] text-white"
                         : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
@@ -227,7 +227,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                       setBloodSugar(opt);
                       setTimeout(() => setStep(3), 300);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       bloodSugar === opt
                         ? "bg-[#2D1B36] text-white"
                         : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
@@ -268,7 +268,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                       setMood(opt.split(" ")[0]);
                       setTimeout(() => setStep(4), 300);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       mood === opt.split(" ")[0]
                         ? "bg-[#2D1B36] text-white"
                         : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
@@ -309,7 +309,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                       setSleepHours(hours);
                       setTimeout(() => setStep(5), 300);
                     }}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       sleepHours === hours
                         ? "bg-[#2D1B36] text-white"
                         : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
@@ -358,7 +358,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     <button
                       key={sym}
                       onClick={() => toggleSymptom(sym)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-[background-color,color,box-shadow] cursor-pointer ${
                         isSelected
                           ? isWarning 
                             ? "bg-red-500 text-white shadow-sm"
@@ -374,7 +374,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
 
               <button
                 onClick={handleSubmit}
-                className="mt-2 px-6 py-2 rounded-full bg-plum-900 text-white text-xs font-semibold hover:bg-plum-950 transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
+                className="mt-2 px-6 py-2 rounded-full bg-plum-900 text-white text-xs font-semibold hover:bg-plum-950 transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
               >
                 <CheckCircle weight="bold" size={16} /> Complete Daily Check-in
               </button>

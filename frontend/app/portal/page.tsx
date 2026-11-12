@@ -381,7 +381,7 @@ export default function PortalPage() {
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id as Tab)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 whitespace-nowrap cursor-pointer
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 whitespace-nowrap cursor-pointer
                   ${activeTab === t.id 
                     ? "bg-plum-900 text-cream shadow-sm" 
                     : "text-ink-soft hover:bg-plum-700/5 hover:text-plum-900"
@@ -425,7 +425,7 @@ export default function PortalPage() {
               {/* Period Countdown */}
               <Card className="bg-gradient-to-br from-lavender-100 to-blush-50 border border-white/60 p-6 rounded-2xl shadow-sm flex flex-col justify-between min-h-[160px]">
                 <div className="flex justify-between items-start">
-                  <span className="text-xs uppercase tracking-wider text-plum-900/60 font-semibold">period prediction</span>
+                  <span className="text-xs text-plum-900/60 font-semibold">Period prediction</span>
                   <Calendar size={22} weight="bold" className="text-lavender-500" />
                 </div>
                 <div className="mt-4">
@@ -439,7 +439,7 @@ export default function PortalPage() {
               {/* Ovulation Date */}
               <Card className="bg-white/80 border border-plum-700/5 p-6 rounded-2xl shadow-sm flex flex-col justify-between min-h-[160px]">
                 <div className="flex justify-between items-start">
-                  <span className="text-xs uppercase tracking-wider text-ink-soft font-semibold">estimated ovulation</span>
+                  <span className="text-xs text-ink-soft font-semibold">Estimated ovulation</span>
                   <Baby size={22} weight="bold" className="text-blush-400" />
                 </div>
                 <div className="mt-4">
@@ -451,7 +451,7 @@ export default function PortalPage() {
               {/* Cycle Metrics */}
               <Card className="bg-white/80 border border-plum-700/5 p-6 rounded-2xl shadow-sm flex flex-col justify-between min-h-[160px]">
                 <div className="flex justify-between items-start">
-                  <span className="text-xs uppercase tracking-wider text-ink-soft font-semibold">cycle stats</span>
+                  <span className="text-xs text-ink-soft font-semibold">Cycle stats</span>
                   <Pulse size={22} weight="bold" className="text-plum-600" />
                 </div>
                 <div className="mt-4">
@@ -610,7 +610,7 @@ export default function PortalPage() {
                 <hr className="border-plum-700/5 my-2" />
 
                 {/* Symptom Sliders */}
-                <h4 className="text-sm font-bold uppercase tracking-wider text-plum-900">Symptom Severity (0-10)</h4>
+                <h4 className="text-sm font-semibold text-plum-900">Symptom severity (0–10)</h4>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
@@ -641,7 +641,7 @@ export default function PortalPage() {
                 <hr className="border-plum-700/5 my-2" />
 
                 {/* Systemic Flags */}
-                <h4 className="text-sm font-bold uppercase tracking-wider text-plum-900">Clinical Warning Flags</h4>
+                <h4 className="text-sm font-semibold text-plum-900">Clinical warning flags</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
                     { state: soakingPadHourly, set: setSoakingPadHourly, label: "Soaking pad hourly (2+ hrs)" },
@@ -704,14 +704,14 @@ export default function PortalPage() {
                     
                     <div className="flex items-center gap-2">
                       <Warning size={20} weight="fill" className={triageResult.urgency === 'EMERGENCY' ? 'text-rose-500' : 'text-amber-500'} />
-                      <span className="text-sm font-bold tracking-wider uppercase font-mono">Triage: {triageResult.urgency}</span>
+                      <span className="text-sm font-semibold font-mono">Triage: {triageResult.urgency}</span>
                     </div>
 
                     <p className="text-sm font-semibold">{triageResult.advice}</p>
 
                     {triageResult.reasons.length > 0 && (
                       <div className="mt-1">
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-65">Trigger Reasons:</span>
+                        <span className="text-xs font-semibold opacity-70">Trigger reasons:</span>
                         <ul className="list-disc list-inside text-xs mt-1 space-y-1 pl-1">
                           {triageResult.reasons.map((r: string, i: number) => (
                             <li key={i}>{r}</li>
@@ -722,7 +722,7 @@ export default function PortalPage() {
 
                     {triageResult.suspectedProfiles.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2 items-center">
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-65">Detected Profile Sign:</span>
+                        <span className="text-xs font-semibold opacity-70">Detected profile sign:</span>
                         {triageResult.suspectedProfiles.map((p: string, i: number) => (
                           <Badge key={i} variant="soft" className="bg-plum-950 text-white font-mono text-[10px]">{p}</Badge>
                         ))}
@@ -739,7 +739,7 @@ export default function PortalPage() {
                     {wellnessAdvice.map((item: any, i: number) => (
                       <div key={i} className="p-4 rounded-xl border border-plum-700/5 bg-white/70 shadow-sm flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold uppercase tracking-wide text-plum-700">{item.category}</span>
+                          <span className="text-xs font-semibold text-plum-700">{item.category}</span>
                           <span className="h-1.5 w-1.5 rounded-full bg-blush-400" />
                         </div>
                         <h5 className="text-sm font-bold text-plum-900">{item.tip}</h5>
@@ -792,7 +792,7 @@ export default function PortalPage() {
                       {/* Timeline dot */}
                       <span className="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-lavender-400 border border-white" />
                       
-                      <Card className="bg-white border border-plum-700/5 hover:border-lavender-300 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200">
+                      <Card className="bg-white border border-plum-700/5 hover:border-lavender-300 p-5 rounded-2xl shadow-sm hover:shadow-md transition-[border-color,box-shadow] duration-200">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-plum-700/5 pb-3">
                           <span className="text-sm font-bold text-plum-900 flex items-center gap-1.5">
                             <Clock size={16} />

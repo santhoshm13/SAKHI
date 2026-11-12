@@ -166,44 +166,60 @@ export function PetalWind({
       shiftWind();
     });
 
-    // ---- Draw a single petal (soft teardrop via two bezier curves) ----
+    // ---- Pre-render petal sprites once per palette color (avoids 3000+ gradient allocs/sec) ----
+    const SPRITE_RADIUS = 24;
+    const SPRITE_SIZE = SPRITE_RADIUS * 2;
+    const makeSprite = (color: string) => {
+      const off = document.createElement("canvas");
+      off.width = SPRITE_SIZE;
+      off.height = SPRITE_SIZE;
+      const octx = off.getContext("2d");
+      if (!octx) return off;
+      octx.translate(SPRITE_RADIUS, SPRITE_RADIUS);
+      octx.beginPath();
+      octx.moveTo(0, -SPRITE_RADIUS);
+      octx.bezierCurveTo(
+        SPRITE_RADIUS * 0.7,
+        -SPRITE_RADIUS * 0.5,
+        SPRITE_RADIUS * 0.6,
+        SPRITE_RADIUS * 0.7,
+        0,
+        SPRITE_RADIUS
+      );
+      octx.bezierCurveTo(
+        -SPRITE_RADIUS * 0.6,
+        SPRITE_RADIUS * 0.7,
+        -SPRITE_RADIUS * 0.7,
+        -SPRITE_RADIUS * 0.5,
+        0,
+        -SPRITE_RADIUS
+      );
+      octx.closePath();
+      const grad = octx.createRadialGradient(0, 0, 0, 0, 0, SPRITE_RADIUS);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      octx.fillStyle = grad;
+      octx.fill();
+      return off;
+    };
+    const sprites = {
+      lavender: PALETTE.lavender.map(makeSprite),
+      pink: PALETTE.pink.map(makeSprite),
+    };
+
+    // ---- Draw a single petal via cached sprite ----
     const drawPetal = (p: Petal) => {
-      const colors = PALETTE[p.hue];
-      const c = colors[Math.floor(p.depth * (colors.length - 1))];
+      const bank = sprites[p.hue];
+      const sprite = bank[Math.floor(p.depth * (bank.length - 1))];
+      const scale = p.size / SPRITE_RADIUS;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       const wobbleScale = 1 + Math.sin(p.wobble) * 0.12;
-      ctx.scale(wobbleScale, 1);
+      ctx.scale(wobbleScale * scale, scale);
       ctx.globalAlpha = p.alpha;
-
-      ctx.beginPath();
-      ctx.moveTo(0, -p.size);
-      ctx.bezierCurveTo(
-        p.size * 0.7,
-        -p.size * 0.5,
-        p.size * 0.6,
-        p.size * 0.7,
-        0,
-        p.size
-      );
-      ctx.bezierCurveTo(
-        -p.size * 0.6,
-        p.size * 0.7,
-        -p.size * 0.7,
-        -p.size * 0.5,
-        0,
-        -p.size
-      );
-      ctx.closePath();
-
-      // Translucent radial fill for depth (feathered gradient without GPU-blocking shadowBlur)
-      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
-      grad.addColorStop(0, c);
-      grad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = grad;
-      ctx.fill();
+      ctx.drawImage(sprite, -SPRITE_RADIUS, -SPRITE_RADIUS);
       ctx.restore();
     };
 
@@ -306,6 +322,7 @@ export function PetalWind({
       ref={canvasRef}
       aria-hidden="true"
       className={className}
+      style={{ transform: "translateZ(0)" }}
     />
   );
 }

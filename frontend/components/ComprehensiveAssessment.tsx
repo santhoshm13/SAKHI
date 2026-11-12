@@ -133,7 +133,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
               value={data.preferredName}
               onChange={(e) => updateData("preferredName", e.target.value)}
               placeholder="Your gentle name..."
-              className="w-full bg-white/50 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-center text-xl text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300/50 transition-all"
+              className="w-full bg-white/50 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-center text-xl text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[box-shadow,background-color]"
             />
           </div>
         );
@@ -147,14 +147,14 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 type="date" 
                 value={data.lastPeriodStart}
                 onChange={(e) => updateData("lastPeriodStart", e.target.value)}
-                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300/50"
+                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
               />
               <p className="text-[#2D1B36]/50 text-sm">And when did it end?</p>
               <input 
                 type="date" 
                 value={data.lastPeriodEnd}
                 onChange={(e) => updateData("lastPeriodEnd", e.target.value)}
-                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300/50"
+                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
               />
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 <button
                   key={opt}
                   onClick={() => updateData("cycleRegularity", opt)}
-                  className={`py-4 rounded-[2rem] text-lg font-medium transition-all ${data.cycleRegularity === opt ? 'bg-pink-100 text-pink-900 shadow-sm border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
+                  className={`py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.cycleRegularity === opt ? 'bg-pink-100 text-pink-900 shadow-sm border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
                 >
                   {opt}
                 </button>
@@ -205,7 +205,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("diagnosedConditions", opt)}
-                  className={`py-3 px-4 rounded-2xl text-sm font-medium transition-all ${data.diagnosedConditions.includes(opt) ? 'bg-indigo-100 text-indigo-900 border border-indigo-200 shadow-sm' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
+                  className={`py-3 px-4 rounded-2xl text-sm font-medium transition-colors ${data.diagnosedConditions.includes(opt) ? 'bg-indigo-100 text-indigo-900 border border-indigo-200 shadow-sm' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
                 >
                   {opt}
                 </button>
@@ -221,13 +221,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
             <div className="flex space-x-4 w-full">
               <button
                 onClick={() => updateData("onPeriod", true)}
-                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-all ${data.onPeriod === true ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === true ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
               >
                 Yes
               </button>
               <button
                 onClick={() => updateData("onPeriod", false)}
-                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-all ${data.onPeriod === false ? 'bg-indigo-100 text-indigo-900 border border-indigo-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === false ? 'bg-indigo-100 text-indigo-900 border border-indigo-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
               >
                 No
               </button>
@@ -249,7 +249,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                   <button
                     key={opt}
                     onClick={() => updateData("flowIntensity", opt)}
-                    className={`py-2 px-3 rounded-xl text-sm transition-all ${data.flowIntensity === opt ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                    className={`py-2 px-3 rounded-xl text-sm transition-colors ${data.flowIntensity === opt ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
                   >
                     {opt}
                   </button>
@@ -278,7 +278,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("symptoms", opt)}
-                  className={`py-3 px-2 rounded-2xl text-sm transition-all ${data.symptoms.includes(opt) ? 'bg-[#2D1B36] text-white' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60'}`}
+                  className={`py-3 px-2 rounded-2xl text-sm transition-colors ${data.symptoms.includes(opt) ? 'bg-[#2D1B36] text-white' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60'}`}
                 >
                   {opt}
                 </button>
@@ -296,7 +296,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 <button
                   key={opt}
                   onClick={() => updateData("mood", opt)}
-                  className={`py-4 rounded-[2rem] text-sm font-medium transition-all ${data.mood === opt ? 'bg-gradient-to-br from-pink-200 to-indigo-200 text-[#2D1B36] shadow-sm' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                  className={`py-4 rounded-[2rem] text-sm font-medium transition-colors ${data.mood === opt ? 'bg-gradient-to-br from-pink-200 to-indigo-200 text-[#2D1B36] shadow-sm' : 'bg-white/40 text-[#2D1B36]/70'}`}
                 >
                   {opt}
                 </button>
@@ -314,7 +314,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
               <input 
                 type="number" value={data.sleepHours} 
                 onChange={(e) => updateData("sleepHours", parseFloat(e.target.value))}
-                className="w-full bg-white/50 rounded-2xl px-4 py-3 focus:outline-none"
+                className="w-full bg-white/50 rounded-2xl px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
               />
             </div>
             <div className="w-full space-y-2 text-left">
@@ -337,7 +337,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("warningSigns", opt)}
-                  className={`py-3 px-4 rounded-2xl text-sm transition-all ${data.warningSigns.includes(opt) ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                  className={`py-3 px-4 rounded-2xl text-sm transition-colors ${data.warningSigns.includes(opt) ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
                 >
                   {opt}
                 </button>
@@ -354,7 +354,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
               value={data.notes}
               onChange={(e) => updateData("notes", e.target.value)}
               placeholder="Any gentle thoughts, feelings, or symptoms..."
-              className="w-full bg-white/50 border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-3xl p-6 min-h-[150px] text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300/50 resize-none"
+              className="w-full bg-white/50 border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-3xl p-6 min-h-[150px] text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 resize-none"
             />
           </div>
         );
@@ -407,7 +407,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
             <button 
               onClick={handleNext}
               disabled={isTransitioning}
-              className="flex items-center gap-2 bg-[#2D1B36] text-white px-8 py-4 rounded-[2rem] font-medium hover:bg-[#2D1B36]/90 transition-all shadow-[0_8px_20px_rgb(45,27,54,0.15)] disabled:opacity-50"
+              className="flex items-center gap-2 bg-[#2D1B36] text-white px-8 py-4 rounded-[2rem] font-medium hover:bg-[#2D1B36]/90 transition-[background-color,box-shadow] shadow-[0_8px_20px_rgb(45,27,54,0.15)] disabled:opacity-50"
             >
               {step === steps.length - 1 ? "Complete Check-in" : "Continue"}
               {step === steps.length - 1 ? <CheckCircle weight="fill" /> : <CaretRight weight="bold" />}

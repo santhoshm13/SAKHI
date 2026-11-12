@@ -23,7 +23,6 @@ import PregnancyAvatar, { AIState } from "@/components/PregnancyAvatar";
 import {
   PregnancyWeekProgress,
   BabyGrowthTimeline,
-  WeightGainChart,
   BloodPressureChart,
   BloodSugarChart,
   BabyMovementChart,
@@ -35,6 +34,8 @@ import {
 import { usePregnancyNotifications } from "@/hooks/usePregnancyNotifications";
 import PregnancyNotificationCenter from "@/components/PregnancyNotificationCenter";
 import SettingsModal from "@/components/SettingsModal";
+import WeightTracker from "@/components/WeightTracker";
+import ContractionTimer from "@/components/ContractionTimer";
 
 interface RiskExplainFactor {
   title: string;
@@ -279,7 +280,7 @@ const getGdmExplainability = (
   };
 };
 
-const cardClass = "bg-white/60 backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-all duration-300 p-4 sm:p-6 md:p-8 relative overflow-hidden min-w-0";
+const cardClass = "bg-white/60 backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-[border-color,box-shadow] duration-300 p-4 sm:p-6 md:p-8 relative overflow-hidden min-w-0";
 const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between min-w-0";
 const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-3 sm:mb-4";
 
@@ -316,7 +317,7 @@ function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {items.map(i => (
           <div key={i.label} className={`rounded-2xl border p-4 ${tone(i.level as any)}`}>
-            <p className="text-[11px] font-bold uppercase tracking-wider opacity-70">{i.label}</p>
+            <p className="text-xs font-semibold opacity-75">{i.label}</p>
             <p className="mt-1 text-2xl font-semibold text-[#2D1B36]">{i.value} <span className="text-xs font-normal text-[#2D1B36]/50">{i.unit}</span></p>
             <p className="mt-1 text-xs">{i.note}</p>
             {i.log && <p className="mt-1 text-[11px] text-[#2D1B36]/45">{when(i.log)}</p>}
@@ -613,7 +614,7 @@ export default function PregnancyModePage() {
       <ConsentGate />
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-3 print:hidden">
         <div className="min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom Mode · Week {weeks}</span>
+          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom mode · Week {weeks}</span>
           <h1 className="text-lg sm:text-2xl font-light tracking-tight text-[#2D1B36] mt-1 truncate">
             {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {displayName} <span aria-hidden>🍼</span>
           </h1>
@@ -621,7 +622,7 @@ export default function PregnancyModePage() {
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={() => setIsNotificationOpen(true)}
-            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-all shadow-sm cursor-pointer"
+            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-[background-color,color] shadow-sm cursor-pointer"
             title="Reminders" aria-label="Reminders"
           >
             <Bell weight="duotone" className="w-5 h-5" />
@@ -676,6 +677,16 @@ export default function PregnancyModePage() {
           </div>
 
           {tab === "today" && (<>
+          {/* From 28 weeks the contraction timer sits on Today, where she'll look first */}
+          {weeks >= 28 && (
+            <div className={`${cardClass} md:col-span-12`}>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xl font-medium text-[#2D1B36]">Contraction timer</h3>
+            </div>
+            <p className="text-xs text-[#2D1B36]/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
+            <ContractionTimer weeks={weeks} />
+          </div>
+          )}
           {/* Top Hero Card - Week Progress & Baby Growth */}
           <div className={`${cardClass} md:col-span-12 flex flex-col justify-between`}>
             <div className="mb-8">
@@ -687,7 +698,7 @@ export default function PregnancyModePage() {
             <PregnancyWeekProgress weeks={weeks} />
             
             <div className="mt-10">
-              <h3 className="text-sm font-medium tracking-widest uppercase text-[#2D1B36]/60 mb-4">Baby Growth Timeline</h3>
+              <h3 className="text-sm font-medium text-[#2D1B36]/60 mb-4">Baby growth timeline</h3>
               <BabyGrowthTimeline weeks={weeks} />
             </div>
           </div>
@@ -716,12 +727,12 @@ export default function PregnancyModePage() {
           </div>
 
           {/* Growth & Movement Row */}
-          <div className={`${cardClass} md:col-span-6`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Weight Gain</h3>
-            <WeightGainChart data={logs} />
+          <div className={`${cardClass} md:col-span-12`}>
+            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Weight</h3>
+            <WeightTracker mode="pregnancy" logs={logs} weeks={weeks} />
           </div>
 
-          <div className={`${cardClass} md:col-span-6`}>
+          <div className={`${cardClass} md:col-span-12`}>
             <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Fetal Movement Count</h3>
             <BabyMovementChart data={logs} />
           </div>
@@ -778,6 +789,15 @@ export default function PregnancyModePage() {
           </>)}
 
           {tab === "care" && (<>
+          {weeks < 28 && (
+          <div className={`${cardClass} md:col-span-12`}>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xl font-medium text-[#2D1B36]">Contraction timer</h3>
+            </div>
+            <p className="text-xs text-[#2D1B36]/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
+            <ContractionTimer weeks={weeks} />
+          </div>
+          )}
           {/* Machine Learning Maternal Risk Assessment */}
           <div className={`${cardClass} md:col-span-6 border ${
             (mlPredictions.preeclampsia?.risk_level === "High" || mlPredictions.gdm?.risk_level === "High") 
@@ -792,8 +812,8 @@ export default function PregnancyModePage() {
                 <div>
                   <h3 className="text-xl font-medium text-[#2D1B36]">Maternal Risk Assessment</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                      <Brain weight="bold" className="w-3 h-3" /> Clinical Intelligence
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                      <Brain weight="bold" className="w-3 h-3" /> Clinical intelligence
                     </span>
                     <span className="text-[10px] text-[#2D1B36]/60">
                       {mlPredictions.isLoading ? "Evaluating..." : "Real-time health assessment"}
@@ -812,7 +832,7 @@ export default function PregnancyModePage() {
               <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#2D1B36]/60">Preeclampsia Risk</span>
+                    <span className="text-[11px] font-semibold text-[#2D1B36]/60">Preeclampsia risk</span>
                     {mlPredictions.preeclampsia && (
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         mlPredictions.preeclampsia.risk_level === "High" ? "bg-red-100 text-red-700" :
@@ -856,7 +876,7 @@ export default function PregnancyModePage() {
               <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#2D1B36]/60">Gestational Diabetes</span>
+                    <span className="text-[11px] font-semibold text-[#2D1B36]/60">Gestational diabetes</span>
                     {mlPredictions.gdm && (
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         mlPredictions.gdm.risk_level === "High" ? "bg-red-100 text-red-700" :
@@ -924,7 +944,7 @@ export default function PregnancyModePage() {
                       <button
                         type="button"
                         onClick={() => setExplainTab("preeclampsia")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer ${
                           explainTab === "preeclampsia" 
                             ? "bg-white text-[#2D1B36] shadow-sm" 
                             : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
@@ -935,7 +955,7 @@ export default function PregnancyModePage() {
                       <button
                         type="button"
                         onClick={() => setExplainTab("gdm")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer ${
                           explainTab === "gdm" 
                             ? "bg-white text-[#2D1B36] shadow-sm" 
                             : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
@@ -996,7 +1016,7 @@ export default function PregnancyModePage() {
             href="/doctor-summary?mode=pregnancy"
             className={`${cardClass} md:col-span-6 flex flex-col justify-center items-center text-center group cursor-pointer no-print print:hidden`}
           >
-            <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-500">
+            <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-[transform,box-shadow] duration-500">
               <FilePdf weight="duotone" className="w-8 h-8 text-[#2D1B36]" />
             </div>
             <h3 className="text-lg font-medium text-[#2D1B36]">Doctor Summary</h3>

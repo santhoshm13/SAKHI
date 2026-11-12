@@ -28,7 +28,7 @@ import SymptomRadar from "@/components/charts/SymptomRadar";
 import PainFlowCorrelation from "@/components/charts/PainFlowCorrelation";
 
 // --- KOKONUT STYLE HELPERS ---
-const cardClass = "bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-all duration-300 p-8 relative overflow-hidden";
+const cardClass = "bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-[border-color,box-shadow] duration-300 p-8 relative overflow-hidden";
 const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-6 flex flex-col justify-between";
 const iconWrapClass = "w-12 h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-4";
 
@@ -61,7 +61,7 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
-            <span className="text-sm font-medium tracking-widest uppercase text-[#2D1B36]/60">Cycle Intelligence</span>
+            <span className="text-sm font-medium text-[#2D1B36]/60">Cycle intelligence</span>
           </div>
           <h2 className="text-4xl font-light tracking-tight text-[#2D1B36]">Your Cycle Timeline</h2>
           <p className="text-[#2D1B36]/70 mt-4 max-w-md leading-relaxed">Mapping your hormonal rhythm based on your personalized data.</p>
@@ -113,7 +113,7 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
       <div className={`${cardClass} md:col-span-6`}>
         <div className="flex items-center justify-between mb-2">
           <div className={iconWrapClass}><Drop weight="duotone" className="w-6 h-6" /></div>
-          <span className="text-xs font-medium uppercase tracking-wider text-[#2D1B36]/40">Flow & Pain (Last 7 Days)</span>
+          <span className="text-xs font-medium text-[#2D1B36]/55">Flow &amp; pain (last 7 days)</span>
         </div>
         <h3 className="text-xl font-medium text-[#2D1B36]">Correlation History</h3>
         <PainFlowCorrelation logs={logs} />
@@ -122,7 +122,7 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
       <div className={`${cardClass} md:col-span-6`}>
         <div className="flex items-center justify-between mb-2">
           <div className={iconWrapClass}><Heartbeat weight="duotone" className="w-6 h-6" /></div>
-          <span className="text-xs font-medium uppercase tracking-wider text-[#2D1B36]/40">Symptom Tracking</span>
+          <span className="text-xs font-medium text-[#2D1B36]/55">Symptom tracking</span>
         </div>
         <h3 className="text-xl font-medium text-[#2D1B36]">Symptom Frequency</h3>
         <SymptomRadar logs={logs} />
@@ -154,7 +154,7 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
       </div>
 
       <div className={`${cardClass} md:col-span-4 flex flex-col justify-center items-center text-center group cursor-pointer`}>
-        <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-500">
+        <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-[transform,box-shadow] duration-500">
           <FilePdf weight="duotone" className="w-8 h-8 text-[#2D1B36]" />
         </div>
         <h3 className="text-lg font-medium text-[#2D1B36]">Doctor Summary</h3>
@@ -178,7 +178,7 @@ function PregnancyDashboard() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-sm font-medium tracking-widest uppercase text-[#2D1B36]/60">Pregnancy Journey</span>
+            <span className="text-sm font-medium text-[#2D1B36]/60">Pregnancy journey</span>
           </div>
           <h2 className="text-4xl font-light tracking-tight text-[#2D1B36]">Week 24 <span className="text-[#2D1B36]/40">· Trimester 2</span></h2>
           <p className="text-[#2D1B36]/70 mt-4 max-w-md leading-relaxed">Your little one is the size of a cantaloupe. They are beginning to hear sounds from the outside world! 🍈</p>
@@ -217,7 +217,7 @@ function PregnancyDashboard() {
         </div>
         <div className="mt-8">
           <p className="text-5xl font-medium tracking-tighter">Nov 12</p>
-          <p className="text-xs text-white/50 uppercase tracking-wider mt-2">in 8 days</p>
+          <p className="text-xs text-white/60 mt-2">In 8 days</p>
         </div>
       </div>
 
@@ -388,17 +388,17 @@ export default function Dashboard() {
           <div>
             <h1 className="text-2xl font-light tracking-tight text-[#2D1B36] flex items-center gap-2">
               Good morning, {displayName} 
-              <span className="inline-block hover:rotate-12 hover:scale-110 cursor-pointer transition-all duration-300">🌸</span>
+              <span className="inline-block hover:rotate-12 hover:scale-110 cursor-pointer transition-transform duration-300">🌸</span>
             </h1>
             <p className="text-sm text-[#2D1B36]/50 mt-1">Your daily wellness summary.</p>
           </div>
         </div>
         
         <div className="hidden sm:flex items-center gap-3">
-          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all hover:scale-105 active:scale-95 shadow-sm">
+          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
             <Bell weight="duotone" className="w-5 h-5" />
           </button>
-          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all hover:scale-105 active:scale-95 shadow-sm">
+          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
             <GearSix weight="duotone" className="w-5 h-5" />
           </button>
         </div>

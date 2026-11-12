@@ -17,8 +17,8 @@ export function FeatureBento() {
     <section className="relative px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <p className="mb-4 text-xs uppercase tracking-[0.18em] text-ink-soft">
-            one system, five senses
+          <p className="mb-4 text-xs font-medium text-ink-soft">
+            One system, five senses
           </p>
         </Reveal>
         <Reveal delay={0.08}>
@@ -193,15 +193,16 @@ function Waveform({ reduce }: { reduce: boolean }) {
     <div className="mt-5 flex h-10 items-end gap-1" aria-hidden>
       {Array.from({ length: bars }).map((_, i) => {
         const base = 30 + Math.sin(i * 0.7) * 25 + ((i * 7) % 20);
+        const peakRatio = Math.min(95, base + 25) / base;
         return (
           <motion.span
             key={i}
             className="flex-1 rounded-full bg-gradient-to-t from-lavender-400 to-blush-300"
             animate={
               reduce
-                ? { height: `${base}%` }
+                ? { scaleY: 1 }
                 : {
-                    height: [`${base}%`, `${Math.min(95, base + 25)}%`, `${base}%`],
+                    scaleY: [1, peakRatio, 1],
                   }
             }
             transition={{
@@ -210,7 +211,7 @@ function Waveform({ reduce }: { reduce: boolean }) {
               ease: "easeInOut",
               delay: i * 0.05,
             }}
-            style={{ height: `${base}%` }}
+            style={{ height: `${base}%`, transformOrigin: "bottom" }}
           />
         );
       })}

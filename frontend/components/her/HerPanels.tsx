@@ -42,27 +42,62 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
   );
 }
 
-export function PhaseCard({ info, onPeriodStarted, saving }: { info: PhaseInfo; onPeriodStarted: () => void; saving?: boolean }) {
+/** Plain-language line for unusual cycle situations (long period, early end, late). */
+function statusNote(info: PhaseInfo): { text: string; tone: "info" | "watch" } | null {
+  if (info.status === "long-period" && info.bleedingDay) {
+    const d = info.bleedingDay;
+    if (d >= 10) return { tone: "watch", text: `Day ${d} of bleeding. Bleeding for more than a week is worth a call to your doctor, sooner if it is heavy or you feel dizzy.` };
+    if (d >= 8) return { tone: "watch", text: `Day ${d} of bleeding, longer than your usual ${info.usualPeriodLength} days. Keep logging; if it goes past 10 days or gets heavy, check in with a doctor.` };
+    return { tone: "info", text: `Day ${d} of bleeding, a little longer than your usual ${info.usualPeriodLength} days. Sakhi has moved your phases back to match.` };
+  }
+  if (info.status === "period-ended-early") {
+    return { tone: "info", text: `Your period finished earlier than usual, so your follicular phase has started.` };
+  }
+  if (info.status === "very-late") {
+    return { tone: "watch", text: `Your period is ${info.daysLate} days later than expected. Stress, travel, illness or weight changes can delay it. If there is any chance of pregnancy, take a home test; if periods stop for 3 months, see a doctor.` };
+  }
+  if (info.status === "late") {
+    return { tone: "info", text: info.daysLate >= 7
+      ? `Cycles vary, and stress or illness can delay a period. If there is any chance you could be pregnant, a home test is a simple next step.`
+      : `A few days late is common. Tap below when it starts, or tell Sakhi in chat.` };
+  }
+  return null;
+}
+
+const localIso = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+export function PhaseCard({ info, onPeriodStarted, saving }: { info: PhaseInfo; onPeriodStarted: (date?: string) => void; saving?: boolean }) {
   const meta = PHASE_META[info.phase];
   const guide = PHASE_GUIDE[info.phase];
   const next = PHASE_META[info.nextPhase];
+  const note = statusNote(info);
+  const [pickDate, setPickDate] = useState(false);
+  const [date, setDate] = useState(localIso());
+  const title = info.status === "very-late" ? "Waiting for your period"
+    : info.late ? "Period running late"
+    : info.status === "long-period" ? `Period, day ${info.bleedingDay}`
+    : meta.label;
+  const showStart = info.late || info.phase === "luteal" || info.bleedingMismatch;
   return (
     <section className={`${panelCard} md:col-span-7`} aria-labelledby="phase-title">
       <div className="flex flex-col sm:flex-row gap-6 sm:items-center">
         <PhaseRing info={info} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-[#2D1B36]/50">Today</span>
+            <span className="text-xs font-medium text-[#2D1B36]/55">Today</span>
             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${CONF_CLS[info.confidence]}`} title={info.confidenceReason}>{CONF_LABEL[info.confidence]}</span>
+            {info.learned && <span className="text-[11px] text-[#2D1B36]/50">Learned from your logs</span>}
           </div>
-          <h2 id="phase-title" className={`text-3xl font-light tracking-tight mt-1 ${meta.color}`}>
-            {info.late ? "Period running late" : meta.label}
-          </h2>
+          <h2 id="phase-title" className={`text-3xl font-light tracking-tight mt-1 ${meta.color}`}>{title}</h2>
           <p className="text-sm text-[#2D1B36]/75 mt-2 leading-relaxed">{guide.hormones} {guide.feel}</p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             {info.late ? (
               <span className="px-3 py-1.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-                {info.daysLate} day{info.daysLate === 1 ? "" : "s"} past your usual cycle
+                Expected {info.daysLate} day{info.daysLate === 1 ? "" : "s"} ago
+              </span>
+            ) : info.status === "long-period" ? (
+              <span className="px-3 py-1.5 rounded-full bg-white/80 border border-[#2D1B36]/10 text-[#2D1B36]/75">
+                Follicular phase starts when bleeding stops
               </span>
             ) : (
               <>
@@ -75,16 +110,31 @@ export function PhaseCard({ info, onPeriodStarted, saving }: { info: PhaseInfo; 
               </>
             )}
           </div>
+          {note && (
+            <p className={`text-xs mt-3 rounded-xl px-3 py-2 ${note.tone === "watch" ? "bg-amber-50 text-amber-800 border border-amber-200" : "bg-white/70 text-[#2D1B36]/70 border border-[#2D1B36]/10"}`}>{note.text}</p>
+          )}
           <p className="text-xs text-[#2D1B36]/50 mt-3 flex items-start gap-1.5"><Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />{info.confidenceReason}</p>
-          {info.late && info.daysLate >= 7 && (
-            <p className="text-xs text-[#2D1B36]/70 mt-2">Cycles vary, and stress or illness can delay a period. If there is any chance you could be pregnant, a home test is a simple next step.</p>
-          )}
-          {(info.bleedingMismatch || info.late || info.phase === "luteal") && (
-            <button onClick={onPeriodStarted} disabled={saving}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium px-4 py-2 cursor-pointer disabled:opacity-60">
-              <Drop weight="fill" className="w-4 h-4" /> {saving ? "Saving…" : info.bleedingMismatch ? "Looks like your period started. Confirm?" : "My period started today"}
-            </button>
-          )}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {showStart && (
+              <button onClick={() => onPeriodStarted()} disabled={saving}
+                className="inline-flex items-center gap-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium px-4 py-2 cursor-pointer disabled:opacity-60">
+                <Drop weight="fill" className="w-4 h-4" /> {saving ? "Saving…" : info.bleedingMismatch ? "Looks like your period started. Confirm?" : "My period started today"}
+              </button>
+            )}
+            {!pickDate ? (
+              <button onClick={() => setPickDate(true)} className="text-xs font-medium text-[#2D1B36]/60 hover:text-[#2D1B36] underline underline-offset-2 cursor-pointer">
+                Started on another day?
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-2">
+                <label htmlFor="period-start-date" className="sr-only">Period start date</label>
+                <input id="period-start-date" type="date" value={date} max={localIso()} onChange={e => setDate(e.target.value)}
+                  className="rounded-full border border-[#2D1B36]/15 bg-white px-3 py-1.5 text-xs text-[#2D1B36]" />
+                <button onClick={() => { onPeriodStarted(date); setPickDate(false); }} disabled={saving || !date}
+                  className="rounded-full bg-[#2D1B36] text-white text-xs font-medium px-3 py-1.5 cursor-pointer disabled:opacity-60">Save</button>
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -102,7 +152,7 @@ export function TodayTipsCard({ tips, adapted }: { tips: Tip[]; adapted: boolean
     <section className={`${panelCard} md:col-span-12`} aria-labelledby="tips-title">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#2D1B36]/50">For you today</p>
+          <p className="text-xs font-medium text-[#2D1B36]/55">For you today</p>
           <h2 id="tips-title" className="text-xl font-medium text-[#2D1B36] mt-0.5">Small things that fit this phase</h2>
         </div>
         {adapted && <span className="text-xs text-[#2D1B36]/60 flex items-center gap-1"><Lightning className="w-3.5 h-3.5" />Adjusted to how you said you feel</span>}
@@ -115,7 +165,7 @@ export function TodayTipsCard({ tips, adapted }: { tips: Tip[]; adapted: boolean
             <article key={t.id} className="rounded-2xl bg-white/75 border border-pink-100 p-4">
               <div className="flex items-center gap-2">
                 <span className={`w-8 h-8 rounded-full flex items-center justify-center ${k.cls}`}><I weight="duotone" className="w-4 h-4" /></span>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D1B36]/50">{k.label}</span>
+                <span className="text-xs font-semibold text-[#2D1B36]/60">{k.label}</span>
               </div>
               <h3 className="mt-3 font-semibold text-[#2D1B36]">{t.title}</h3>
               <p className="mt-1 text-sm text-[#2D1B36]/70 leading-relaxed">{t.text}</p>

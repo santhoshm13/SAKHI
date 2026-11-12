@@ -27,16 +27,15 @@ export function Reveal({
   const reduce = useReducedMotion();
 
   const variants: Variants = {
-    hidden: reduce ? { opacity: 0 } : { opacity: 0, y, filter: "blur(6px)" },
+    hidden: reduce ? { opacity: 0 } : { opacity: 0, y },
     visible: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
         type: "spring",
-        stiffness: 90,
-        damping: 18,
-        mass: 0.9,
+        stiffness: 110,
+        damping: 20,
+        mass: 0.85,
         delay,
       },
     },
@@ -48,7 +47,7 @@ export function Reveal({
       variants={variants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount: 0.25 }}
+      viewport={{ once, amount: 0.18 }}
     >
       {children}
     </motion.div>
@@ -90,11 +89,10 @@ export function RevealGroup({
 }
 
 export const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
-    transition: { type: "spring", stiffness: 90, damping: 18, mass: 0.9 },
+    transition: { type: "spring", stiffness: 110, damping: 20, mass: 0.85 },
   },
 };

@@ -20,7 +20,7 @@ import { randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { authOptions } from '@/lib/auth';
-import { getPool } from '@/lib/db';
+import { getPool, isConnectionError, markDbUnavailable } from '@/lib/db';
 
 export type DocKind =
   | 'her_profile'
@@ -33,13 +33,20 @@ export type DocKind =
   | 'appointments_month'
   | 'notifications'
   | 'consent'
-  | 'relief_feedback';
+  | 'relief_feedback'
+  | 'chat_her'
+  | 'chat_mom'
+  | 'ai_usage'
+  | 'weight_log';
 
 export const ALL_KINDS: DocKind[] = [
   'her_profile', 'daily_logs', 'cycle_history', 'preg_profile', 'pregnancy_logs',
   'pregnancy_nutrition', 'pregnancy_appointments', 'appointments_month', 'notifications', 'consent',
-  'relief_feedback',
+  'relief_feedback', 'chat_her', 'chat_mom', 'ai_usage', 'weight_log',
 ];
+
+/** Kinds too large for a 4 KB cookie; without Postgres/file storage the browser keeps them. */
+const NO_COOKIE: ReadonlySet<DocKind> = new Set(['chat_her', 'chat_mom']);
 
 const YEAR = 60 * 60 * 24 * 365;
 const GUEST_COOKIE = 'sakhi_guest_id';
@@ -173,6 +180,7 @@ async function ensureTable() {
       .then(() => undefined)
       .catch((err) => {
         tableReady = null;
+        markDbUnavailable(err);
         throw err;
       });
   }
@@ -242,6 +250,7 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
     }
     return fallback;
   } catch (err: any) {
+    if (isConnectionError(err)) markDbUnavailable(err);
     console.error(`[store] read ${kind} failed:`, err?.message);
     return parse(legacy, fallback);
   }
@@ -265,13 +274,16 @@ export async function writeDoc<T>(kind: DocKind, value: T, owner?: Owner): Promi
       );
       return;
     } catch (err: any) {
-      console.error(`[store] write ${kind} failed, using cookie fallback:`, err?.message);
+      if (isConnectionError(err)) markDbUnavailable(err);
+      console.error(`[store] write ${kind} failed, using fallback:`, err?.message);
+      pool = null;
     }
   }
   if (!pool && (await fileBackendUsable())) {
     await fileBackend.set(who, kind, value);
     return;
   }
+  if (NO_COOKIE.has(kind)) return;
   const store = await cookies();
   const serialized = JSON.stringify(value ?? null);
   if (serialized.length > 3800) {

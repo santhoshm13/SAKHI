@@ -160,8 +160,8 @@ export function Architecture() {
           className="mb-20 text-center"
         >
           <motion.div variants={item} className="mb-6 flex justify-center">
-            <span className="rounded-full bg-black/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-plum-900">
-              System Architecture
+            <span className="rounded-full bg-black/5 px-4 py-1.5 text-xs font-medium text-plum-900">
+              System architecture
             </span>
           </motion.div>
           <motion.h2
@@ -323,7 +323,7 @@ function Core({
       {/* Central node */}
       <div className="relative z-10 flex h-24 w-24 flex-col items-center justify-center rounded-full border border-lavender-100 bg-white shadow-[0_0_50px_rgba(195,163,228,0.6)]">
         <FlowerLotus size={36} weight="light" className="text-lavender-600" />
-        <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-lavender-600">
+        <span className="mt-1 text-[11px] font-semibold text-lavender-600">
           Local
         </span>
       </div>
@@ -375,7 +375,7 @@ function ParallaxCard({
     >
       {/* Decorative internal glow */}
       <div
-        className={`absolute -right-12 -top-12 h-24 w-24 rounded-full bg-gradient-to-br ${engine.glow} opacity-10 blur-xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-30`}
+        className={`absolute -right-12 -top-12 h-24 w-24 rounded-full bg-gradient-to-br ${engine.glow} opacity-10 blur-xl transition-[transform,opacity] duration-500 group-hover:scale-125 group-hover:opacity-30`}
       />
 
       <div style={{ transform: "translateZ(30px)" }}>
@@ -400,7 +400,7 @@ function ParallaxCard({
         className="mt-4 flex items-center justify-between border-t border-plum-700/5 pt-3 text-[11px] font-medium text-lavender-600/80"
       >
         <span>Encrypted · On-device</span>
-        <span className="translate-x-0 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
+        <span className="translate-x-0 opacity-0 transition-[transform,opacity] duration-300 group-hover:translate-x-1 group-hover:opacity-100">
           Inspect →
         </span>
       </div>

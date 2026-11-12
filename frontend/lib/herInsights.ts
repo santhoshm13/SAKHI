@@ -6,7 +6,7 @@
  *  - pmsForecast: symptoms that tend to show up in the days before her period
  */
 import {
-  PHASES, PHASE_META, dayNum, detectPeriodStarts, isBleedingLog, phaseForDay, recentCycleLengths, todayNum,
+  PHASES, PHASE_META, bleedingRuns, dayNum, detectPeriodStarts, isBleedingLog, phaseForDay, recentCycleLengths, todayNum,
   type Phase,
 } from './cyclePhase';
 
@@ -92,6 +92,36 @@ export function patternsWorthMentioning(profile: any, logs: any[], cycleHistory:
         + (tired >= 5 ? 'You also often feel tired, which can go together with low iron.' : ''),
       evidence: 'Last 4 months of check-ins',
       ask: 'Ask whether a blood count or iron (ferritin) test would be useful.',
+    });
+  }
+
+  // Periods that keep running past a week
+  const runs = bleedingRuns(logs).filter(r => r.end < todayNum() - 1 && r.start >= todayNum() - 180);
+  const longRuns = runs.filter(r => r.end - r.start + 1 > 7);
+  if (longRuns.length >= 2 && !longPeriod) {
+    out.push({
+      id: 'long-periods', tone: 'watch',
+      title: 'Periods often last more than a week',
+      detail: `${longRuns.length} of your last ${runs.length} periods lasted ${longRuns.map(r => r.end - r.start + 1).join(', ')} days.`,
+      evidence: 'Bleeding days from your check-ins',
+      ask: 'Ask whether long periods need a check, and whether an iron test would help.',
+    });
+  }
+
+  // Spotting away from her period
+  const between = recent.filter(l => {
+    if (String(l.flow_intensity || '').toLowerCase() !== 'spotting') return false;
+    const d = dayNum(l.log_date);
+    return !runs.concat(bleedingRuns(logs)).some(r => d >= r.start - 2 && d <= r.end + 2);
+  });
+  const spottingCycles = new Set(between.map(l => starts.filter(s => s <= dayNum(l.log_date)).pop() ?? 'x'));
+  if (between.length >= 3 && spottingCycles.size >= 2) {
+    out.push({
+      id: 'spotting-between', tone: 'info',
+      title: 'Spotting between periods',
+      detail: `You logged spotting on ${between.length} days away from your period, across ${spottingCycles.size} cycles. Light spotting around ovulation can be normal.`,
+      evidence: 'Last 4 months of check-ins',
+      ask: 'Mention when the spotting happens; a doctor may suggest a routine check.',
     });
   }
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight, ShieldCheck, DownloadSimple, Trash } from '@phosphor-icons/react';
+import { VOICE_LANGS, VOICE_LANG_KEY, getVoiceLang, speak } from '@/lib/voice';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -18,14 +19,37 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [voiceLang, setVoiceLang] = useState('en-IN');
+  const [privateMode, setPrivateMode] = useState(false);
+  const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setFormData(currentData || {});
       const storedVoice = localStorage.getItem('sakhi_voice_enabled');
       setVoiceEnabled(storedVoice !== 'false');
+      setVoiceLang(getVoiceLang());
+      setPrivacyMsg(null);
+      fetch('/api/consent').then(r => r.json()).then(d => setPrivateMode(d?.consent?.privateMode === true)).catch(() => {});
     }
   }, [isOpen, currentData]);
+
+  const togglePrivateMode = async () => {
+    const next = !privateMode;
+    setPrivateMode(next);
+    try {
+      const res = await fetch('/api/consent', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ privateMode: next }),
+      });
+      if (!res.ok) throw new Error();
+      setPrivacyMsg(next ? 'Private mode on. Chats stay off Google.' : 'Private mode off.');
+    } catch {
+      setPrivateMode(!next);
+      setPrivacyMsg('Could not change private mode. Please try again.');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -136,6 +160,32 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     <div className={`w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-white shadow-sm transition-transform ${voiceEnabled ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'}`} />
                   </button>
                 </div>
+                <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
+                  <div className="min-w-0">
+                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-[#2D1B36]">Voice &amp; accent</label>
+                    <p className="text-xs sm:text-sm text-[#2D1B36]/60">Used for Sakhi&apos;s voice and for understanding you.</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <select
+                      id="voice-lang"
+                      value={voiceLang}
+                      onChange={e => {
+                        setVoiceLang(e.target.value);
+                        try { localStorage.setItem(VOICE_LANG_KEY, e.target.value); } catch { /* ignore */ }
+                      }}
+                      className="rounded-xl border border-black/10 bg-white px-2 py-2 text-sm text-[#2D1B36] focus:ring-2 focus:ring-pink-300 outline-none"
+                    >
+                      {VOICE_LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => speak(`Hi ${formData.preferred_name || 'dear'}, this is how I sound.`)}
+                      className="rounded-xl border border-pink-200 px-2.5 py-2 text-xs font-medium text-pink-700 hover:bg-pink-50"
+                    >
+                      Test
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Profile Data - Only Name can be changed */}
@@ -186,7 +236,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                       document.cookie = `sakhi_active_mode=${activeTarget}; path=/; max-age=31536000`;
                       router.push(`/onboarding?mode=${targetMode}&switch=true`);
                     }}
-                    className="w-full py-3 sm:py-3.5 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-all shadow-md flex items-center justify-center gap-2.5 cursor-pointer group text-sm sm:text-base"
+                    className="w-full py-3 sm:py-3.5 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-[background-color,box-shadow,transform] shadow-md flex items-center justify-center gap-2.5 cursor-pointer group text-sm sm:text-base"
                   >
                     <Baby weight="bold" className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     <span className="tracking-wide">
@@ -201,6 +251,23 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     <ShieldCheck weight="duotone" className="w-5 h-5 text-pink-500" />
                     <h3 className="font-semibold text-[#2D1B36] text-sm sm:text-base">Privacy &amp; your data</h3>
                   </div>
+                  <div className="flex items-center justify-between gap-3 mb-3 p-3 rounded-xl bg-pink-50/60 border border-pink-100">
+                    <div>
+                      <p className="font-medium text-sm text-[#2D1B36]">Private mode</p>
+                      <p className="text-xs text-[#2D1B36]/60">Chats are never sent to Google. Sakhi uses a private model if one is set up, otherwise simple mode.</p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={privateMode}
+                      aria-label="Private mode"
+                      onClick={togglePrivateMode}
+                      className={`shrink-0 w-12 h-7 rounded-full p-1 transition-colors ${privateMode ? 'bg-pink-500' : 'bg-gray-200'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${privateMode ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                  {privacyMsg && <p className="text-xs text-[#2D1B36]/70 mb-3" aria-live="polite">{privacyMsg}</p>}
                   <p className="text-xs sm:text-sm text-[#2D1B36]/60 mb-3">
                     Download a copy of everything Sakhi stores about you, or permanently delete it.
                   </p>

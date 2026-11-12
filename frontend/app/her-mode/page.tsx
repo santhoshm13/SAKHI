@@ -15,7 +15,6 @@ import {
   FlowIntensityChart,
   OvulationCalendar,
   PainTrendChart,
-  WeightTrendChart,
   SleepHoursChart,
 } from "@/components/charts/DashboardCharts";
 import SettingsModal from "@/components/SettingsModal";
@@ -28,8 +27,14 @@ import {
 import { useHerNotifications } from "@/hooks/useHerNotifications";
 import HerNotificationCenter from "@/components/HerNotificationCenter";
 import { computePhase, dayNum, todayNum } from "@/lib/cyclePhase";
+import WeightTracker from "@/components/WeightTracker";
 import { contextFromLog, tipsForToday } from "@/lib/phaseTips";
 import { patternsWorthMentioning, phaseHighlights, phaseStats, pmsForecast } from "@/lib/herInsights";
+
+const localTodayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 
 type HerTab = "today" | "cycle" | "insights" | "care";
 const TAB_IDS = ["today", "cycle", "insights", "care"] as const;
@@ -124,10 +129,10 @@ export default function HerModePage() {
 
   useEffect(() => {
     if (isCheckingData) return;
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = localTodayStr();
     let last: string | null = null;
     try { last = localStorage.getItem("sakhi_last_checkin"); } catch {}
-    const loggedToday = logs.some(l => String(l.log_date || "").slice(0, 10) === todayStr);
+    const loggedToday = logs.some(l => dayNum(l.log_date) === todayNum());
     if (last !== todayStr && !loggedToday) {
       setShowCheckIn(true);
       setAiState("talking");
@@ -169,17 +174,36 @@ export default function HerModePage() {
 
   const handleCheckInComplete = async (data: any) => {
     setAiState("thinking");
+    const todayStr = localTodayStr();
+    const isPeriod =
+      data.onPeriod === true ||
+      String(data.onPeriod || "").toLowerCase() === "yes" ||
+      (Boolean(data.flowIntensity) && data.flowIntensity !== "None");
     const newLog = {
-      log_date: new Date().toISOString(),
-      flow_intensity: data.flowIntensity,
-      cramps_severity: data.crampsSeverity,
-      symptoms: data.symptoms,
+      log_date: todayStr,
+      on_period: isPeriod,
+      flow_intensity: data.flowIntensity || "None",
+      cramps_severity: Number(data.crampsSeverity ?? 0),
+      symptoms: Array.isArray(data.symptoms) && data.symptoms.length > 0 ? data.symptoms : ["None"],
+      mood: data.mood || "Calm",
+      sleep_hours: data.sleepHours !== undefined && data.sleepHours !== null ? Number(data.sleepHours) : 7.5,
+      ...(data.weight !== undefined && data.weight !== null ? { weight: Number(data.weight) } : {}),
     };
     setLogs(prev => [...prev.filter(l => dayNum(l.log_date) !== todayNum()), newLog]);
     try {
-      await fetch("/api/daily-log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newLog) });
-      try { localStorage.setItem("sakhi_last_checkin", new Date().toISOString().split("T")[0]); } catch {}
-      fetchDashboardData();
+      const res = await fetch("/api/daily-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newLog),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        if (saved?.log) {
+          setLogs(prev => [...prev.filter(l => dayNum(l.log_date) !== todayNum()), saved.log]);
+        }
+      }
+      try { localStorage.setItem("sakhi_last_checkin", todayStr); } catch {}
+      await fetchDashboardData();
     } catch (e) {
       console.error(e);
     }
@@ -199,6 +223,8 @@ export default function HerModePage() {
       else if (newLog.sleep_hours) setPulsingChart("sleep");
       // Strong pain mentioned in chat: offer the relief toolkit straight away
       if (Number(newLog.cramps_severity) >= 7) openRelief(Number(newLog.cramps_severity));
+      // Bleeding after a gap was recorded as a new period start on the server
+      if (data.cycleUpdate) handleChartUpdate(data.cycleUpdate);
     } else if (data.type === "cycle_history_update") {
       if (data.cycleHistory) setCycleHistory(data.cycleHistory);
       if (data.profile) setProfile((prev: any) => ({ ...prev, ...data.profile }));
@@ -210,11 +236,13 @@ export default function HerModePage() {
     setTimeout(() => setPulsingChart(null), 3500);
   };
 
-  const markPeriodStarted = async () => {
+  const markPeriodStarted = async (date?: string) => {
     setSavingPeriod(true);
     try {
-      const res = await fetch("/api/period-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      // Always send her local date: the server runs on UTC, which is behind India until 5:30 am
+      const res = await fetch("/api/period-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: date || localTodayStr() }) });
       const d = await res.json();
+      if (!res.ok) { alert(d.error || "Couldn't save your period start. Please try again."); return; }
       if (d.chartData) handleChartUpdate(d.chartData);
       await fetchDashboardData();
     } finally {
@@ -223,14 +251,14 @@ export default function HerModePage() {
   };
 
   const pendingReminders = (reminders || []).filter(r => r.status === "upcoming").length;
-  const headerBtn = "relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-all shadow-sm cursor-pointer";
+  const headerBtn = "relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-[background-color,color] shadow-sm cursor-pointer";
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
       <ConsentGate />
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-3 print:hidden">
         <div className="min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200/60">Her Mode</span>
+          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200/60">Her mode</span>
           <h1 className="text-lg sm:text-2xl font-light tracking-tight text-[#2D1B36] mt-1 truncate">
             {greeting}, {displayName} <span aria-hidden>🌸</span>
           </h1>
@@ -256,6 +284,16 @@ export default function HerModePage() {
             defaultOpen={showCheckIn}
             onChartUpdate={handleChartUpdate}
             profileName={displayName}
+            checkInContext={{
+              phase: phase.phase,
+              status: phase.status,
+              cycleDay: phase.cycleDay,
+              bleedingDay: phase.bleedingDay,
+              usualPeriodLength: phase.usualPeriodLength,
+              daysUntilPeriod: phase.daysUntilPeriod,
+              late: phase.late,
+              daysLate: phase.daysLate,
+            }}
           />
         </div>
 
@@ -293,7 +331,7 @@ export default function HerModePage() {
               <ChartCard title="Mood across your cycle" active={pulsingChart === "mood"} glow="rgba(99,102,241,0.4)"><MoodCycleChart data={logs} /></ChartCard>
               <ChartCard title="Pain trend" active={pulsingChart === "pain"} glow="rgba(244,63,94,0.5)"><PainTrendChart data={logs} /></ChartCard>
               <ChartCard title="Sleep hours" active={pulsingChart === "sleep"} glow="rgba(139,92,246,0.4)"><SleepHoursChart data={logs} /></ChartCard>
-              <ChartCard title="Weight trend" span={12}><WeightTrendChart data={logs} /></ChartCard>
+              <ChartCard title="Weight" span={12}><WeightTracker mode="her" logs={logs} /></ChartCard>
             </>
           )}
 

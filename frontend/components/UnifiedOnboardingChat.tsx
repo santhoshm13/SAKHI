@@ -210,7 +210,7 @@ export default function UnifiedOnboardingChat() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Type your name..."
-            className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-3 text-sm text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-lavender-400 shadow-sm mb-3"
+            className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-3 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 shadow-sm mb-3"
           />
           <button
             onClick={() => { if(name.trim()) setStep(1); }}
@@ -229,7 +229,7 @@ export default function UnifiedOnboardingChat() {
         <div className="mt-4 flex flex-col gap-3 w-full">
           <button
             onClick={() => { setMode("her"); setStep(2); }}
-            className="flex items-center gap-4 w-full bg-white hover:bg-blush-50 border border-blush-200 p-4 rounded-xl shadow-sm transition-all text-left cursor-pointer"
+            className="flex items-center gap-4 w-full bg-white hover:bg-blush-50 border border-blush-200 p-4 rounded-xl shadow-sm transition-colors text-left cursor-pointer"
           >
             <div className="bg-blush-100 p-2 rounded-full"><Flower size={24} weight="fill" className="text-blush-500" /></div>
             <div>
@@ -240,7 +240,7 @@ export default function UnifiedOnboardingChat() {
           
           <button
             onClick={() => { setMode("mom"); setStep(2); }}
-            className="flex items-center gap-4 w-full bg-white hover:bg-lavender-50 border border-lavender-200 p-4 rounded-xl shadow-sm transition-all text-left cursor-pointer"
+            className="flex items-center gap-4 w-full bg-white hover:bg-lavender-50 border border-lavender-200 p-4 rounded-xl shadow-sm transition-colors text-left cursor-pointer"
           >
             <div className="bg-lavender-100 p-2 rounded-full"><Baby size={24} weight="fill" className="text-lavender-500" /></div>
             <div>
@@ -268,7 +268,7 @@ export default function UnifiedOnboardingChat() {
               max={todayStr}
               value={lastPeriodDate}
               onChange={(e) => setLastPeriodDate(e.target.value)}
-              className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-2.5 text-sm text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-blush-400 cursor-pointer"
+              className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-2.5 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blush-400 cursor-pointer"
             />
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="text-xs text-[#2D1B36]/60 self-center">Quick options:</span>
@@ -378,7 +378,7 @@ export default function UnifiedOnboardingChat() {
               setCycleRegularity("Regular");
               setStep(6);
             }}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+            className={`p-3.5 rounded-xl border text-left transition-[background-color,border-color,box-shadow] cursor-pointer ${
               cycleRegularity === "Regular"
                 ? "bg-blush-50 border-blush-400 text-plum-900 font-semibold shadow-sm"
                 : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50/50"
@@ -394,7 +394,7 @@ export default function UnifiedOnboardingChat() {
               setCycleRegularity("Irregular");
               setStep(6);
             }}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+            className={`p-3.5 rounded-xl border text-left transition-[background-color,border-color,box-shadow] cursor-pointer ${
               cycleRegularity === "Irregular"
                 ? "bg-blush-50 border-blush-400 text-plum-900 font-semibold shadow-sm"
                 : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50/50"
@@ -432,7 +432,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleCondition("PCOS")}
-                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
                   hasPcos ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
                 }`}
               >
@@ -442,7 +442,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleCondition("Thyroid disorder")}
-                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
                   hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
                 }`}
               >
@@ -452,7 +452,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleCondition("None")}
-                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
                   isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
                 }`}
               >
@@ -528,7 +528,7 @@ export default function UnifiedOnboardingChat() {
                 setPregnancyExperience(opt.label);
                 setStep(4);
               }}
-              className="p-3.5 rounded-xl border bg-white hover:bg-lavender-50 border-lavender-200 text-left transition-all cursor-pointer flex flex-col shadow-sm"
+              className="p-3.5 rounded-xl border bg-white hover:bg-lavender-50 border-lavender-200 text-left transition-colors cursor-pointer flex flex-col shadow-sm"
             >
               <span className="text-sm font-semibold text-plum-900">{opt.label}</span>
               <span className="text-xs text-ink-soft">{opt.sub}</span>
@@ -554,7 +554,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleMaternalCondition("High Blood Pressure / Hypertension")}
-                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
                   hasHypertension ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
                 }`}
               >
@@ -568,7 +568,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleMaternalCondition("Gestational Diabetes")}
-                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
                   hasDiabetes ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
                 }`}
               >
@@ -582,7 +582,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleMaternalCondition("Thyroid Condition")}
-                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
                   hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
                 }`}
               >
@@ -596,7 +596,7 @@ export default function UnifiedOnboardingChat() {
               <button
                 type="button"
                 onClick={() => toggleMaternalCondition("None")}
-                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
                   isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
                 }`}
               >
@@ -612,7 +612,7 @@ export default function UnifiedOnboardingChat() {
               type="button"
               onClick={() => handleMomModeSubmit()}
               disabled={maternalConditions.length === 0 || isSubmitting}
-              className="px-6 py-2.5 rounded-full bg-plum-900 text-white text-sm font-medium self-end flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-md hover:shadow-lg transition-all"
+              className="px-6 py-2.5 rounded-full bg-plum-900 text-white text-sm font-medium self-end flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-md hover:shadow-lg transition-[background-color,box-shadow]"
             >
               <CheckCircle weight="bold" /> Complete Setup
             </button>

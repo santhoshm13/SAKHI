@@ -50,10 +50,34 @@ export function detectPeriodStarts(logs: any[], profileStart?: string | null): n
     if (d - prev > 10) starts.push(d);
     prev = d;
   }
+  // The saved start is what she told us (onboarding, "my period started", the
+  // confirm button). A rough earlier date within 10 days of a logged start is
+  // treated as the same period, but a LATER confirmed start always counts, even
+  // if bleeding was logged a few days before it.
   const p = profileStart ? dayNum(profileStart) : NaN;
-  if (!isNaN(p) && !starts.some(s => Math.abs(s - p) <= 10)) starts.push(p);
+  if (!isNaN(p) && !starts.some(s => Math.abs(s - p) <= 2 || (s > p && s - p <= 10))) starts.push(p);
   return starts.sort((a, b) => a - b);
 }
+
+/** Runs of bleeding days (a 1-day gap is allowed; spotting does not count). */
+export function bleedingRuns(logs: any[]): { start: number; end: number }[] {
+  const days = Array.from(new Set(
+    (logs || []).filter(isBleedingLog).map(l => dayNum(l.log_date)).filter(n => !isNaN(n))
+  )).sort((a, b) => a - b);
+  const runs: { start: number; end: number }[] = [];
+  for (const d of days) {
+    const last = runs[runs.length - 1];
+    if (last && d - last.end <= 2) last.end = d;
+    else runs.push({ start: d, end: d });
+  }
+  return runs;
+}
+
+const median = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+};
 
 export interface PhaseBounds {
   periodLength: number;
@@ -88,8 +112,23 @@ export function phaseOnCycleDay(cycleDay: number, cycleLength: number, periodLen
   return 'luteal';
 }
 
+/**
+ * on-track: following the usual pattern
+ * long-period: still bleeding past her usual period length
+ * period-ended-early: bleeding stopped before her usual length
+ * late / very-late: period not started by the expected day (very-late = 2+ weeks)
+ */
+export type CycleStatus = 'on-track' | 'long-period' | 'period-ended-early' | 'late' | 'very-late';
+
 export interface PhaseInfo {
   phase: Phase;
+  status: CycleStatus;
+  /** day of the current bleed when she is bleeding now, else null */
+  bleedingDay: number | null;
+  /** her typical period length, learned from logs when possible */
+  usualPeriodLength: number;
+  /** whether period length / cycle length were learned from her own logs */
+  learned: boolean;
   cycleDay: number;
   cycleLength: number;
   periodLength: number;
@@ -136,23 +175,56 @@ export function computePhase(input: {
 
   const lengths = recentCycleLengths(pastStarts, input.cycleHistory || []);
   const profileLen = Number(profile?.cycle_length_avg || profile?.cycle_length) || 28;
-  const cycleLength = lengths.length
-    ? Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length)
-    : profileLen;
-  const periodLength = Number(profile?.period_duration) || 5;
-  const bounds = phaseBounds(cycleLength, periodLength);
-  const len = Math.max(18, Math.min(60, cycleLength));
+  // Median, so one skipped or very long cycle does not drag every prediction
+  const cycleLength = lengths.length ? median(lengths) : profileLen;
 
+  // Learn her real period length from completed bleeding runs
+  const runs = bleedingRuns(logs).filter(r => r.start <= today);
+  const finished = runs.filter(r => r.end < today - 1).map(r => r.end - r.start + 1).filter(n => n >= 2 && n <= 12);
+  const usualPeriodLength = finished.length >= 2 ? median(finished.slice(-4)) : Number(profile?.period_duration) || 5;
+  const learned = finished.length >= 2 || lengths.length >= 2;
+
+  const len = Math.max(18, Math.min(60, cycleLength));
   const cycleDay = today - lastStart + 1;
-  const late = cycleDay > len;
-  const daysLate = late ? cycleDay - len : 0;
-  const phase = late ? 'luteal' : phaseOnCycleDay(cycleDay, len, bounds.periodLength);
+  // Day len+1 is the expected first day of the next period ("due today")
+  const late = cycleDay > len + 1;
+  const daysLate = late ? cycleDay - (len + 1) : 0;
+
+  // Is she bleeding now, as part of the period that started at lastStart?
+  const todayLog = (logs || []).find(l => dayNum(l.log_date) === today);
+  const currentRun = runs.find(r => Math.abs(r.start - lastStart) <= 2);
+  // Only an explicit "no bleeding" counts; a log that doesn't mention flow says nothing
+  const loggedNoBleedToday = Boolean(todayLog && todayLog.flow_intensity && !isBleedingLog(todayLog)
+    && String(todayLog.flow_intensity).toLowerCase() !== 'spotting');
+  const bleedingNow = Boolean(currentRun && currentRun.end >= today - 1 && !loggedNoBleedToday);
+
+  let status: CycleStatus = 'on-track';
+  let periodLength = usualPeriodLength;
+  let phase: Phase;
+  if (late) {
+    phase = 'luteal';
+    status = daysLate > 14 ? 'very-late' : 'late';
+  } else if (bleedingNow && cycleDay > usualPeriodLength) {
+    // Extra bleeding days: stay in the menstrual phase and push the rest back
+    phase = 'menstrual';
+    status = 'long-period';
+    periodLength = cycleDay;
+  } else if (currentRun && !bleedingNow && cycleDay <= usualPeriodLength && cycleDay > 1
+    && (loggedNoBleedToday || currentRun.end <= today - 2)) {
+    // Bleeding stopped early: the follicular phase has begun
+    periodLength = Math.max(1, currentRun.end - currentRun.start + 1);
+    phase = 'follicular';
+    status = 'period-ended-early';
+  } else {
+    phase = phaseOnCycleDay(cycleDay, len, usualPeriodLength);
+  }
+  const bounds = phaseBounds(len, periodLength);
 
   const order: Phase[] = ['menstrual', 'follicular', 'ovulatory', 'luteal'];
   let nextPhase: Phase = order[(order.indexOf(phase) + 1) % 4];
   // Very short cycles can leave the follicular window empty
   if (nextPhase === 'follicular' && bounds.ranges.follicular[1] < bounds.ranges.follicular[0]) nextPhase = 'ovulatory';
-  const daysToNextPhase = late ? 0 : Math.max(1, bounds.ranges[phase][1] - cycleDay + 1);
+  const daysToNextPhase = late || status === 'long-period' ? 0 : Math.max(1, bounds.ranges[phase][1] - cycleDay + 1);
   const daysUntilPeriod = late ? 0 : len - cycleDay + 1;
 
   const variability = lengths.length >= 2 ? Math.max(...lengths) - Math.min(...lengths) : null;
@@ -179,11 +251,14 @@ export function computePhase(input: {
     confidenceReason = 'Your period is later than expected, so the current phase is uncertain.';
   }
 
-  const todayLog = (logs || []).find(l => dayNum(l.log_date) === today);
   const bleedingMismatch = Boolean(todayLog && isBleedingLog(todayLog) && phase !== 'menstrual');
 
   return {
     phase,
+    status,
+    bleedingDay: bleedingNow ? cycleDay : null,
+    usualPeriodLength,
+    learned,
     cycleDay,
     cycleLength: len,
     periodLength: bounds.periodLength,

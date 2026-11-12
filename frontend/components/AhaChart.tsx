@@ -220,8 +220,8 @@ export function AhaChart() {
           transition={{ delay: reduce ? 0.2 : 1.4, duration: 0.5 }}
         >
           <div className="glass-strong rounded-2xl px-4 py-3">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-soft">
-              correlation
+            <p className="text-xs font-medium text-ink-soft">
+              Correlation
             </p>
             <p className="text-2xl font-semibold text-plum-900">
               +0.81
