@@ -38,8 +38,11 @@ export function isBleedingLog(log: any): boolean {
   return BLEEDING.has(String(log?.flow_intensity || '').toLowerCase());
 }
 
+/** A new period can't begin within this many days of the last one; bleeding sooner belongs to the same period. */
+export const SAME_PERIOD_DAYS = 14;
+
 /** Period start days found in the logs: a bleeding day after 10+ days without bleeding. */
-export function detectPeriodStarts(logs: any[], profileStart?: string | null): number[] {
+export function detectPeriodStarts(logs: any[], profileStart?: string | null, knownStarts: (string | null | undefined)[] = []): number[] {
   const bleeding = Array.from(new Set(
     (logs || []).filter(isBleedingLog).map(l => dayNum(l.log_date)).filter(n => !isNaN(n))
   )).sort((a, b) => a - b);
@@ -51,12 +54,20 @@ export function detectPeriodStarts(logs: any[], profileStart?: string | null): n
     prev = d;
   }
   // The saved start is what she told us (onboarding, "my period started", the
-  // confirm button). A rough earlier date within 10 days of a logged start is
-  // treated as the same period, but a LATER confirmed start always counts, even
-  // if bleeding was logged a few days before it.
-  const p = profileStart ? dayNum(profileStart) : NaN;
-  if (!isNaN(p) && !starts.some(s => Math.abs(s - p) <= 2 || (s > p && s - p <= 10))) starts.push(p);
-  return starts.sort((a, b) => a - b);
+  // confirm button). Bleeding logged up to 14 days after it is the SAME period
+  // (day 6 of a long bleed must never become a new day 1), so those detected
+  // starts are folded into hers. Bleeding logged just before it (up to 2 days)
+  // is the real first day, so the earlier logged day wins.
+  // Earlier confirmed starts (saved in her cycle history) get the same treatment.
+  let kept = starts;
+  const saved = [...knownStarts, profileStart].map(v => (v ? dayNum(v) : NaN)).filter(n => !isNaN(n));
+  for (const p of Array.from(new Set(saved)).sort((a, b) => a - b)) {
+    const near = (s: number) => s >= p - 2 && s - p <= SAME_PERIOD_DAYS;
+    const loggedJustBefore = kept.filter(s => near(s) && s <= p);
+    kept = kept.filter(s => !near(s));
+    kept.push(loggedJustBefore.length ? Math.min(...loggedJustBefore) : p);
+  }
+  return Array.from(new Set(kept)).sort((a, b) => a - b);
 }
 
 /** Runs of bleeding days (a 1-day gap is allowed; spotting does not count). */
@@ -169,7 +180,11 @@ export function computePhase(input: {
 }): PhaseInfo {
   const { profile, logs } = input;
   const today = input.today ?? todayNum();
-  const starts = detectPeriodStarts(logs, profile?.last_period_start || profile?.lastPeriodStart);
+  const starts = detectPeriodStarts(
+    logs,
+    profile?.last_period_start || profile?.lastPeriodStart,
+    (input.cycleHistory || []).map(h => h?.start),
+  );
   const pastStarts = starts.filter(s => s <= today);
   const lastStart = pastStarts.length ? pastStarts[pastStarts.length - 1] : today - 13;
 
@@ -178,9 +193,19 @@ export function computePhase(input: {
   // Median, so one skipped or very long cycle does not drag every prediction
   const cycleLength = lengths.length ? median(lengths) : profileLen;
 
-  // Learn her real period length from completed bleeding runs
+  // Learn her real period length: each finished period runs from its start to
+  // the last bleeding day logged for it, even when the first days weren't logged
   const runs = bleedingRuns(logs).filter(r => r.start <= today);
-  const finished = runs.filter(r => r.end < today - 1).map(r => r.end - r.start + 1).filter(n => n >= 2 && n <= 12);
+  const runsOf = (s: number) => runs.filter(r => r.end >= s - 2 && r.start <= s + SAME_PERIOD_DAYS);
+  const finished: number[] = [];
+  for (const s of pastStarts) {
+    const own = runsOf(s);
+    if (!own.length) continue;
+    const end = Math.max(...own.map(r => r.end));
+    if (end >= today - 1) continue; // still going
+    const n = end - Math.min(s, ...own.map(r => r.start)) + 1;
+    if (n >= 2 && n <= SAME_PERIOD_DAYS) finished.push(n);
+  }
   const usualPeriodLength = finished.length >= 2 ? median(finished.slice(-4)) : Number(profile?.period_duration) || 5;
   const learned = finished.length >= 2 || lengths.length >= 2;
 
@@ -192,11 +217,29 @@ export function computePhase(input: {
 
   // Is she bleeding now, as part of the period that started at lastStart?
   const todayLog = (logs || []).find(l => dayNum(l.log_date) === today);
-  const currentRun = runs.find(r => Math.abs(r.start - lastStart) <= 2);
   // Only an explicit "no bleeding" counts; a log that doesn't mention flow says nothing
-  const loggedNoBleedToday = Boolean(todayLog && todayLog.flow_intensity && !isBleedingLog(todayLog)
-    && String(todayLog.flow_intensity).toLowerCase() !== 'spotting');
-  const bleedingNow = Boolean(currentRun && currentRun.end >= today - 1 && !loggedNoBleedToday);
+  const saysNoBleed = (l: any) => Boolean(l?.flow_intensity) && !isBleedingLog(l)
+    && String(l.flow_intensity).toLowerCase() !== 'spotting';
+  const loggedNoBleedToday = saysNoBleed(todayLog);
+  const knownStart = pastStarts.length > 0;
+  // Any logged bleeding from 2 days before her start to 14 days after belongs to this period
+  const ownRuns = knownStart ? runsOf(lastStart) : [];
+  const currentRun = ownRuns.length ? ownRuns[ownRuns.length - 1] : undefined;
+  const lastBleed = currentRun ? currentRun.end : lastStart;
+  // First day after the last bleeding where she said "no bleeding" (her period stopped)
+  const stopDay = knownStart
+    ? (logs || []).map(l => (saysNoBleed(l) ? dayNum(l.log_date) : NaN))
+        .filter(d => !isNaN(d) && d > lastBleed && d <= today && d > lastStart)
+        .sort((a, b) => a - b)[0]
+    : undefined;
+  const stopped = stopDay !== undefined;
+  const bleedingNow = !loggedNoBleedToday && !stopped && (
+    // logged bleeding today or yesterday
+    Boolean(currentRun && currentRun.end >= today - 1) ||
+    // within her usual period length after a known start, she's on her period
+    // unless she said otherwise, even if she hasn't logged each day
+    (knownStart && cycleDay <= Math.max(usualPeriodLength, currentRun ? currentRun.end - lastStart + 2 : 0))
+  );
 
   let status: CycleStatus = 'on-track';
   let periodLength = usualPeriodLength;
@@ -209,10 +252,9 @@ export function computePhase(input: {
     phase = 'menstrual';
     status = 'long-period';
     periodLength = cycleDay;
-  } else if (currentRun && !bleedingNow && cycleDay <= usualPeriodLength && cycleDay > 1
-    && (loggedNoBleedToday || currentRun.end <= today - 2)) {
-    // Bleeding stopped early: the follicular phase has begun
-    periodLength = Math.max(1, currentRun.end - currentRun.start + 1);
+  } else if (knownStart && !bleedingNow && cycleDay <= usualPeriodLength && cycleDay > 1 && (stopped || loggedNoBleedToday)) {
+    // She said the bleeding stopped before her usual length: the follicular phase has begun
+    periodLength = Math.max(1, (stopDay ?? today) - lastStart);
     phase = 'follicular';
     status = 'period-ended-early';
   } else {

@@ -238,7 +238,7 @@ export default function HerModePage() {
     setSavingPeriod(true);
     try {
       // Always send her local date: the server runs on UTC, which is behind India until 5:30 am
-      const res = await fetch("/api/period-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: date || localTodayStr() }) });
+      const res = await fetch("/api/period-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: date || localTodayStr(), correction: Boolean(date) }) });
       const d = await res.json();
       if (!res.ok) { alert(d.error || "Couldn't save your period start. Please try again."); return; }
       if (d.chartData) handleChartUpdate(d.chartData);

@@ -140,8 +140,11 @@ export async function offlineHerReply(message: string, owner: Owner, name: strin
 
   let chartData: any = null;
   if (Object.keys(entry).length > 0) chartData = (await runHerTool('log_health_entry', entry, owner))?.chartData ?? null;
+  let samePeriodDay: number | null = null;
   if (report.periodStarted) {
-    chartData = (await runHerTool('update_period_info', { last_period_date: new Date().toISOString().slice(0, 10) }, owner))?.chartData ?? chartData;
+    const started = await runHerTool('update_period_info', { last_period_date: new Date().toISOString().slice(0, 10) }, owner);
+    if (started?.apiResult?.samePeriod) samePeriodDay = Number(started.apiResult.periodDay) || null;
+    chartData = started?.chartData ?? chartData;
   }
 
   // Urgent first
@@ -178,7 +181,10 @@ export async function offlineHerReply(message: string, owner: Owner, name: strin
   }
 
   // Acknowledge what was saved
-  if (report.periodStarted) {
+  if (report.periodStarted && samePeriodDay) {
+    const usual = ctx.phase?.usualPeriodLength;
+    parts.push(`I've logged today's bleeding, ${who}. This is still the same period, day ${samePeriodDay}${usual && samePeriodDay > usual ? `, a little longer than your usual ${usual} days` : ''}. Rest, warmth and iron-rich food help, ${pet}.`);
+  } else if (report.periodStarted) {
     parts.push(`I've marked today as day 1 of your period, ${who}. Go gently with yourself, ${pet}; rest, warmth and iron-rich food help.`);
   } else if (report.periodEnded && entry.flow_intensity === 'None' && ctx.phase?.phase === 'menstrual') {
     parts.push(`Glad your period has eased off, ${who}. I've noted that the bleeding has stopped.`);

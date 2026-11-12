@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Barbell, ForkKnife, Leaf, Lightning, Drop, Info, FirstAidKit, Stethoscope, Sparkle, CalendarCheck,
   CheckCircle, ChartLineUp, FileText, ShieldCheck, CaretRight,
 } from "@phosphor-icons/react";
-import { PHASES, PHASE_META, phaseBounds, type PhaseInfo } from "@/lib/cyclePhase";
+import { PHASES, PHASE_META, phaseBounds, type Phase, type PhaseInfo } from "@/lib/cyclePhase";
 import { PHASE_GUIDE, PHASE_TIP_NOTE, type Tip } from "@/lib/phaseTips";
 import type { Pattern, PhaseStat } from "@/lib/herInsights";
 
@@ -15,31 +16,133 @@ export const panelCard = "bg-white/70 backdrop-blur-md rounded-3xl md:rounded-[2
 const CONF_LABEL = { high: "High confidence", medium: "Medium confidence", low: "Rough estimate" } as const;
 const CONF_CLS = { high: "bg-emerald-50 text-emerald-700 border-emerald-200", medium: "bg-amber-50 text-amber-700 border-amber-200", low: "bg-slate-100 text-slate-600 border-slate-200" } as const;
 
-/** Ring split into the four phases, with a marker on today. */
+/** Soft two-tone gradients per phase, kept close to the brand's rose and lavender. */
+const RING_GRAD: Record<Phase, [string, string]> = {
+  menstrual: ["#fb7f9c", "#e2486e"],
+  follicular: ["#7fd8c3", "#2fb393"],
+  ovulatory: ["#ffd27a", "#f4a53c"],
+  luteal: ["#c9b2f2", "#8f63c2"],
+};
+const PHASE_WORD: Record<Phase, string> = { menstrual: "Period", follicular: "Follicular", ovulatory: "Ovulation", luteal: "Luteal" };
+
+/**
+ * Cycle dial: four gradient arcs (one per phase), days already lived in full
+ * colour and days ahead faded, a dot for every day with ovulation marked, and a
+ * glowing marker on today. Draws itself in once; still for reduced motion.
+ */
 function PhaseRing({ info }: { info: PhaseInfo }) {
-  const size = 168, stroke = 14, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  const { ranges } = phaseBounds(info.cycleLength, info.periodLength);
+  const reduce = useReducedMotion();
+  const uid = useId().replace(/:/g, "");
+  const size = 200, stroke = 15, cx = size / 2, r = cx - stroke / 2 - 6, c = 2 * Math.PI * r;
+  const { ranges, ovulationDay } = phaseBounds(info.cycleLength, info.periodLength);
   const len = info.cycleLength;
   const day = Math.min(info.cycleDay, len);
-  const angle = ((day - 0.5) / len) * 2 * Math.PI - Math.PI / 2;
+  const gap = 4; // px between phases
+  const at = (d: number, radius: number) => {
+    const a = ((d - 0.5) / len) * 2 * Math.PI - Math.PI / 2;
+    return { x: cx + radius * Math.cos(a), y: cx + radius * Math.sin(a) };
+  };
+  // Once the period is due, today sits at the top of the dial, where the next period begins
+  const dueToday = !info.late && !info.bleedingDay && info.daysUntilPeriod === 0;
+  const waiting = info.late || dueToday;
+  const marker = at(waiting ? len + 0.5 : day, r);
+  const elapsed = (day / len) * c;
+  const color = waiting ? RING_GRAD.menstrual[1] : RING_GRAD[info.phase][1];
+  const label = info.late ? `${info.daysLate} day${info.daysLate === 1 ? "" : "s"} late` : dueToday ? "Due today" : PHASE_WORD[info.phase];
+  const sub = waiting ? `due on day ${len + 1}` : `of about ${len}`;
+
+  const arcs = PHASES.map(p => {
+    const [a, b] = ranges[p];
+    if (b < a) return null;
+    // Round caps stick out stroke/2 at each end, so shorten each arc by a full stroke
+    const trim = gap + stroke;
+    return { p, dash: Math.max(0.5, ((b - a + 1) / len) * c - trim), offset: -(((a - 1) / len) * c + trim / 2) };
+  }).filter(Boolean) as { p: Phase; dash: number; offset: number }[];
+
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`Cycle day ${info.cycleDay} of about ${len}`}>
-      {PHASES.map(p => {
-        const [a, b] = ranges[p];
-        if (b < a) return null;
-        const frac = (b - a + 1) / len;
-        const offset = ((a - 1) / len) * c;
-        return (
-          <circle key={p} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={PHASE_META[p].ring}
-            strokeOpacity={p === info.phase ? 1 : 0.25} strokeWidth={stroke}
-            strokeDasharray={`${Math.max(0, frac * c - 3)} ${c}`} strokeDashoffset={-offset}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`} strokeLinecap="butt" />
-        );
-      })}
-      <circle cx={size / 2 + r * Math.cos(angle)} cy={size / 2 + r * Math.sin(angle)} r={9} fill="#fff" stroke="#2D1B36" strokeWidth={3} />
-      <text x="50%" y="46%" textAnchor="middle" className="fill-plum-900" style={{ fontSize: 34, fontWeight: 300 }}>{info.cycleDay}</text>
-      <text x="50%" y="60%" textAnchor="middle" className="fill-plum-900/50" style={{ fontSize: 11, letterSpacing: 1 }}>DAY OF ~{len}</text>
-    </svg>
+    <div className="shrink-0 mx-auto sm:mx-0 flex flex-col items-center gap-3">
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-48 h-48 sm:w-52 sm:h-52" role="img"
+        aria-label={`Cycle day ${info.cycleDay} of about ${len}. ${PHASE_META[info.phase].label}${info.late ? `, ${info.daysLate} days late` : ""}.`}>
+        <defs>
+          {arcs.map(({ p }) => (
+            <linearGradient key={p} id={`${uid}-${p}`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor={RING_GRAD[p][0]} />
+              <stop offset="100%" stopColor={RING_GRAD[p][1]} />
+            </linearGradient>
+          ))}
+          {/* Reveals the days she has already lived through this cycle */}
+          <mask id={`${uid}-lived`}>
+            <motion.circle cx={cx} cy={cx} r={r} fill="none" stroke="#fff" strokeWidth={stroke + 6}
+              strokeDasharray={`${c} ${c}`} transform={`rotate(-90 ${cx} ${cx})`}
+              initial={{ strokeDashoffset: reduce ? c - elapsed : c }} animate={{ strokeDashoffset: c - elapsed }}
+              transition={{ duration: reduce ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] }} />
+          </mask>
+          <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={color} floodOpacity="0.55" />
+          </filter>
+        </defs>
+
+        {/* Faint track */}
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgb(42 21 47 / 0.05)" strokeWidth={stroke} />
+        {/* The whole cycle, faded: days ahead */}
+        {arcs.map(({ p, dash, offset }) => (
+          <circle key={`ahead-${p}`} cx={cx} cy={cx} r={r} fill="none" stroke={`url(#${uid}-${p})`} strokeOpacity={0.28}
+            strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${dash} ${c}`} strokeDashoffset={offset}
+            transform={`rotate(-90 ${cx} ${cx})`} />
+        ))}
+        {/* Days lived, in full colour */}
+        <g mask={`url(#${uid}-lived)`}>
+          {arcs.map(({ p, dash, offset }) => (
+            <circle key={`lived-${p}`} cx={cx} cy={cx} r={r} fill="none" stroke={`url(#${uid}-${p})`}
+              strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${dash} ${c}`} strokeDashoffset={offset}
+              transform={`rotate(-90 ${cx} ${cx})`} />
+          ))}
+        </g>
+
+        {/* A dot for every day; ovulation gets a bigger golden one */}
+        {Array.from({ length: len }, (_, i) => i + 1).map(d => {
+          const pt = at(d, r - stroke / 2 - 7);
+          const isOv = d === ovulationDay;
+          return (
+            <circle key={d} cx={pt.x} cy={pt.y} r={isOv ? 2.6 : d === day ? 2 : 1.1}
+              fill={isOv ? RING_GRAD.ovulatory[1] : d <= day ? "rgb(42 21 47 / 0.45)" : "rgb(42 21 47 / 0.16)"} />
+          );
+        })}
+
+        {/* Today */}
+        {!reduce && (
+          <circle cx={marker.x} cy={marker.y} r={11} fill={color} opacity={0.25}>
+            <animate attributeName="r" values="10;15;10" dur="2.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" repeatCount="indefinite" />
+          </circle>
+        )}
+        <circle cx={marker.x} cy={marker.y} r={9.5} fill="#fff" filter={`url(#${uid}-glow)`} />
+        <circle cx={marker.x} cy={marker.y} r={4.5} fill={color} />
+
+        {/* Centre */}
+        <text x={cx} y={cx - 22} textAnchor="middle" className="fill-plum-900/55" style={{ fontSize: 11.5, fontWeight: 500 }}>Day</text>
+        <text x={cx} y={cx + 13} textAnchor="middle" className="fill-plum-900" style={{ fontSize: 44, fontWeight: 650, letterSpacing: "-0.03em" }}>{info.cycleDay}</text>
+        <text x={cx} y={cx + 31} textAnchor="middle" className="fill-plum-900/50" style={{ fontSize: 11 }}>{sub}</text>
+        <g transform={`translate(${cx} ${cx + 49})`}>
+          <rect x={-(label.length * 3.4 + 12)} y={-10} width={label.length * 6.8 + 24} height={19} rx={9.5} fill={color} fillOpacity={0.14} />
+          <text x={0} y={3.5} textAnchor="middle" style={{ fontSize: 10.5, fontWeight: 600, fill: color }}>{label}</text>
+        </g>
+      </svg>
+
+      {/* Phase legend with this cycle's day ranges */}
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-plum-900/60" aria-label="Phases this cycle">
+        {arcs.map(({ p }) => {
+          const [a, b] = ranges[p];
+          const current = p === info.phase;
+          return (
+            <li key={p} className={`flex items-center gap-1.5 ${current ? "font-semibold text-plum-900" : ""}`}>
+              <span className="h-2 w-2 rounded-full" style={{ background: `linear-gradient(135deg, ${RING_GRAD[p][0]}, ${RING_GRAD[p][1]})` }} aria-hidden="true" />
+              {PHASE_WORD[p]} <span className="tabular-nums text-plum-900/45 font-normal">{a === b ? `day ${a}` : `${a}–${b}`}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -95,6 +198,10 @@ export function PhaseCard({ info, onPeriodStarted, saving }: { info: PhaseInfo; 
             {info.late ? (
               <span className="px-3 py-1.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
                 Expected {info.daysLate} day{info.daysLate === 1 ? "" : "s"} ago
+              </span>
+            ) : !info.bleedingDay && info.daysUntilPeriod === 0 ? (
+              <span className="px-3 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700">
+                Period due today
               </span>
             ) : info.status === "long-period" ? (
               <span className="px-3 py-1.5 rounded-full bg-white/80 border border-plum-900/10 text-plum-900/75">

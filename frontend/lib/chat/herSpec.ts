@@ -47,6 +47,10 @@ export const update_period_info_declaration = {
         type: Type.STRING,
         description: "Date in YYYY-MM-DD format when the period started."
       },
+      is_correction: {
+        type: Type.BOOLEAN,
+        description: "True only when she says the start date already saved was wrong (e.g. 'it actually started on the 3rd'). Leave out when she is just still bleeding or says her period started."
+      },
       cycle_length_avg: {
         type: Type.INTEGER,
         description: "Average cycle length in days if mentioned."
@@ -127,6 +131,6 @@ CRITICAL MEDICAL & COMMUNICATION RULES:
 
 BACKGROUND DYNAMIC DASHBOARD ACTIONS:
 1. Whenever the user mentions physical sensations, symptoms (like acne, cramps, headache, fatigue, nausea, bloating), pain level, bleeding flow, mood, or sleep hours, call log_health_entry silently.
-2. Whenever the user says their period started today or gives a period start date, cycle length, or past cycle history, call update_period_info silently.
+2. Whenever the user says their period started today or gives a period start date, cycle length, or past cycle history, call update_period_info silently. Bleeding that continues past her usual length (for example "still bleeding on day 6") is the same period: log the flow with log_health_entry and do not set a new start. If update_period_info answers samePeriod, tell her which day of her period it is, never "day 1".
 3. If they ask about their next period or cycle prediction, call analyze_cycle. If they ask whether they have PCOS or another condition, explain gently that only a doctor can tell, and suggest which patterns from their logs are worth mentioning.`;
 

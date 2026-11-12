@@ -5,6 +5,7 @@
 import { Owner, patchDoc, readDoc, writeDoc } from '@/lib/store';
 import { mergePregnancyLog } from '@/lib/pregnancyLogs';
 import { runPrediction } from '@/lib/ml/client';
+import { SAME_PERIOD_DAYS } from '@/lib/cyclePhase';
 
 export interface ToolOutcome {
   apiResult: any;
@@ -75,12 +76,38 @@ export async function runHerTool(name: string, args: any, owner: Owner): Promise
   }
 
   if (name === 'update_period_info') {
+    const before = await readDoc<any>('her_profile', null, owner);
     const patch: Record<string, any> = {};
-    if (args.last_period_date) patch.last_period_start = args.last_period_date;
+    // "My period started" a few days into the period she already told us about
+    // (e.g. still bleeding on day 6) is the same period, not a new day 1. Only an
+    // explicit correction of the date ("it actually started on the 3rd") moves it later.
+    let samePeriodAs: string | null = null;
+    if (args.last_period_date) {
+      const prev = before?.last_period_start ? toDay(String(before.last_period_start)) : NaN;
+      const next = toDay(String(args.last_period_date));
+      const gap = next - prev;
+      if (!isNaN(gap) && gap >= 1 && gap <= SAME_PERIOD_DAYS && args.is_correction !== true) {
+        samePeriodAs = String(before.last_period_start).slice(0, 10);
+      } else {
+        patch.last_period_start = args.last_period_date;
+      }
+    }
     if (args.cycle_length_avg) patch.cycle_length = Number(args.cycle_length_avg);
     if (args.period_duration) patch.period_duration = Number(args.period_duration);
-    const before = await readDoc<any>('her_profile', null, owner);
-    const profile = await patchDoc('her_profile', patch, owner);
+    const profile = Object.keys(patch).length ? await patchDoc('her_profile', patch, owner) : before;
+    if (samePeriodAs && !Array.isArray(args.cycle_history)) {
+      const periodDay = toDay(String(args.last_period_date)) - toDay(samePeriodAs) + 1;
+      return {
+        apiResult: {
+          success: true,
+          samePeriod: true,
+          periodDay,
+          message: `Not a new period: her current period started on ${samePeriodAs}, so today is day ${periodDay} of it. Kept that start date. If she says the start date itself was wrong, call again with is_correction true.`,
+          profile,
+        },
+        chartData: { type: 'profile_update', profile },
+      };
+    }
 
     let cycleHistory: any[] | null = null;
 
