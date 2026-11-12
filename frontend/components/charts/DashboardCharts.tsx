@@ -65,7 +65,7 @@ const ChartAnimationDefs = () => (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-[opacity,transform] transform scale-105">
+      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-plum-900 transition-[opacity,transform] transform scale-105">
         <p className="font-semibold mb-1 text-xs text-plum-900/75">{label}</p>
         {payload.map((p: any, i: number) => (
           <p key={i} className="flex items-center gap-2 font-medium" style={{ color: p.color || chartConfig.text }}>
@@ -82,10 +82,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const EmptyChartState = ({ message }: { message?: string }) => (
   <div className="h-[230px] flex flex-col items-center justify-center text-center p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
     <span className="text-3xl mb-1.5 opacity-80 animate-bounce">📊</span>
-    <p className="text-xs font-semibold text-[#2D1B36]/80">
+    <p className="text-xs font-semibold text-plum-900/80">
       {message || "No logs recorded yet."}
     </p>
-    <p className="text-[11px] text-[#2D1B36]/50 mt-1">
+    <p className="text-[11px] text-plum-900/50 mt-1">
       Complete your daily check-in to generate animated live analytics!
     </p>
   </div>
@@ -520,10 +520,10 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
           </span>
         </div>
         {ovuDateStr && (
-          <div className="text-xs text-[#2D1B36]/70 flex items-center gap-2">
+          <div className="text-xs text-plum-900/70 flex items-center gap-2">
             <span>Estimated Ovulation: <strong className="text-emerald-700 font-bold">{ovuDateStr}</strong></span>
             {fertileStartStr && fertileEndStr && (
-              <span className="hidden sm:inline text-[#2D1B36]/50">• Fertile Window: <strong className="text-[#2D1B36] font-semibold">{fertileStartStr} – {fertileEndStr}</strong></span>
+              <span className="hidden sm:inline text-plum-900/50">• Fertile Window: <strong className="text-plum-900 font-semibold">{fertileStartStr} – {fertileEndStr}</strong></span>
             )}
           </div>
         )}
@@ -550,7 +550,7 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
               }`}
             >
               <span className={`text-[11px] font-semibold ${
-                isToday ? "text-pink-600 font-bold" : "text-[#2D1B36]/60"
+                isToday ? "text-pink-600 font-bold" : "text-plum-900/60"
               }`}>
                 {d.dayName}
               </span>
@@ -562,7 +562,7 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
                     ? "text-red-500" 
                     : d.isFertile 
                       ? "text-emerald-600" 
-                      : "text-[#2D1B36]"
+                      : "text-plum-900"
               }`}>
                 {d.date}
               </span>
@@ -581,7 +581,7 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
                 ) : d.isFertile ? (
                   <span className="text-[9px] font-semibold text-emerald-600">Fertile</span>
                 ) : (
-                  <span className="text-[9px] text-[#2D1B36]/40">Day {d.cycleDay}</span>
+                  <span className="text-[9px] text-plum-900/40">Day {d.cycleDay}</span>
                 )}
               </div>
             </motion.div>
@@ -590,22 +590,22 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
       </div>
 
       {/* Legend */}
-      <div className="mt-3 p-3 rounded-2xl bg-white/70 border border-pink-100/90 shadow-[0_2px_12px_rgba(244,114,182,0.06)] backdrop-blur-sm flex flex-wrap items-center justify-end gap-4 text-xs text-[#2D1B36]">
+      <div className="mt-3 p-3 rounded-2xl bg-white/70 border border-pink-100/90 shadow-[0_2px_12px_rgba(244,114,182,0.06)] backdrop-blur-sm flex flex-wrap items-center justify-end gap-4 text-xs text-plum-900">
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-pink-500 ring-2 ring-pink-200"></span>
-          <span className="text-[#2D1B36]/70 font-medium text-xs">Today</span>
+          <span className="text-plum-900/70 font-medium text-xs">Today</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
-          <span className="text-[#2D1B36]/70 font-medium text-xs">Period Flow</span>
+          <span className="text-plum-900/70 font-medium text-xs">Period Flow</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          <span className="text-[#2D1B36]/70 font-medium text-xs">Ovulation</span>
+          <span className="text-plum-900/70 font-medium text-xs">Ovulation</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
-          <span className="text-[#2D1B36]/70 font-medium text-xs">Fertile Window</span>
+          <span className="text-plum-900/70 font-medium text-xs">Fertile Window</span>
         </div>
       </div>
     </div>

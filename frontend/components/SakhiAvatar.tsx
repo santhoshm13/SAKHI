@@ -67,10 +67,10 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
                 <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-4 text-pink-400">
                   <Sparkle weight="duotone" className="w-8 h-8" />
                 </div>
-                <h4 className="text-2xl font-medium text-[#2D1B36] flex items-center justify-center gap-2">
+                <h4 className="text-2xl font-medium text-plum-900 flex items-center justify-center gap-2">
                   Hi {profileName || "there"} <span className="inline-block animate-bounce">👋</span>
                 </h4>
-                <p className="mt-2 text-sm text-[#2D1B36]/60 max-w-xs">Tell me how you feel, ask about your cycle, or tap the mic and talk to me.</p>
+                <p className="mt-2 text-sm text-plum-900/60 max-w-xs">Tell me how you feel, ask about your cycle, or tap the mic and talk to me.</p>
               </div>
             }
           />

@@ -2,147 +2,188 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight, WifiSlash, Microphone, ShieldCheck } from "@phosphor-icons/react";
 
 /**
- * Hero — Stage 3 revealed landing content.
- * Centered angel figure placeholder, welcoming headline, concise subtext, and
- * a cream CTA with a lavender border. The full-body angel art
- * (/angel-fullbody.png) drops in later; falls back to /logo.png.
+ * Hero: the product itself is the picture. Left, the promise; right, what a
+ * normal morning in Sakhi looks like (today's cycle card and a gentle reply).
+ * Headline, sub-copy and both actions fit within 1280x800 without scrolling.
  */
 export function Hero() {
   const reduce = useReducedMotion();
 
-  const container = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: reduce ? 0 : 0.14,
-        delayChildren: reduce ? 0 : 0.1,
-      },
-    },
-  };
-
-  const item = {
-    hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 26, filter: "blur(8px)" },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: { type: "spring", stiffness: 80, damping: 18, mass: 1 },
-    },
-  };
+  const rise = (delay: number) => ({
+    initial: reduce ? { opacity: 0 } : { opacity: 0, y: 22 },
+    animate: { opacity: 1, y: 0 },
+    transition: { type: "spring" as const, stiffness: 90, damping: 20, delay: reduce ? 0 : delay },
+  });
 
   return (
-    <section
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center
-                 px-6 pt-28 pb-16 text-center"
-    >
-      {/* Ambient breathing orbs (settled-petal / light-speck texture) */}
+    <div className="relative mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-12 px-5 pt-28 pb-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-24 lg:pb-10">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
       >
-        <div className="breathe absolute -top-20 left-[8%] h-72 w-72 rounded-full bg-lavender-200/50 blur-3xl" />
-        <div
-          className="breathe absolute top-1/3 right-[6%] h-80 w-80 rounded-full bg-blush-200/40 blur-3xl"
-          style={{ animationDelay: "2s" }}
-        />
-        <div
-          className="breathe absolute bottom-10 left-[30%] h-64 w-64 rounded-full bg-lavender-100/60 blur-3xl"
-          style={{ animationDelay: "4s" }}
-        />
+        <div className="breathe absolute -top-10 right-[4%] h-96 w-96 rounded-full bg-lavender-200/45 blur-3xl" />
+        <div className="breathe absolute bottom-0 left-[2%] h-80 w-80 rounded-full bg-blush-200/40 blur-3xl" style={{ animationDelay: "3s" }} />
       </div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="visible"
-        className="flex max-w-4xl flex-col items-center"
-      >
-        {/* Centered angel figure (Stage 3 hero graphic) */}
-        <motion.div variants={item} className="relative mb-6 sm:mb-10">
-          <div
-            aria-hidden
-            className="breathe absolute left-1/2 top-1/2 -z-10 h-44 w-44 sm:h-56 sm:w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-lavender-300/40 to-blush-300/40 blur-3xl mix-blend-multiply"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/original-logo.png?v=4"
-            alt="Sakhi Logo"
-            className="relative h-44 sm:h-56 md:h-64 w-auto drop-shadow-[0_8px_30px_rgba(122,74,163,0.25)] mix-blend-multiply"
-          />
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1
-          variants={item}
-          className="text-balance text-3xl leading-[1.15] tracking-tight
-                     text-plum-900 sm:text-5xl lg:text-6xl"
-        >
-          Your AI Companion for Every Stage of{" "}
-          <span className="display-serif text-plum-800 italic">Womanhood</span>
-        </motion.h1>
-
-        {/* Subtext */}
-        <motion.p
-          variants={item}
-          className="mt-4 sm:mt-6 max-w-[44rem] text-pretty text-sm sm:text-base md:text-lg leading-relaxed
-                     text-ink-soft"
-        >
-          Sakhi bridges menstrual cycle rhythm, clinical AI risk prediction, and maternal care. Seamlessly switch between <strong>Her Mode</strong> (cycle intelligence & hormone screening) and <strong>Mom Mode</strong> (pregnancy tracking, kick counts & gestational risk monitoring).
+      {/* The promise */}
+      <div className="max-w-xl">
+        <motion.p {...rise(0.05)} className="text-sm font-medium text-blush-500">
+          For your cycle, and for your pregnancy
         </motion.p>
 
-        {/* Primary CTAs */}
-        <motion.div variants={item} className="mt-7 sm:mt-9 flex flex-wrap items-center justify-center gap-3">
+        <motion.h1
+          {...rise(0.12)}
+          className="mt-4 text-balance text-[2.6rem] font-semibold leading-[1.04] tracking-tight text-plum-900 sm:text-6xl lg:text-[4.2rem]"
+        >
+          Your body speaks.{" "}
+          <span className="display-serif font-normal text-lavender-600">Sakhi listens.</span>
+        </motion.h1>
+
+        <motion.p {...rise(0.2)} className="mt-6 max-w-lg text-pretty text-base leading-relaxed text-ink-soft sm:text-lg">
+          A gentle companion that learns your real rhythm, not a 28-day template.
+          Log how you feel in a sentence, ask anything like you would a friend,
+          and know early when something needs a doctor.
+        </motion.p>
+
+        <motion.div {...rise(0.28)} className="mt-8 flex flex-wrap items-center gap-3">
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-plum-900 px-7 py-3.5 text-sm font-medium text-cream hover:bg-plum-800 active:scale-[0.98] transition-[background-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded-full bg-plum-900 px-7 py-3.5 text-sm font-semibold text-cream shadow-[0_12px_30px_-12px_rgb(42_21_47/0.6)] transition-[background-color,transform] duration-150 hover:bg-plum-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
-            <span>Get started</span>
+            Start free
             <ArrowRight size={16} weight="bold" aria-hidden="true" />
           </Link>
           <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full border border-plum-700/25 bg-cream/85 px-7 py-3.5 text-sm font-medium text-plum-900 hover:border-plum-700/50 hover:bg-white active:scale-[0.98] transition-[background-color,border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+            href="/login#sample"
+            className="inline-flex items-center rounded-full border border-plum-700/20 bg-white/70 px-6 py-3.5 text-sm font-semibold text-plum-900 transition-[background-color,border-color,transform] duration-150 hover:border-plum-700/40 hover:bg-white active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
-            Sign in
+            Try it with sample data
           </Link>
         </motion.div>
 
-        {/* Updated Dual-Mode Feature Pills */}
-        <motion.div variants={item} className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-            <span>Her Mode • Cycle & PCOS/Thyroid Screening</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
-            <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
-            <span>Mom Mode • Trimester Care & GDM/BP AI</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Voice Check-in & Real-time Clinical ML</span>
-          </div>
+        <motion.ul {...rise(0.36)} className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
+          <li className="inline-flex items-center gap-2">
+            <Microphone size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
+            Talk or type
+          </li>
+          <li className="inline-flex items-center gap-2">
+            <WifiSlash size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
+            Still answers offline
+          </li>
+          <li className="inline-flex items-center gap-2">
+            <ShieldCheck size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
+            You control what AI sees
+          </li>
+        </motion.ul>
+      </div>
+
+      {/* A morning in Sakhi */}
+      <motion.div
+        initial={reduce ? { opacity: 0 } : { opacity: 0, y: 30, rotate: 1.5 }}
+        animate={{ opacity: 1, y: 0, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 60, damping: 18, delay: reduce ? 0 : 0.25 }}
+        className="relative mx-auto w-full max-w-md lg:mr-0"
+        aria-label="Example of Sakhi's today screen"
+        role="img"
+      >
+        <TodayCard />
+        <motion.div
+          initial={reduce ? { opacity: 0 } : { opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ type: "spring", stiffness: 80, damping: 18, delay: reduce ? 0 : 0.7 }}
+          className="relative -mt-6 ml-6 sm:ml-12"
+        >
+          <ChatPreview />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: reduce ? 0 : 1.1 }}
+          className="absolute -left-4 -top-10 hidden rounded-2xl border border-white/70 bg-white/90 px-3.5 py-2.5 text-xs shadow-[0_14px_30px_-14px_rgb(74_42_82/0.35)] backdrop-blur sm:block lg:-left-10"
+        >
+          <p className="font-semibold text-plum-900">Saved from chat</p>
+          <p className="mt-0.5 text-ink-soft">cramps 3/10 · slept 6 h</p>
         </motion.div>
       </motion.div>
+    </div>
+  );
+}
 
-      {/* Subtle scroll cue */}
-      <motion.div
-        aria-hidden
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: reduce ? 0.4 : [0.2, 0.6, 0.2] }}
-        transition={{ duration: 2.4, repeat: reduce ? 0 : Infinity, delay: 1.8 }}
-      >
-        <div className="h-10 w-6 rounded-full border border-plum-700/25 p-1">
-          <motion.div
-            className="h-2 w-4 rounded-full bg-plum-700/40"
-            animate={reduce ? {} : { y: [0, 12, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+function TodayCard() {
+  // A 28-day ring: period, follicular, ovulation, luteal. Today is day 18.
+  const r = 38;
+  const c = 2 * Math.PI * r;
+  const seg = (from: number, to: number) => ({
+    strokeDasharray: `${((to - from) / 28) * c - 2} ${c}`,
+    strokeDashoffset: -((from / 28) * c),
+  });
+  const today = 17.5 / 28;
+  const angle = today * 2 * Math.PI - Math.PI / 2;
+
+  return (
+    <div className="glass-strong rounded-[28px] p-5 sm:p-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-plum-900">Today</p>
+        <p className="text-xs text-ink-soft">Cycle day 18 of about 29</p>
+      </div>
+      <div className="mt-4 flex items-center gap-5">
+        <div className="relative h-28 w-28 shrink-0">
+          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" aria-hidden="true">
+            <circle cx="50" cy="50" r={r} fill="none" stroke="var(--color-blush-400)" strokeWidth="9" {...seg(0, 5)} />
+            <circle cx="50" cy="50" r={r} fill="none" stroke="var(--color-lavender-200)" strokeWidth="9" {...seg(5, 12)} />
+            <circle cx="50" cy="50" r={r} fill="none" stroke="var(--color-lavender-400)" strokeWidth="9" {...seg(12, 16)} />
+            <circle cx="50" cy="50" r={r} fill="none" stroke="var(--color-lavender-500)" strokeWidth="9" strokeOpacity="0.55" {...seg(16, 28)} />
+          </svg>
+          <span
+            className="absolute h-3.5 w-3.5 rounded-full border-2 border-white bg-plum-900 shadow"
+            style={{ left: `calc(50% + ${Math.cos(angle) * 38}% - 7px)`, top: `calc(50% + ${Math.sin(angle) * 38}% - 7px)` }}
           />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-semibold tabular-nums text-plum-900">18</span>
+            <span className="text-[11px] text-ink-soft">luteal</span>
+          </div>
         </div>
-      </motion.div>
-    </section>
+        <div className="min-w-0">
+          <p className="text-lg font-semibold leading-snug text-plum-900">Period in about 11 days</p>
+          <p className="mt-1 text-sm leading-snug text-ink-soft">
+            Energy often dips this week. Iron-rich food and an earlier night help.
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+        {[
+          ["Mood", "Calm"],
+          ["Sleep", "6 h"],
+          ["Pain", "3/10"],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-2xl bg-cream/80 px-2 py-2.5">
+            <p className="text-[11px] text-ink-soft">{k}</p>
+            <p className="text-sm font-semibold text-plum-900">{v}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChatPreview() {
+  return (
+    <div className="rounded-[26px] border border-white/70 bg-white/92 p-4 shadow-[0_24px_50px_-24px_rgb(74_42_82/0.4)] backdrop-blur">
+      <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-plum-900 px-3.5 py-2 text-sm text-cream">
+        Why am I so tired this week?
+      </p>
+      <div className="mt-3 flex items-start gap-2.5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sakhi-doll.png" alt="" className="h-8 w-8 shrink-0 rounded-full bg-blush-100 object-cover" />
+        <p className="rounded-2xl rounded-tl-md bg-blush-50 px-3.5 py-2 text-sm leading-relaxed text-plum-900">
+          Oh dear, that makes sense. You&rsquo;re on day 18, when progesterone rises
+          and many of us feel slower. You slept 6 hours too, so be gentle with yourself
+          tonight.
+        </p>
+      </div>
+    </div>
   );
 }

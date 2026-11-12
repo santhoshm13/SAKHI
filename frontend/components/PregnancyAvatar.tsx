@@ -105,7 +105,7 @@ export default function PregnancyAvatar({
               </button>
             ) : undefined}
             emptyState={
-              <div className="max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border border-white/40 bg-white/90 text-[#2D1B36] self-start rounded-tl-sm">
+              <div className="max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border border-white/40 bg-white/90 text-plum-900 self-start rounded-tl-sm">
                 Hi {name} 👋! I&apos;m here to support you and your baby. How are you feeling today?
               </div>
             }

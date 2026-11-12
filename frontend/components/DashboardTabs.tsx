@@ -40,7 +40,7 @@ export default function DashboardTabs<T extends string>({ tabs, active, onChange
             key={id}
             onClick={() => onChange(id)}
             aria-current={active === id ? "page" : undefined}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-[background-color,color,box-shadow] cursor-pointer ${active === id ? `bg-[#2D1B36] text-white shadow-sm` : "text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-[#2D1B36]/5"}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-[background-color,color,box-shadow] cursor-pointer ${active === id ? `bg-plum-900 text-white shadow-sm` : "text-plum-900/65 hover:text-plum-900 hover:bg-plum-900/5"}`}
           >
             <I weight={active === id ? "fill" : "regular"} className="w-4 h-4" /> {label}
           </button>
@@ -54,7 +54,7 @@ export default function DashboardTabs<T extends string>({ tabs, active, onChange
               key={id}
               onClick={() => onChange(id)}
               aria-current={active === id ? "page" : undefined}
-              className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium cursor-pointer ${active === id ? activeCls : "text-[#2D1B36]/50"}`}
+              className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium cursor-pointer ${active === id ? activeCls : "text-plum-900/50"}`}
             >
               <I weight={active === id ? "fill" : "regular"} className="w-5 h-5" />
               {label}

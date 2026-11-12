@@ -210,12 +210,12 @@ export default function UnifiedOnboardingChat() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Type your name..."
-            className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-3 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 shadow-sm mb-3"
+            className="w-full bg-white border border-plum-900/20 rounded-xl px-4 py-3 text-sm text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 shadow-sm mb-3"
           />
           <button
             onClick={() => { if(name.trim()) setStep(1); }}
             disabled={!name.trim()}
-            className="px-6 py-2.5 rounded-full bg-[#2D1B36] text-white text-sm font-medium self-end disabled:opacity-50 hover:bg-[#3d2547] transition-colors cursor-pointer"
+            className="px-6 py-2.5 rounded-full bg-plum-900 text-white text-sm font-medium self-end disabled:opacity-50 hover:bg-[#3d2547] transition-colors cursor-pointer"
           >
             Next
           </button>
@@ -268,10 +268,10 @@ export default function UnifiedOnboardingChat() {
               max={todayStr}
               value={lastPeriodDate}
               onChange={(e) => setLastPeriodDate(e.target.value)}
-              className="w-full bg-white border border-[#2D1B36]/20 rounded-xl px-4 py-2.5 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blush-400 cursor-pointer"
+              className="w-full bg-white border border-plum-900/20 rounded-xl px-4 py-2.5 text-sm text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blush-400 cursor-pointer"
             />
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="text-xs text-[#2D1B36]/60 self-center">Quick options:</span>
+              <span className="text-xs text-plum-900/60 self-center">Quick options:</span>
               <button
                 type="button"
                 onClick={() => setLastPeriodDate(todayStr)}
@@ -381,7 +381,7 @@ export default function UnifiedOnboardingChat() {
             className={`p-3.5 rounded-xl border text-left transition-[background-color,border-color,box-shadow] cursor-pointer ${
               cycleRegularity === "Regular"
                 ? "bg-blush-50 border-blush-400 text-plum-900 font-semibold shadow-sm"
-                : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50/50"
+                : "bg-white border-blush-200 text-plum-900 hover:bg-blush-50/50"
             }`}
           >
             <div className="font-semibold text-sm">Regular & Predictable 📅</div>
@@ -397,7 +397,7 @@ export default function UnifiedOnboardingChat() {
             className={`p-3.5 rounded-xl border text-left transition-[background-color,border-color,box-shadow] cursor-pointer ${
               cycleRegularity === "Irregular"
                 ? "bg-blush-50 border-blush-400 text-plum-900 font-semibold shadow-sm"
-                : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50/50"
+                : "bg-white border-blush-200 text-plum-900 hover:bg-blush-50/50"
             }`}
           >
             <div className="font-semibold text-sm">Irregular / Unpredictable ⏱️</div>
@@ -433,7 +433,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleCondition("PCOS")}
                 className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
-                  hasPcos ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
+                  hasPcos ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-plum-900 hover:bg-blush-50"
                 }`}
               >
                 PCOS / PCOD
@@ -443,7 +443,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleCondition("Thyroid disorder")}
                 className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
-                  hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
+                  hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-blush-200 text-plum-900 hover:bg-blush-50"
                 }`}
               >
                 Thyroid Disorder
@@ -453,7 +453,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleCondition("None")}
                 className={`p-3 rounded-xl border text-center text-xs font-semibold transition-colors cursor-pointer ${
-                  isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-blush-200 text-[#2D1B36] hover:bg-blush-50"
+                  isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-blush-200 text-plum-900 hover:bg-blush-50"
                 }`}
               >
                 None / No Diagnosis
@@ -555,7 +555,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleMaternalCondition("High Blood Pressure / Hypertension")}
                 className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
-                  hasHypertension ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
+                  hasHypertension ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-plum-900 hover:bg-lavender-50"
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -569,7 +569,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleMaternalCondition("Gestational Diabetes")}
                 className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
-                  hasDiabetes ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
+                  hasDiabetes ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-plum-900 hover:bg-lavender-50"
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -583,7 +583,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleMaternalCondition("Thyroid Condition")}
                 className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
-                  hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
+                  hasThyroid ? "bg-plum-900 text-white border-plum-900 shadow-sm" : "bg-white border-lavender-200 text-plum-900 hover:bg-lavender-50"
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -597,7 +597,7 @@ export default function UnifiedOnboardingChat() {
                 type="button"
                 onClick={() => toggleMaternalCondition("None")}
                 className={`p-3 rounded-xl border text-left text-xs font-semibold transition-colors cursor-pointer ${
-                  isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-lavender-200 text-[#2D1B36] hover:bg-lavender-50"
+                  isNone ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white border-lavender-200 text-plum-900 hover:bg-lavender-50"
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">

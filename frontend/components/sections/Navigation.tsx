@@ -146,10 +146,9 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Main", href: "#hero" },
-    { label: "Cycle", href: "#cycle" },
-    { label: "Mind", href: "#mind" },
-    { label: "Care", href: "#care" },
+    { label: "Her & Mom", href: "#modes" },
+    { label: "Insights", href: "#insights" },
+    { label: "Talk to Sakhi", href: "#talk" },
     { label: "Privacy", href: "#privacy" },
   ];
 
@@ -174,7 +173,8 @@ export function Navigation() {
       className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-3 sm:px-4 pt-3 sm:pt-4"
     >
       <nav
-        className={`flex w-full max-w-5xl items-center justify-between gap-3 sm:gap-4 rounded-full pl-16 sm:pl-6 pr-3 sm:pr-5 py-2 transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--ease-soft)]
+        aria-label="Main"
+        className={`flex w-full max-w-5xl items-center justify-between gap-3 sm:gap-4 rounded-full pl-20 sm:pl-24 xl:pl-8 pr-3 sm:pr-5 py-2 transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--ease-soft)]
           ${scrolled ? "glass-strong" : "bg-white/40 border border-white/50 backdrop-blur-md shadow-sm"}`}
         style={{ minHeight: "56px" }}
       >
@@ -185,7 +185,7 @@ export function Navigation() {
               key={l.label}
               href={l.href}
               onClick={(e) => handleNavClick(e, l.href)}
-              className="text-sm font-medium text-ink-soft transition-colors hover:text-plum-900 cursor-pointer"
+              className="rounded-full text-sm font-medium text-ink-soft transition-colors hover:text-plum-900 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-4"
             >
               {l.label}
             </a>
@@ -206,7 +206,7 @@ export function Navigation() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-[#2D1B36] font-semibold text-xs">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-plum-900 font-semibold text-xs">
                     {(userName || session?.user?.name || "U").charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -245,7 +245,8 @@ export function Navigation() {
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="flex md:hidden w-9 h-9 rounded-full bg-white/60 border border-white/60 items-center justify-center text-plum-900 hover:bg-white/90 transition-colors shadow-sm"
-            aria-label="Toggle mobile menu"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
           </button>

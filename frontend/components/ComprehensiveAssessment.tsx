@@ -105,8 +105,8 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
         return (
           <div className="flex flex-col items-center text-center space-y-6">
             <Sparkle weight="duotone" className="w-16 h-16 text-pink-400 opacity-80" />
-            <h2 className="text-3xl font-semibold text-[#2D1B36] tracking-tight">Welcome to Sakhi</h2>
-            <p className="text-[#2D1B36]/70 text-lg max-w-md leading-relaxed">
+            <h2 className="text-3xl font-semibold text-plum-900 tracking-tight">Welcome to Sakhi</h2>
+            <p className="text-plum-900/70 text-lg max-w-md leading-relaxed">
               Before we begin our journey together, I'd like to ask a few questions to truly understand your body's unique rhythm. 
               There is no rush, take all the time you need.
             </p>
@@ -117,8 +117,8 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
         return (
           <div className="flex flex-col items-center text-center space-y-6">
             <Sparkle weight="duotone" className="w-16 h-16 text-pink-400 opacity-80" />
-            <h2 className="text-3xl font-semibold text-[#2D1B36] tracking-tight">Hello again.</h2>
-            <p className="text-[#2D1B36]/70 text-lg max-w-md leading-relaxed">
+            <h2 className="text-3xl font-semibold text-plum-900 tracking-tight">Hello again.</h2>
+            <p className="text-plum-900/70 text-lg max-w-md leading-relaxed">
               How is your body feeling today? Let's do a gentle check-in.
             </p>
           </div>
@@ -127,13 +127,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "name":
         return (
           <div className="flex flex-col items-center text-center space-y-8 w-full max-w-sm mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">What may I call you?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">What may I call you?</h2>
             <input 
               type="text" 
               value={data.preferredName}
               onChange={(e) => updateData("preferredName", e.target.value)}
               placeholder="Your gentle name..."
-              className="w-full bg-white/50 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-center text-xl text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[box-shadow,background-color]"
+              className="w-full bg-white/50 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-center text-xl text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[box-shadow,background-color]"
             />
           </div>
         );
@@ -141,20 +141,20 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "lastPeriod":
         return (
           <div className="flex flex-col items-center text-center space-y-8 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">When did your last period start?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">When did your last period start?</h2>
             <div className="flex flex-col w-full space-y-4">
               <input 
                 type="date" 
                 value={data.lastPeriodStart}
                 onChange={(e) => updateData("lastPeriodStart", e.target.value)}
-                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
+                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
               />
-              <p className="text-[#2D1B36]/50 text-sm">And when did it end?</p>
+              <p className="text-plum-900/50 text-sm">And when did it end?</p>
               <input 
                 type="date" 
                 value={data.lastPeriodEnd}
                 onChange={(e) => updateData("lastPeriodEnd", e.target.value)}
-                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
+                className="w-full bg-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] px-6 py-4 text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
               />
             </div>
           </div>
@@ -163,8 +163,8 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "cycleLength":
         return (
           <div className="flex flex-col items-center text-center space-y-8 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">What is your average cycle length?</h2>
-            <p className="text-[#2D1B36]/60">Usually between 21 and 35 days.</p>
+            <h2 className="text-2xl font-medium text-plum-900">What is your average cycle length?</h2>
+            <p className="text-plum-900/60">Usually between 21 and 35 days.</p>
             <div className="flex items-center space-x-6 w-full">
               <input 
                 type="range" 
@@ -173,7 +173,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
                 onChange={(e) => updateData("cycleLengthAvg", parseInt(e.target.value))}
                 className="w-full accent-pink-400"
               />
-              <span className="text-3xl font-semibold text-[#2D1B36]">{data.cycleLengthAvg}</span>
+              <span className="text-3xl font-semibold text-plum-900">{data.cycleLengthAvg}</span>
             </div>
           </div>
         );
@@ -181,13 +181,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "regularity":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-sm mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Are your periods usually regular?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Are your periods usually regular?</h2>
             <div className="flex flex-col w-full space-y-3">
               {["Yes", "No", "Sometimes"].map(opt => (
                 <button
                   key={opt}
                   onClick={() => updateData("cycleRegularity", opt)}
-                  className={`py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.cycleRegularity === opt ? 'bg-pink-100 text-pink-900 shadow-sm border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
+                  className={`py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.cycleRegularity === opt ? 'bg-pink-100 text-pink-900 shadow-sm border border-pink-200' : 'bg-white/40 text-plum-900/70 hover:bg-white/60 border border-transparent'}`}
                 >
                   {opt}
                 </button>
@@ -199,13 +199,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "diagnosed":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Have you been diagnosed with any of these?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Have you been diagnosed with any of these?</h2>
             <div className="grid grid-cols-2 gap-3 w-full">
               {["PCOS", "Thyroid disorder", "Endometriosis", "Fibroids", "None"].map(opt => (
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("diagnosedConditions", opt)}
-                  className={`py-3 px-4 rounded-2xl text-sm font-medium transition-colors ${data.diagnosedConditions.includes(opt) ? 'bg-indigo-100 text-indigo-900 border border-indigo-200 shadow-sm' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60 border border-transparent'}`}
+                  className={`py-3 px-4 rounded-2xl text-sm font-medium transition-colors ${data.diagnosedConditions.includes(opt) ? 'bg-indigo-100 text-indigo-900 border border-indigo-200 shadow-sm' : 'bg-white/40 text-plum-900/70 hover:bg-white/60 border border-transparent'}`}
                 >
                   {opt}
                 </button>
@@ -217,17 +217,17 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "onPeriod":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-sm mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Are you currently on your period?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Are you currently on your period?</h2>
             <div className="flex space-x-4 w-full">
               <button
                 onClick={() => updateData("onPeriod", true)}
-                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === true ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === true ? 'bg-pink-100 text-pink-900 border border-pink-200' : 'bg-white/40 text-plum-900/70'}`}
               >
                 Yes
               </button>
               <button
                 onClick={() => updateData("onPeriod", false)}
-                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === false ? 'bg-indigo-100 text-indigo-900 border border-indigo-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                className={`flex-1 py-4 rounded-[2rem] text-lg font-medium transition-colors ${data.onPeriod === false ? 'bg-indigo-100 text-indigo-900 border border-indigo-200' : 'bg-white/40 text-plum-900/70'}`}
               >
                 No
               </button>
@@ -243,13 +243,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
         return (
           <div className="flex flex-col items-center text-center space-y-8 w-full max-w-md mx-auto">
             <div className="space-y-4 w-full">
-              <h2 className="text-2xl font-medium text-[#2D1B36]">How heavy is your flow today?</h2>
+              <h2 className="text-2xl font-medium text-plum-900">How heavy is your flow today?</h2>
               <div className="grid grid-cols-2 gap-2">
                 {["Spotting", "Light", "Moderate", "Heavy", "Very Heavy"].map(opt => (
                   <button
                     key={opt}
                     onClick={() => updateData("flowIntensity", opt)}
-                    className={`py-2 px-3 rounded-xl text-sm transition-colors ${data.flowIntensity === opt ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                    className={`py-2 px-3 rounded-xl text-sm transition-colors ${data.flowIntensity === opt ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-plum-900/70'}`}
                   >
                     {opt}
                   </button>
@@ -257,7 +257,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
               </div>
             </div>
             <div className="space-y-4 w-full">
-              <h2 className="text-xl font-medium text-[#2D1B36]">How severe are your cramps? (0-10)</h2>
+              <h2 className="text-xl font-medium text-plum-900">How severe are your cramps? (0-10)</h2>
               <input 
                 type="range" min="0" max="10" 
                 value={data.crampsSeverity}
@@ -272,13 +272,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "symptoms":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Are you experiencing any of these?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Are you experiencing any of these?</h2>
             <div className="grid grid-cols-2 gap-2 w-full">
               {["Cramps", "Headache", "Bloating", "Acne", "Back pain", "Breast tenderness", "Fatigue", "Nausea", "Mood swings", "None"].map(opt => (
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("symptoms", opt)}
-                  className={`py-3 px-2 rounded-2xl text-sm transition-colors ${data.symptoms.includes(opt) ? 'bg-[#2D1B36] text-white' : 'bg-white/40 text-[#2D1B36]/70 hover:bg-white/60'}`}
+                  className={`py-3 px-2 rounded-2xl text-sm transition-colors ${data.symptoms.includes(opt) ? 'bg-plum-900 text-white' : 'bg-white/40 text-plum-900/70 hover:bg-white/60'}`}
                 >
                   {opt}
                 </button>
@@ -290,13 +290,13 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "mood":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">How are you feeling today?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">How are you feeling today?</h2>
             <div className="grid grid-cols-3 gap-3 w-full">
               {["Happy", "Calm", "Irritated", "Anxious", "Sad", "Stressed"].map(opt => (
                 <button
                   key={opt}
                   onClick={() => updateData("mood", opt)}
-                  className={`py-4 rounded-[2rem] text-sm font-medium transition-colors ${data.mood === opt ? 'bg-gradient-to-br from-pink-200 to-indigo-200 text-[#2D1B36] shadow-sm' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                  className={`py-4 rounded-[2rem] text-sm font-medium transition-colors ${data.mood === opt ? 'bg-gradient-to-br from-pink-200 to-indigo-200 text-plum-900 shadow-sm' : 'bg-white/40 text-plum-900/70'}`}
                 >
                   {opt}
                 </button>
@@ -308,9 +308,9 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "lifestyle":
         return (
           <div className="flex flex-col items-center text-center space-y-8 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Just a few lifestyle details</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Just a few lifestyle details</h2>
             <div className="w-full space-y-2 text-left">
-              <label className="text-sm font-medium text-[#2D1B36]/70 ml-2">Hours of sleep last night</label>
+              <label className="text-sm font-medium text-plum-900/70 ml-2">Hours of sleep last night</label>
               <input 
                 type="number" value={data.sleepHours} 
                 onChange={(e) => updateData("sleepHours", parseFloat(e.target.value))}
@@ -318,7 +318,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
               />
             </div>
             <div className="w-full space-y-2 text-left">
-              <label className="text-sm font-medium text-[#2D1B36]/70 ml-2">Did you exercise today?</label>
+              <label className="text-sm font-medium text-plum-900/70 ml-2">Did you exercise today?</label>
               <div className="flex gap-2">
                 <button onClick={() => updateData("exercised", true)} className={`flex-1 py-3 rounded-2xl ${data.exercised ? 'bg-indigo-100' : 'bg-white/40'}`}>Yes</button>
                 <button onClick={() => updateData("exercised", false)} className={`flex-1 py-3 rounded-2xl ${!data.exercised ? 'bg-indigo-100' : 'bg-white/40'}`}>No</button>
@@ -330,14 +330,14 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "warnings":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Emergency Screening</h2>
-            <p className="text-[#2D1B36]/60">Are you experiencing any of these warning signs?</p>
+            <h2 className="text-2xl font-medium text-plum-900">Emergency Screening</h2>
+            <p className="text-plum-900/60">Are you experiencing any of these warning signs?</p>
             <div className="flex flex-col gap-2 w-full">
               {["Heavy bleeding", "Severe abdominal pain", "Fainting", "Fever", "Bleeding between periods", "None"].map(opt => (
                 <button
                   key={opt}
                   onClick={() => toggleArrayItem("warningSigns", opt)}
-                  className={`py-3 px-4 rounded-2xl text-sm transition-colors ${data.warningSigns.includes(opt) ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-[#2D1B36]/70'}`}
+                  className={`py-3 px-4 rounded-2xl text-sm transition-colors ${data.warningSigns.includes(opt) ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-white/40 text-plum-900/70'}`}
                 >
                   {opt}
                 </button>
@@ -349,12 +349,12 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
       case "notes":
         return (
           <div className="flex flex-col items-center text-center space-y-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-medium text-[#2D1B36]">Would you like to add anything else?</h2>
+            <h2 className="text-2xl font-medium text-plum-900">Would you like to add anything else?</h2>
             <textarea 
               value={data.notes}
               onChange={(e) => updateData("notes", e.target.value)}
               placeholder="Any gentle thoughts, feelings, or symptoms..."
-              className="w-full bg-white/50 border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-3xl p-6 min-h-[150px] text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 resize-none"
+              className="w-full bg-white/50 border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-3xl p-6 min-h-[150px] text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 resize-none"
             />
           </div>
         );
@@ -365,7 +365,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#FAF8F5]/90 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-cream/90 backdrop-blur-md p-4">
       <div className="w-full max-w-2xl bg-white/60 border border-white rounded-[3rem] p-10 md:p-16 shadow-[0_20px_60px_rgb(0,0,0,0.05)] relative overflow-hidden">
         
         {/* Progress Bar */}
@@ -399,7 +399,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
           <div className="flex justify-between items-center mt-12">
             <button 
               onClick={() => step > 0 && setStep(s => s - 1)}
-              className={`text-[#2D1B36]/50 font-medium px-4 py-2 hover:text-[#2D1B36] transition-colors ${step === 0 ? 'invisible' : 'visible'}`}
+              className={`text-plum-900/50 font-medium px-4 py-2 hover:text-plum-900 transition-colors ${step === 0 ? 'invisible' : 'visible'}`}
             >
               Back
             </button>
@@ -407,7 +407,7 @@ export default function ComprehensiveAssessment({ isFirstTime, onComplete, setAi
             <button 
               onClick={handleNext}
               disabled={isTransitioning}
-              className="flex items-center gap-2 bg-[#2D1B36] text-white px-8 py-4 rounded-[2rem] font-medium hover:bg-[#2D1B36]/90 transition-[background-color,box-shadow] shadow-[0_8px_20px_rgb(45,27,54,0.15)] disabled:opacity-50"
+              className="flex items-center gap-2 bg-plum-900 text-white px-8 py-4 rounded-[2rem] font-medium hover:bg-plum-900/90 transition-[background-color,box-shadow] shadow-[0_8px_20px_rgb(45,27,54,0.15)] disabled:opacity-50"
             >
               {step === steps.length - 1 ? "Complete Check-in" : "Continue"}
               {step === steps.length - 1 ? <CheckCircle weight="fill" /> : <CaretRight weight="bold" />}

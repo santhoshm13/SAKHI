@@ -46,12 +46,12 @@ export default function ResetPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-6 text-center">
       <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-6 text-pink-500 shadow-sm animate-pulse">
         <Sparkle weight="duotone" className="w-8 h-8" />
       </div>
-      <h1 className="text-2xl font-semibold text-[#2D1B36] mb-2">Resetting Sakhi</h1>
-      <p className="text-sm text-[#2D1B36]/60 max-w-sm mb-6">{status}</p>
+      <h1 className="text-2xl font-semibold text-plum-900 mb-2">Resetting Sakhi</h1>
+      <p className="text-sm text-plum-900/60 max-w-sm mb-6">{status}</p>
       <div className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );

@@ -33,12 +33,12 @@ export default function OnboardingChat({ onComplete }: OnboardingChatProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Type your name..."
-            className="w-full bg-white/60 border border-white/40 rounded-xl px-4 py-2 text-sm text-[#2D1B36] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300 mb-3"
+            className="w-full bg-white/60 border border-white/40 rounded-xl px-4 py-2 text-sm text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300 mb-3"
           />
           <button
             onClick={() => { if(name.trim()) setStep(1); }}
             disabled={!name.trim()}
-            className="px-4 py-2 rounded-full bg-[#2D1B36] text-white text-xs font-medium self-end disabled:opacity-50"
+            className="px-4 py-2 rounded-full bg-plum-900 text-white text-xs font-medium self-end disabled:opacity-50"
           >
             Next
           </button>
@@ -59,11 +59,11 @@ export default function OnboardingChat({ onComplete }: OnboardingChatProps) {
               onChange={(e) => setCycleLength(parseInt(e.target.value))}
               className="w-full accent-pink-500"
             />
-            <span className="font-semibold text-[#2D1B36] shrink-0 w-8">{cycleLength}</span>
+            <span className="font-semibold text-plum-900 shrink-0 w-8">{cycleLength}</span>
           </div>
           <button
             onClick={() => setStep(2)}
-            className="px-4 py-2 rounded-full bg-[#2D1B36] text-white text-xs font-medium self-end"
+            className="px-4 py-2 rounded-full bg-plum-900 text-white text-xs font-medium self-end"
           >
             Next
           </button>
@@ -84,11 +84,11 @@ export default function OnboardingChat({ onComplete }: OnboardingChatProps) {
               onChange={(e) => setPeriodDuration(parseInt(e.target.value))}
               className="w-full accent-pink-500"
             />
-            <span className="font-semibold text-[#2D1B36] shrink-0 w-8">{periodDuration}</span>
+            <span className="font-semibold text-plum-900 shrink-0 w-8">{periodDuration}</span>
           </div>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-full bg-[#2D1B36] text-white text-xs font-medium self-end flex items-center gap-2"
+            className="px-4 py-2 rounded-full bg-plum-900 text-white text-xs font-medium self-end flex items-center gap-2"
           >
             <CheckCircle weight="bold" /> Complete
           </button>
@@ -113,7 +113,7 @@ export default function OnboardingChat({ onComplete }: OnboardingChatProps) {
             className="flex flex-col w-full"
           >
             {/* Bot Message */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2 flex gap-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2 flex gap-2">
               <Sparkle className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" weight="fill" />
               <span>{s.botText}</span>
             </div>

@@ -91,7 +91,7 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
   const recent = list.slice(-6).reverse();
   const preterm = weeks !== undefined && weeks !== null && weeks < 37;
   const tone = check.level === "go" ? "bg-rose-50 border-rose-200 text-rose-900"
-    : check.level === "close" ? "bg-amber-50 border-amber-200 text-amber-900" : "bg-white/70 border-[#2D1B36]/10 text-[#2D1B36]/80";
+    : check.level === "close" ? "bg-amber-50 border-amber-200 text-amber-900" : "bg-white/70 border-plum-900/10 text-plum-900/80";
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,7 +100,7 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
           type="button"
           onClick={toggle}
           aria-pressed={Boolean(active)}
-          className={`w-40 h-40 shrink-0 rounded-full flex flex-col items-center justify-center text-white shadow-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pink-300 ${active ? "bg-rose-500 hover:bg-rose-600 animate-pulse" : "bg-[#2D1B36] hover:bg-black"}`}
+          className={`w-40 h-40 shrink-0 rounded-full flex flex-col items-center justify-center text-white shadow-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pink-300 ${active ? "bg-rose-500 hover:bg-rose-600 animate-pulse" : "bg-plum-900 hover:bg-black"}`}
         >
           <Timer weight="duotone" className="w-8 h-8 mb-1" />
           <span className="text-sm font-semibold">{active ? "Tap when it ends" : "Tap when it starts"}</span>
@@ -109,13 +109,13 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
         </button>
 
         <div className="flex-1 w-full grid grid-cols-2 gap-2">
-          <div className="rounded-xl border border-[#2D1B36]/10 bg-white/80 px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-[#2D1B36]/55">Avg. apart (last hour)</p>
-            <p className="text-lg font-semibold tabular-nums text-[#2D1B36]">{check.avgGapMin === null ? "—" : `${check.avgGapMin.toFixed(1)} min`}</p>
+          <div className="rounded-xl border border-plum-900/10 bg-white/80 px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wide text-plum-900/55">Avg. apart (last hour)</p>
+            <p className="text-lg font-semibold tabular-nums text-plum-900">{check.avgGapMin === null ? "—" : `${check.avgGapMin.toFixed(1)} min`}</p>
           </div>
-          <div className="rounded-xl border border-[#2D1B36]/10 bg-white/80 px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-[#2D1B36]/55">Avg. length</p>
-            <p className="text-lg font-semibold tabular-nums text-[#2D1B36]">{check.avgLenSec === null ? "—" : `${Math.round(check.avgLenSec)} sec`}</p>
+          <div className="rounded-xl border border-plum-900/10 bg-white/80 px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wide text-plum-900/55">Avg. length</p>
+            <p className="text-lg font-semibold tabular-nums text-plum-900">{check.avgLenSec === null ? "—" : `${Math.round(check.avgLenSec)} sec`}</p>
           </div>
           <div className={`col-span-2 rounded-xl border px-3 py-2 ${tone}`} aria-live="polite">
             <p className="text-sm font-semibold">{check.title}</p>
@@ -126,9 +126,9 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
 
       {recent.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-[#2D1B36]/80">
+          <table className="w-full text-xs text-plum-900/80">
             <thead>
-              <tr className="text-left text-[10px] uppercase tracking-wide text-[#2D1B36]/50">
+              <tr className="text-left text-[10px] uppercase tracking-wide text-plum-900/50">
                 <th className="py-1 font-medium">Started</th><th className="py-1 font-medium">Length</th><th className="py-1 font-medium">Apart</th>
               </tr>
             </thead>
@@ -136,7 +136,7 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
               {recent.map((c, i) => {
                 const prev = list[list.length - 1 - i - 1];
                 return (
-                  <tr key={c.start} className="border-t border-[#2D1B36]/5">
+                  <tr key={c.start} className="border-t border-plum-900/5">
                     <td className="py-1.5 tabular-nums">{clock(c.start)}</td>
                     <td className="py-1.5 tabular-nums">{c.end ? mmss(c.end - c.start) : "timing…"}</td>
                     <td className="py-1.5 tabular-nums">{prev ? mmss(c.start - prev.start) : "—"}</td>
@@ -159,10 +159,10 @@ export default function ContractionTimer({ weeks }: { weeks?: number | null }) {
         <a href="tel:112" className="mt-2 inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"><Phone weight="fill" className="w-3.5 h-3.5" /> Call 112</a>
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-[#2D1B36]/50">
+      <div className="flex items-center justify-between text-[11px] text-plum-900/50">
         <span>A general guide; follow the plan your doctor or midwife gave you.</span>
         {list.length > 0 && (
-          <button type="button" onClick={reset} className="inline-flex items-center gap-1 hover:text-[#2D1B36] cursor-pointer">
+          <button type="button" onClick={reset} className="inline-flex items-center gap-1 hover:text-plum-900 cursor-pointer">
             <ArrowCounterClockwise className="w-3.5 h-3.5" /> Reset
           </button>
         )}

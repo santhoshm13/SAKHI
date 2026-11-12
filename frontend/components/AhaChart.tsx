@@ -5,7 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 
 /**
  * AhaChart — the "Aha" moment visualization.
- * Shows how an anxiety curve correlates with the luteal phase of the
+ * Shows how a low-mood curve lines up with the luteal phase of the
  * cycle. The chart "draws itself" as the user scrolls: line paths use
  * pathLength tied to scroll progress, and the correlation badge +
  * annotation pins reveal after the line completes.
@@ -70,7 +70,7 @@ export function AhaChart() {
           viewBox={`0 0 ${W} ${H}`}
           className="w-full h-auto"
           role="img"
-          aria-label="Sample chart showing anxiety levels rising sharply during the luteal phase of the menstrual cycle, tracking the progesterone curve."
+          aria-label="Sample chart: low mood rises during the luteal phase, after ovulation, alongside progesterone."
         >
           <defs>
             <linearGradient id="anxietyLine" x1="0" y1="0" x2="1" y2="0">
@@ -221,10 +221,10 @@ export function AhaChart() {
         >
           <div className="glass-strong rounded-2xl px-4 py-3">
             <p className="text-xs font-medium text-ink-soft">
-              Correlation
+              Sample cycle
             </p>
-            <p className="text-2xl font-semibold text-plum-900">
-              +0.81
+            <p className="text-sm font-semibold text-plum-900">
+              Low days cluster after ovulation
             </p>
           </div>
         </motion.div>

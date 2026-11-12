@@ -18,7 +18,7 @@ const signed = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : "±"}${Math.abs(n
 
 function Chip({ label, value, tone = "plain" }: { label: string; value: string; tone?: "plain" | "good" | "watch" }) {
   const cls = tone === "good" ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-    : tone === "watch" ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-white/80 border-[#2D1B36]/10 text-[#2D1B36]/80";
+    : tone === "watch" ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-white/80 border-plum-900/10 text-plum-900/80";
   return (
     <div className={`rounded-xl border px-3 py-2 ${cls}`}>
       <p className="text-[10px] uppercase tracking-wide opacity-70">{label}</p>
@@ -97,7 +97,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
   const yValues = chart.flatMap((r: any) => [r.kg, ...(r.band || [])]);
   const yMin = yValues.length ? Math.floor(Math.min(...yValues) - 1) : 0;
   const yMax = yValues.length ? Math.ceil(Math.max(...yValues) + 1) : 1;
-  const inputCls = "rounded-xl border border-[#2D1B36]/15 bg-white px-3 py-2 text-sm text-[#2D1B36] focus:outline-none focus:ring-2 focus:ring-pink-300";
+  const inputCls = "rounded-xl border border-plum-900/15 bg-white px-3 py-2 text-sm text-plum-900 focus:outline-none focus:ring-2 focus:ring-pink-300";
 
   return (
     <div className="flex flex-col gap-4">
@@ -105,8 +105,8 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
         <div className="flex items-center gap-3">
           <span className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center"><Scales weight="duotone" className="w-5 h-5" /></span>
           <div>
-            <p className="text-2xl font-semibold text-[#2D1B36] tabular-nums">{stats.latest ? `${stats.latest.kg} kg` : "—"}</p>
-            <p className="text-xs text-[#2D1B36]/55">{stats.latest ? `Last logged ${fmtDate(stats.latest.date)}` : "No weight logged yet"}</p>
+            <p className="text-2xl font-semibold text-plum-900 tabular-nums">{stats.latest ? `${stats.latest.kg} kg` : "—"}</p>
+            <p className="text-xs text-plum-900/55">{stats.latest ? `Last logged ${fmtDate(stats.latest.date)}` : "No weight logged yet"}</p>
           </div>
         </div>
         <form onSubmit={addWeight} className="flex flex-wrap items-center gap-2">
@@ -157,7 +157,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-28 rounded-2xl border border-dashed border-pink-200 flex items-center justify-center text-sm text-[#2D1B36]/55 text-center px-4">
+        <div className="h-28 rounded-2xl border border-dashed border-pink-200 flex items-center justify-center text-sm text-plum-900/55 text-center px-4">
           Log your weight a couple of times to see your trend{mode === "her" ? "." : ", or tell Sakhi \"I weigh 62 kg\"."}
         </div>
       )}
@@ -165,7 +165,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
       {mode === "pregnancy" && (
         <div className="rounded-2xl bg-pink-50/60 border border-pink-100 p-3">
           {status && gained !== null && range ? (
-            <p className="text-xs text-[#2D1B36]/75">
+            <p className="text-xs text-plum-900/75">
               {status === "within"
                 ? `You've gained ${gained} kg, right in the healthy range for week ${weeks} (${range[0]}–${range[1]} kg). Lovely and steady.`
                 : status === "below"
@@ -174,7 +174,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
               {guide ? ` Your pre-pregnancy BMI of ${bmi(doc.preKg!, doc.heightCm!)} is ${guide.label}, so the total range is ${guide.total[0]}–${guide.total[1]} kg.` : ""}
             </p>
           ) : (
-            <p className="text-xs text-[#2D1B36]/70 flex gap-1.5"><Info className="w-4 h-4 shrink-0" /> Add your height and your weight before pregnancy to see your personal healthy gain range on the chart.</p>
+            <p className="text-xs text-plum-900/70 flex gap-1.5"><Info className="w-4 h-4 shrink-0" /> Add your height and your weight before pregnancy to see your personal healthy gain range on the chart.</p>
           )}
           <button type="button" onClick={() => setSetup(s => !s)} className="mt-2 text-xs font-medium text-pink-700 underline underline-offset-2 cursor-pointer">
             {setup ? "Close" : doc.preKg && doc.heightCm ? "Edit height and starting weight" : "Set up healthy gain range"}
@@ -186,14 +186,14 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
             >
               <input type="number" inputMode="numeric" placeholder="Height (cm)" value={height} onChange={e => setHeight(e.target.value)} className={`${inputCls} w-32`} aria-label="Height in cm" />
               <input type="number" inputMode="decimal" step="0.1" placeholder="Before pregnancy (kg)" value={preKg} onChange={e => setPreKg(e.target.value)} className={`${inputCls} w-44`} aria-label="Weight before pregnancy in kg" />
-              <button type="submit" disabled={saving} className="rounded-xl bg-[#2D1B36] text-white text-xs font-medium px-3 py-2 cursor-pointer">Save</button>
+              <button type="submit" disabled={saving} className="rounded-xl bg-plum-900 text-white text-xs font-medium px-3 py-2 cursor-pointer">Save</button>
             </form>
           )}
         </div>
       )}
 
       {mode === "her" && (
-        <p className="text-xs text-[#2D1B36]/55 flex gap-1.5">
+        <p className="text-xs text-plum-900/55 flex gap-1.5">
           <Info className="w-4 h-4 shrink-0" />
           Weight naturally shifts 0.5–2 kg across your cycle, mostly water in the days before your period. The monthly trend matters more than any single day.
         </p>
@@ -202,7 +202,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
       {doc.entries.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {doc.entries.slice(-5).reverse().map(e => (
-            <span key={e.date} className="inline-flex items-center gap-1 rounded-full bg-white/80 border border-[#2D1B36]/10 pl-2.5 pr-1 py-0.5 text-[11px] text-[#2D1B36]/70">
+            <span key={e.date} className="inline-flex items-center gap-1 rounded-full bg-white/80 border border-plum-900/10 pl-2.5 pr-1 py-0.5 text-[11px] text-plum-900/70">
               {fmtDate(e.date)} · {e.kg} kg
               <button type="button" onClick={() => remove(e.date)} aria-label={`Delete weight for ${fmtDate(e.date)}`} className="p-0.5 rounded-full hover:bg-rose-50 hover:text-rose-600 cursor-pointer"><X size={10} weight="bold" /></button>
             </span>

@@ -35,7 +35,7 @@ export default function PregnancyNotificationCenter({
       case 'ai_insight': return <Brain weight="fill" className="text-purple-500 w-6 h-6" />;
       case 'emergency': return <WarningCircle weight="fill" className="text-red-600 w-6 h-6" />;
       case 'progress': return <BellRinging weight="fill" className="text-pink-500 w-6 h-6" />;
-      default: return <BellRinging weight="fill" className="text-[#2D1B36]/60 w-6 h-6" />;
+      default: return <BellRinging weight="fill" className="text-plum-900/60 w-6 h-6" />;
     }
   };
 
@@ -55,8 +55,8 @@ export default function PregnancyNotificationCenter({
           >
             {/* Header */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-pink-50/50">
-              <h2 className="text-2xl font-semibold text-[#2D1B36]">Notification Center</h2>
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#2D1B36]/60">
+              <h2 className="text-2xl font-semibold text-plum-900">Notification Center</h2>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60">
                 <X weight="bold" className="w-6 h-6" />
               </button>
             </div>
@@ -64,8 +64,8 @@ export default function PregnancyNotificationCenter({
             {/* Master Toggle */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white">
               <div>
-                <h3 className="font-medium text-[#2D1B36]">Enable Notifications</h3>
-                <p className="text-sm text-[#2D1B36]/60">Receive pregnancy reminders.</p>
+                <h3 className="font-medium text-plum-900">Enable Notifications</h3>
+                <p className="text-sm text-plum-900/60">Receive pregnancy reminders.</p>
               </div>
               <button 
                 onClick={onToggleMaster}
@@ -83,7 +83,7 @@ export default function PregnancyNotificationCenter({
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab as any)}
-                      className={`flex-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-pink-500 text-pink-600' : 'border-transparent text-[#2D1B36]/60 hover:text-[#2D1B36]'}`}
+                      className={`flex-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-pink-500 text-pink-600' : 'border-transparent text-plum-900/60 hover:text-plum-900'}`}
                     >
                       {tab}
                       {(tab === 'missed' && reminders.filter(r => r.status === 'missed').length > 0) && (
@@ -99,7 +99,7 @@ export default function PregnancyNotificationCenter({
                     <div className="space-y-4">
                       {['water', 'meal', 'vitamins', 'exercise', 'bp', 'sugar'].map(key => (
                         <div key={key} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5">
-                          <span className="font-medium capitalize text-[#2D1B36]">{key} Reminders</span>
+                          <span className="font-medium capitalize text-plum-900">{key} Reminders</span>
                           <button 
                             onClick={() => onUpdatePref(key as keyof NotificationPreferences, !preferences[key as keyof NotificationPreferences])}
                             className={`w-12 h-6 rounded-full p-1 transition-colors ${preferences[key as keyof NotificationPreferences] ? 'bg-pink-400' : 'bg-gray-200'}`}
@@ -110,7 +110,7 @@ export default function PregnancyNotificationCenter({
                       ))}
                     </div>
                   ) : filteredReminders.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-[#2D1B36]/40">
+                    <div className="h-full flex flex-col items-center justify-center text-plum-900/40">
                       <BellZ className="w-16 h-16 mb-4 opacity-20" />
                       <p>No {activeTab} notifications.</p>
                     </div>
@@ -121,10 +121,10 @@ export default function PregnancyNotificationCenter({
                           <div className="flex gap-4">
                             <div className="mt-1">{getIcon(reminder.category)}</div>
                             <div className="flex-1">
-                              <h4 className="font-medium text-[#2D1B36]">{reminder.title}</h4>
-                              <p className="text-sm text-[#2D1B36]/70 mt-1">{reminder.message}</p>
+                              <h4 className="font-medium text-plum-900">{reminder.title}</h4>
+                              <p className="text-sm text-plum-900/70 mt-1">{reminder.message}</p>
                               
-                              <div className="mt-3 flex items-center gap-3 text-xs text-[#2D1B36]/50">
+                              <div className="mt-3 flex items-center gap-3 text-xs text-plum-900/50">
                                 {reminder.status === 'snoozed' ? (
                                   <span className="text-amber-500 font-medium">Snoozed until {new Date(reminder.snoozedUntil || 0).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                 ) : (
@@ -156,7 +156,7 @@ export default function PregnancyNotificationCenter({
             )}
             
             {!preferences.enabled && (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-[#2D1B36]/50">
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-plum-900/50">
                 <BellRinging className="w-16 h-16 mb-4 opacity-20" />
                 <p>Notifications are disabled. Turn them on to receive personalized maternal health reminders.</p>
               </div>

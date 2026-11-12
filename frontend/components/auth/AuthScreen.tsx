@@ -736,7 +736,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
           </button>
 
           {/* Guest sample exploration */}
-          <div className="mt-6 rounded-2xl bg-cream-deep/55 p-4 sm:p-5">
+          <div id="sample" className="mt-6 scroll-mt-6 rounded-2xl bg-cream-deep/55 p-4 sm:p-5">
             <p className="text-sm font-medium text-plum-900">Explore with sample data</p>
             <p className="mt-0.5 text-sm text-plum-800/85">
               Try a pre-filled workspace on this device with no sign-up required.

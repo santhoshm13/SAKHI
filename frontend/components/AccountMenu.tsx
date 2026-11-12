@@ -41,7 +41,7 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
     await sakhiSignOut({ signedIn, eraseGuest });
   };
 
-  const item = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#2D1B36]/80 hover:bg-[#2D1B36]/5 hover:text-[#2D1B36] transition-colors cursor-pointer text-left";
+  const item = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-plum-900/80 hover:bg-plum-900/5 hover:text-plum-900 transition-colors cursor-pointer text-left";
 
   return (
     <div className="relative" ref={ref}>
@@ -56,7 +56,7 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
           // eslint-disable-next-line @next/next/no-img-element
           <img src={session.user.image} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
         ) : (
-          <span className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-[#2D1B36] font-semibold">
+          <span className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-plum-900 font-semibold">
             {displayName?.charAt(0)?.toUpperCase() || "S"}
           </span>
         )}
@@ -70,9 +70,9 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
             transition={{ duration: 0.15 }}
             className="absolute right-0 mt-2 w-72 rounded-2xl bg-white/95 backdrop-blur-xl border border-pink-100 shadow-[0_16px_40px_rgba(45,27,54,0.15)] p-2 z-[80]"
           >
-            <div className="px-3 py-3 border-b border-[#2D1B36]/5 mb-1">
-              <p className="text-sm font-semibold text-[#2D1B36] truncate">{session?.user?.name || displayName}</p>
-              <p className="text-xs text-[#2D1B36]/55 truncate">
+            <div className="px-3 py-3 border-b border-plum-900/5 mb-1">
+              <p className="text-sm font-semibold text-plum-900 truncate">{session?.user?.name || displayName}</p>
+              <p className="text-xs text-plum-900/55 truncate">
                 {signedIn ? session?.user?.email : "Guest session on this device"}
               </p>
             </div>
@@ -95,7 +95,7 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
                   <House className="w-4 h-4" /> Home page
                 </button>
 
-                <div className="h-px bg-[#2D1B36]/5 my-1" />
+                <div className="h-px bg-plum-900/5 my-1" />
                 {signedIn ? (
                   <button role="menuitem" disabled={busy} className={`${item} text-rose-600 hover:text-rose-700 hover:bg-rose-50`} onClick={() => doSignOut()}>
                     <SignOut className="w-4 h-4" /> {busy ? "Signing out…" : "Sign out"}
@@ -113,12 +113,12 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
               </>
             ) : (
               <div className="p-3">
-                <p className="text-sm font-semibold text-[#2D1B36] flex items-center gap-2"><WarningCircle className="w-4 h-4 text-rose-500" /> End guest session?</p>
-                <p className="text-xs text-[#2D1B36]/65 mt-1.5 leading-relaxed">
+                <p className="text-sm font-semibold text-plum-900 flex items-center gap-2"><WarningCircle className="w-4 h-4 text-rose-500" /> End guest session?</p>
+                <p className="text-xs text-plum-900/65 mt-1.5 leading-relaxed">
                   Guest data lives only in this browser. Ending the session permanently erases it. Download it first, or sign in to keep it.
                 </p>
                 <div className="mt-3 flex gap-2">
-                  <button onClick={() => setConfirmGuest(false)} className="flex-1 rounded-xl py-2 text-sm text-[#2D1B36]/70 bg-[#2D1B36]/5 hover:bg-[#2D1B36]/10 cursor-pointer">Cancel</button>
+                  <button onClick={() => setConfirmGuest(false)} className="flex-1 rounded-xl py-2 text-sm text-plum-900/70 bg-plum-900/5 hover:bg-plum-900/10 cursor-pointer">Cancel</button>
                   <button disabled={busy} onClick={() => doSignOut(true)} className="flex-1 rounded-xl py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 cursor-pointer disabled:opacity-60">
                     {busy ? "Ending…" : "Erase & exit"}
                   </button>

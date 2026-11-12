@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
-  Bell, Baby, Drop, Brain, WarningCircle, FilePdf, Heartbeat, ShieldCheck,
+  Baby, Drop, Brain, WarningCircle, FilePdf, Heartbeat, ShieldCheck,
   Info, CaretDown, CaretUp, CheckCircle, Sun, CalendarCheck, Heart } from "@phosphor-icons/react";
-import AccountMenu from "@/components/AccountMenu";
+import DashboardHeader from "@/components/DashboardHeader";
+import { panelCard } from "@/components/her/HerPanels";
+import { sizeFor } from "@/lib/chat/offline/knowledge";
 import DashboardTabs, { useHashTab, type TabDef } from "@/components/DashboardTabs";
 
 type MomTab = "today" | "vitals" | "plan" | "care";
@@ -280,9 +282,9 @@ const getGdmExplainability = (
   };
 };
 
-const cardClass = "bg-white/60 backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-[border-color,box-shadow] duration-300 p-4 sm:p-6 md:p-8 relative overflow-hidden min-w-0";
-const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between min-w-0";
-const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-3 sm:mb-4";
+const cardClass = panelCard;
+const innerCardClass = "bg-cream/70 rounded-xl sm:rounded-2xl border border-plum-900/[0.06] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between min-w-0";
+const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-plum-900/5 flex items-center justify-center text-plum-900 mb-3 sm:mb-4";
 
 /** Today tab: the most recent reading of each vital, colour-coded against common pregnancy thresholds. */
 function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: () => void }) {
@@ -294,7 +296,7 @@ function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: (
   const weight = latest("weight");
   const when = (l: any) => (l ? new Date(String(l.log_date).slice(0, 10) + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
   const tone = (level: "ok" | "watch" | "high" | "none") =>
-    level === "high" ? "bg-rose-50 border-rose-200 text-rose-700" : level === "watch" ? "bg-amber-50 border-amber-200 text-amber-700" : level === "ok" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/70 border-pink-100 text-[#2D1B36]/60";
+    level === "high" ? "bg-rose-50 border-rose-200 text-rose-700" : level === "watch" ? "bg-amber-50 border-amber-200 text-amber-700" : level === "ok" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/70 border-pink-100 text-plum-900/60";
   const sys = Number(bp?.blood_pressure_systolic), dia = Number(bp?.blood_pressure_diastolic);
   const bpLevel = !bp ? "none" : sys >= 140 || dia >= 90 ? "high" : sys >= 130 || dia >= 80 ? "watch" : "ok";
   const bs = Number(sugar?.blood_sugar);
@@ -309,18 +311,18 @@ function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: (
     { label: "Weight", value: weight ? `${weight.weight}` : "—", unit: "kg", level: "none" as const, log: weight, note: weight ? "Latest check-in" : "Not logged yet" },
   ];
   return (
-    <section className={`${cardClass} md:col-span-12`}>
+    <section className={`${cardClass} md:col-span-12 order-2`}>
       <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="text-xl font-medium text-[#2D1B36]">Latest readings</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-plum-900">Latest readings</h2>
         <button onClick={onOpenVitals} className="text-sm font-medium text-pink-600 hover:text-pink-700 cursor-pointer">See trends →</button>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {items.map(i => (
           <div key={i.label} className={`rounded-2xl border p-4 ${tone(i.level as any)}`}>
             <p className="text-xs font-semibold opacity-75">{i.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-[#2D1B36]">{i.value} <span className="text-xs font-normal text-[#2D1B36]/50">{i.unit}</span></p>
+            <p className="mt-1 text-2xl font-semibold text-plum-900">{i.value} <span className="text-xs font-normal text-plum-900/50">{i.unit}</span></p>
             <p className="mt-1 text-xs">{i.note}</p>
-            {i.log && <p className="mt-1 text-[11px] text-[#2D1B36]/45">{when(i.log)}</p>}
+            {i.log && <p className="mt-1 text-[11px] text-plum-900/45">{when(i.log)}</p>}
           </div>
         ))}
       </div>
@@ -591,7 +593,7 @@ export default function PregnancyModePage() {
 
   if (!mounted || isCheckingData) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+      <div className="min-h-screen bg-cream flex items-center justify-center">
         <Baby weight="duotone" className="w-12 h-12 text-pink-400 animate-pulse opacity-50" />
       </div>
     );
@@ -599,6 +601,8 @@ export default function PregnancyModePage() {
 
   const displayName = profile?.preferred_name || (typeof window !== 'undefined' ? localStorage.getItem('sakhi_preferred_name') : null) || session?.user?.name?.split(" ")[0] || "Mama";
   const weeks = profile?.weeks_pregnant || 18;
+  const dueMs = profile?.expected_due_date ? Date.parse(String(profile.expected_due_date).slice(0, 10) + "T00:00:00") : NaN;
+  const daysToGo = isNaN(dueMs) ? null : Math.max(0, Math.ceil((dueMs - Date.now()) / 86_400_000));
 
   const todayDateStr = new Date().toISOString().split("T")[0];
   const isTodayCheckedIn = Boolean(
@@ -610,45 +614,34 @@ export default function PregnancyModePage() {
   const gdmExplain = getGdmExplainability(profile, logs, mlPredictions.gdm, weeks);
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+    <div className="min-h-[100dvh] bg-cream selection:bg-plum-900/10 font-sans relative">
       <ConsentGate />
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-3 print:hidden">
-        <div className="min-w-0">
-          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom mode · Week {weeks}</span>
-          <h1 className="text-lg sm:text-2xl font-light tracking-tight text-[#2D1B36] mt-1 truncate">
-            {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {displayName} <span aria-hidden>🍼</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button
-            onClick={() => setIsNotificationOpen(true)}
-            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-[background-color,color] shadow-sm cursor-pointer"
-            title="Reminders" aria-label="Reminders"
-          >
-            <Bell weight="duotone" className="w-5 h-5" />
-            {(reminders || []).filter((r: any) => r.status === "upcoming").length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
-                {(reminders || []).filter((r: any) => r.status === "upcoming").length}
-              </span>
-            )}
-          </button>
-          <AccountMenu mode="pregnancy" displayName={displayName} onOpenSettings={() => setIsSettingsOpen(true)} />
-        </div>
-      </header>
+      <DashboardHeader
+        mode="pregnancy"
+        modeLabel={`Mom Mode · Week ${weeks}`}
+        displayName={displayName}
+        reminderCount={(reminders || []).filter((r: any) => r.status === "upcoming").length}
+        onOpenReminders={() => setIsNotificationOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4">
         {emergency && (
-          <motion.div 
+          <motion.div
+            role="alert"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-red-500 text-white p-6 rounded-2xl shadow-lg mb-8 flex items-start gap-4 no-print"
+            className="w-full bg-rose-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg mb-6 flex flex-col sm:flex-row sm:items-start gap-4 no-print"
           >
-            <WarningCircle weight="fill" className="w-8 h-8 shrink-0" />
-            <div>
-              <h3 className="font-bold text-lg">⚠ High Risk Symptom Detected</h3>
-              <p className="mt-1 opacity-90">Based on your recent input, you may be experiencing a dangerous symptom. <strong>Recommended Action: Visit nearest hospital or contact your OBGYN immediately.</strong></p>
+            <WarningCircle weight="fill" className="w-8 h-8 shrink-0" aria-hidden="true" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg">This needs a doctor now, mama</h3>
+              <p className="mt-1 text-white/90">What you shared can be a sign of a serious problem in pregnancy. Please call your doctor or go to the nearest hospital now.</p>
             </div>
-            <button onClick={() => setEmergency(false)} className="ml-auto bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-medium text-sm transition-colors">Dismiss</button>
+            <div className="flex gap-2 shrink-0">
+              <a href="tel:112" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 transition-colors">Call 112</a>
+              <button type="button" onClick={() => setEmergency(false)} className="rounded-full bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-medium transition-colors cursor-pointer">Dismiss</button>
+            </div>
           </motion.div>
         )}
 
@@ -663,7 +656,7 @@ export default function PregnancyModePage() {
         >
           {/* Avatar Section */}
           {/* Chat stays mounted on every tab so a conversation is never lost */}
-          <div className={tab === "today" ? "md:col-span-12 print:hidden no-print" : "hidden"}>
+          <div className={tab === "today" ? `md:col-span-12 print:hidden no-print ${showCheckIn ? "order-first" : "order-3"}` : "hidden"}>
             <PregnancyAvatar 
               aiState={aiState} 
               onChartUpdate={handleChartUpdate} 
@@ -679,26 +672,32 @@ export default function PregnancyModePage() {
           {tab === "today" && (<>
           {/* From 28 weeks the contraction timer sits on Today, where she'll look first */}
           {weeks >= 28 && (
-            <div className={`${cardClass} md:col-span-12`}>
+            <div className={`${cardClass} md:col-span-12 order-4`}>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-medium text-[#2D1B36]">Contraction timer</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-plum-900">Contraction timer</h3>
             </div>
-            <p className="text-xs text-[#2D1B36]/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
+            <p className="text-xs text-plum-900/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
             <ContractionTimer weeks={weeks} />
           </div>
           )}
-          {/* Top Hero Card - Week Progress & Baby Growth */}
-          <div className={`${cardClass} md:col-span-12 flex flex-col justify-between`}>
-            <div className="mb-8">
-              <h2 className="text-3xl font-light tracking-tight text-[#2D1B36]">Pregnancy Progress</h2>
-              <p className="text-[#2D1B36]/70 mt-2">
-                You are currently in your {weeks <= 13 ? "First Trimester" : weeks <= 27 ? "Second Trimester" : "Third Trimester"}.
-              </p>
+          {/* Where she is this week: comes first on Today */}
+          <div className={`${cardClass} md:col-span-12 order-1`}>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-6">
+              <div>
+                <p className="text-sm text-ink-soft">{weeks <= 13 ? "First trimester" : weeks <= 27 ? "Second trimester" : "Third trimester"}</p>
+                <h2 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-plum-900">
+                  Week {weeks}. Baby is about the size of <span className="display-serif font-normal text-blush-500">{sizeFor(weeks)}</span>.
+                </h2>
+              </div>
+              {daysToGo !== null && (
+                <p className="text-sm text-ink-soft sm:text-right shrink-0">
+                  <span className="text-2xl font-semibold tabular-nums text-plum-900">{daysToGo}</span> days to your due date
+                </p>
+              )}
             </div>
             <PregnancyWeekProgress weeks={weeks} />
-            
-            <div className="mt-10">
-              <h3 className="text-sm font-medium text-[#2D1B36]/60 mb-4">Baby growth timeline</h3>
+            <div className="mt-8">
+              <h3 className="text-sm font-medium text-plum-900/60 mb-4">Baby growth timeline</h3>
               <BabyGrowthTimeline weeks={weeks} />
             </div>
           </div>
@@ -711,29 +710,29 @@ export default function PregnancyModePage() {
           <div className={`${cardClass} md:col-span-6`}>
             <div className="flex items-center gap-2 mb-4">
               <Heartbeat className="text-red-400 w-5 h-5" />
-              <h3 className="text-xl font-medium text-[#2D1B36]">Blood Pressure</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-plum-900">Blood Pressure</h3>
             </div>
-            <p className="text-xs text-[#2D1B36]/50 mb-6">Monitoring for Preeclampsia Risk</p>
+            <p className="text-xs text-plum-900/50 mb-6">Monitoring for Preeclampsia Risk</p>
             <BloodPressureChart data={logs} />
           </div>
           
           <div className={`${cardClass} md:col-span-6`}>
             <div className="flex items-center gap-2 mb-4">
               <Drop className="text-amber-500 w-5 h-5" weight="fill" />
-              <h3 className="text-xl font-medium text-[#2D1B36]">Fasting Blood Sugar</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-plum-900">Fasting Blood Sugar</h3>
             </div>
-            <p className="text-xs text-[#2D1B36]/50 mb-6">Monitoring for Gestational Diabetes</p>
+            <p className="text-xs text-plum-900/50 mb-6">Monitoring for Gestational Diabetes</p>
             <BloodSugarChart data={logs} />
           </div>
 
           {/* Growth & Movement Row */}
           <div className={`${cardClass} md:col-span-12`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Weight</h3>
+            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Weight</h3>
             <WeightTracker mode="pregnancy" logs={logs} weeks={weeks} />
           </div>
 
           <div className={`${cardClass} md:col-span-12`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Fetal Movement Count</h3>
+            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Fetal Movement Count</h3>
             <BabyMovementChart data={logs} />
           </div>
 
@@ -744,8 +743,8 @@ export default function PregnancyModePage() {
           <div className={`${cardClass} md:col-span-6`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-medium text-[#2D1B36]">Appointments</h3>
-                <span className="text-[11px] text-[#2D1B36]/50">
+                <h3 className="text-xl font-semibold tracking-tight text-plum-900">Appointments</h3>
+                <span className="text-[11px] text-plum-900/50">
                   {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} Schedule • Resets monthly
                 </span>
               </div>
@@ -753,7 +752,7 @@ export default function PregnancyModePage() {
                 <button
                   type="button"
                   onClick={handleResetAppointmentsMonth}
-                  className="text-[11px] text-[#2D1B36]/60 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-black/5 cursor-pointer font-medium"
+                  className="text-[11px] text-plum-900/60 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-black/5 cursor-pointer font-medium"
                   title="Clear appointments and start fresh for this month"
                 >
                   Reset Month
@@ -767,7 +766,7 @@ export default function PregnancyModePage() {
           </div>
 
           <div className={`${cardClass} md:col-span-6`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Nutrition Breakdown</h3>
+            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Nutrition Breakdown</h3>
             <NutritionScoreChart nutrition={nutrition} />
           </div>
 
@@ -777,12 +776,12 @@ export default function PregnancyModePage() {
           {tab === "vitals" && (<>
           {/* Mood & Sleep Row */}
           <div className={`${cardClass} md:col-span-6`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Mood Tracker</h3>
+            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Mood Tracker</h3>
             <MoodTrackerChart data={logs} />
           </div>
 
           <div className={`${cardClass} md:col-span-6`}>
-            <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Sleep Graph</h3>
+            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Sleep Graph</h3>
             <PregnancySleepGraph data={logs} />
           </div>
 
@@ -792,9 +791,9 @@ export default function PregnancyModePage() {
           {weeks < 28 && (
           <div className={`${cardClass} md:col-span-12`}>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-medium text-[#2D1B36]">Contraction timer</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-plum-900">Contraction timer</h3>
             </div>
-            <p className="text-xs text-[#2D1B36]/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
+            <p className="text-xs text-plum-900/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
             <ContractionTimer weeks={weeks} />
           </div>
           )}
@@ -810,12 +809,12 @@ export default function PregnancyModePage() {
               <div className="flex items-center gap-3">
                 <div className={iconWrapClass}><ShieldCheck weight="duotone" className="w-6 h-6 text-emerald-600" /></div>
                 <div>
-                  <h3 className="text-xl font-medium text-[#2D1B36]">Maternal Risk Assessment</h3>
+                  <h3 className="text-xl font-semibold tracking-tight text-plum-900">Maternal Risk Assessment</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
                       <Brain weight="bold" className="w-3 h-3" /> Clinical intelligence
                     </span>
-                    <span className="text-[10px] text-[#2D1B36]/60">
+                    <span className="text-[10px] text-plum-900/60">
                       {mlPredictions.isLoading ? "Evaluating..." : "Real-time health assessment"}
                     </span>
                   </div>
@@ -823,7 +822,7 @@ export default function PregnancyModePage() {
               </div>
             </div>
 
-            <p className="text-xs text-[#2D1B36]/70 mb-4">
+            <p className="text-xs text-plum-900/70 mb-4">
               {profile?.pregnancy_experience || "First-time Mother"} | Trimester {weeks <= 13 ? "1" : weeks <= 27 ? "2" : "3"} | Evaluated from medical profile & daily vitals
             </p>
 
@@ -832,7 +831,7 @@ export default function PregnancyModePage() {
               <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-[#2D1B36]/60">Preeclampsia risk</span>
+                    <span className="text-[11px] font-semibold text-plum-900/60">Preeclampsia risk</span>
                     {mlPredictions.preeclampsia && (
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         mlPredictions.preeclampsia.risk_level === "High" ? "bg-red-100 text-red-700" :
@@ -845,15 +844,15 @@ export default function PregnancyModePage() {
                   </div>
                   
                   <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-2xl font-semibold text-[#2D1B36]">
+                    <p className="text-2xl font-semibold text-plum-900">
                       {mlPredictions.preeclampsia 
                         ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` 
                         : "—"}
                     </p>
-                    <span className="text-xs text-[#2D1B36]/50">Probability</span>
+                    <span className="text-xs text-plum-900/50">Probability</span>
                   </div>
 
-                  <p className="text-[11px] text-[#2D1B36]/60 mt-2 leading-relaxed">
+                  <p className="text-[11px] text-plum-900/60 mt-2 leading-relaxed">
                     {mlPredictions.preeclampsia?.risk_level === "High" 
                       ? "Elevated blood pressure pattern detected. Priority vascular monitoring recommended."
                       : mlPredictions.preeclampsia?.risk_level === "Moderate"
@@ -862,9 +861,9 @@ export default function PregnancyModePage() {
                   </p>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-[#2D1B36]/50 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-plum-900/50 flex items-center justify-between">
                   <span>Input Vitals:</span>
-                  <span className="font-mono text-[#2D1B36]/70">
+                  <span className="font-mono text-plum-900/70">
                     {mlPredictions.preeclampsia?.factors 
                       ? `${mlPredictions.preeclampsia.factors.systolic}/${mlPredictions.preeclampsia.factors.diastolic} mmHg`
                       : "120/80 mmHg"}
@@ -876,7 +875,7 @@ export default function PregnancyModePage() {
               <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-[#2D1B36]/60">Gestational diabetes</span>
+                    <span className="text-[11px] font-semibold text-plum-900/60">Gestational diabetes</span>
                     {mlPredictions.gdm && (
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         mlPredictions.gdm.risk_level === "High" ? "bg-red-100 text-red-700" :
@@ -889,15 +888,15 @@ export default function PregnancyModePage() {
                   </div>
 
                   <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-2xl font-semibold text-[#2D1B36]">
+                    <p className="text-2xl font-semibold text-plum-900">
                       {mlPredictions.gdm 
                         ? `${Math.round(mlPredictions.gdm.probability * 100)}%` 
                         : "—"}
                     </p>
-                    <span className="text-xs text-[#2D1B36]/50">Probability</span>
+                    <span className="text-xs text-plum-900/50">Probability</span>
                   </div>
 
-                  <p className="text-[11px] text-[#2D1B36]/60 mt-2 leading-relaxed">
+                  <p className="text-[11px] text-plum-900/60 mt-2 leading-relaxed">
                     {mlPredictions.gdm?.risk_level === "High"
                       ? "Elevated fasting blood sugar observed. Glucose tolerance evaluation suggested."
                       : mlPredictions.gdm?.risk_level === "Moderate"
@@ -906,9 +905,9 @@ export default function PregnancyModePage() {
                   </p>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-[#2D1B36]/50 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-plum-900/50 flex items-center justify-between">
                   <span>Input Vitals:</span>
-                  <span className="font-mono text-[#2D1B36]/70">
+                  <span className="font-mono text-plum-900/70">
                     {mlPredictions.gdm?.factors 
                       ? `${mlPredictions.gdm.factors.blood_sugar} mg/dL`
                       : "85 mg/dL"}
@@ -918,11 +917,11 @@ export default function PregnancyModePage() {
             </div>
 
             {/* Expandable Explainability Accordion */}
-            <div className="mt-5 pt-3 border-t border-[#2D1B36]/10">
+            <div className="mt-5 pt-3 border-t border-plum-900/10">
               <button
                 type="button"
                 onClick={() => setShowExplainability(!showExplainability)}
-                className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-[#2D1B36] hover:text-[#2D1B36]/70 transition-colors py-1 cursor-pointer"
+                className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-plum-900 hover:text-plum-900/70 transition-colors py-1 cursor-pointer"
               >
                 <span className="flex items-center gap-2">
                   <Info weight="bold" className="w-4 h-4 text-purple-600" />
@@ -946,8 +945,8 @@ export default function PregnancyModePage() {
                         onClick={() => setExplainTab("preeclampsia")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer ${
                           explainTab === "preeclampsia" 
-                            ? "bg-white text-[#2D1B36] shadow-sm" 
-                            : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
+                            ? "bg-white text-plum-900 shadow-sm" 
+                            : "text-plum-900/60 hover:text-plum-900"
                         }`}
                       >
                         Preeclampsia Factors ({mlPredictions.preeclampsia ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` : "—"})
@@ -957,8 +956,8 @@ export default function PregnancyModePage() {
                         onClick={() => setExplainTab("gdm")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer ${
                           explainTab === "gdm" 
-                            ? "bg-white text-[#2D1B36] shadow-sm" 
-                            : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
+                            ? "bg-white text-plum-900 shadow-sm" 
+                            : "text-plum-900/60 hover:text-plum-900"
                         }`}
                       >
                         Gestational Diabetes Factors ({mlPredictions.gdm ? `${Math.round(mlPredictions.gdm.probability * 100)}%` : "—"})
@@ -966,7 +965,7 @@ export default function PregnancyModePage() {
                     </div>
 
                     {/* Summary sentence */}
-                    <p className="text-xs text-[#2D1B36]/70 leading-relaxed font-medium">
+                    <p className="text-xs text-plum-900/70 leading-relaxed font-medium">
                       {explainTab === "preeclampsia" ? preeclampsiaExplain.summary : gdmExplain.summary}
                     </p>
 
@@ -987,12 +986,12 @@ export default function PregnancyModePage() {
                             )}
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-[#2D1B36]">{f.title}</span>
-                                <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-black/5 text-[#2D1B36]/60">
+                                <span className="font-semibold text-plum-900">{f.title}</span>
+                                <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-black/5 text-plum-900/60">
                                   {f.source}
                                 </span>
                               </div>
-                              <div className="text-[11px] text-[#2D1B36]/70 leading-relaxed mt-1">
+                              <div className="text-[11px] text-plum-900/70 leading-relaxed mt-1">
                                 {f.detail}
                               </div>
                             </div>
@@ -1017,10 +1016,10 @@ export default function PregnancyModePage() {
             className={`${cardClass} md:col-span-6 flex flex-col justify-center items-center text-center group cursor-pointer no-print print:hidden`}
           >
             <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-[transform,box-shadow] duration-500">
-              <FilePdf weight="duotone" className="w-8 h-8 text-[#2D1B36]" />
+              <FilePdf weight="duotone" className="w-8 h-8 text-plum-900" />
             </div>
-            <h3 className="text-lg font-medium text-[#2D1B36]">Doctor Summary</h3>
-            <p className="text-sm text-[#2D1B36]/60 mt-2">Generate your Pregnancy PDF report for your next ANC visit.</p>
+            <h3 className="text-lg font-medium text-plum-900">Doctor Summary</h3>
+            <p className="text-sm text-plum-900/60 mt-2">Generate your Pregnancy PDF report for your next ANC visit.</p>
           </a>
           </>)}
         </motion.div>

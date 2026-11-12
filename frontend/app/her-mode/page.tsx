@@ -5,7 +5,7 @@ import ConsentGate from "@/components/ConsentGate";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { Bell, Sparkle, Sun, Drop, ChartLineUp, Heart } from "@phosphor-icons/react";
+import { Sparkle, Sun, Drop, ChartLineUp, Heart } from "@phosphor-icons/react";
 import SakhiAvatar, { AIState } from "@/components/SakhiAvatar";
 import {
   CycleLengthChart,
@@ -18,7 +18,7 @@ import {
   SleepHoursChart,
 } from "@/components/charts/DashboardCharts";
 import SettingsModal from "@/components/SettingsModal";
-import AccountMenu from "@/components/AccountMenu";
+import DashboardHeader from "@/components/DashboardHeader";
 import DashboardTabs, { useHashTab, type TabDef } from "@/components/DashboardTabs";
 import ReliefSheet from "@/components/her/ReliefSheet";
 import {
@@ -55,7 +55,7 @@ function ChartCard({ title, children, span = 6, active, glow }: { title: string;
       transition={{ duration: 1.5, repeat: active ? 2 : 0 }}
       className={`${panelCard} ${span === 12 ? "md:col-span-12" : "md:col-span-6"}`}
     >
-      <h3 className="text-lg font-medium text-[#2D1B36] mb-4">{title}</h3>
+      <h3 className="text-lg font-semibold tracking-tight text-plum-900 mb-4">{title}</h3>
       {children}
     </motion.section>
   );
@@ -162,15 +162,13 @@ export default function HerModePage() {
 
   if (!mounted || isCheckingData) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+      <div className="min-h-screen bg-cream flex items-center justify-center">
         <Sparkle weight="duotone" className="w-12 h-12 text-pink-400 animate-pulse opacity-50" />
       </div>
     );
   }
 
   const displayName = profile?.preferred_name || session?.user?.name?.split(" ")[0] || "there";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const handleCheckInComplete = async (data: any) => {
     setAiState("thinking");
@@ -251,32 +249,33 @@ export default function HerModePage() {
   };
 
   const pendingReminders = (reminders || []).filter(r => r.status === "upcoming").length;
-  const headerBtn = "relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-[background-color,color] shadow-sm cursor-pointer";
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+    <div className="min-h-[100dvh] bg-cream selection:bg-plum-900/10 font-sans relative">
       <ConsentGate />
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-3 print:hidden">
-        <div className="min-w-0">
-          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200/60">Her mode</span>
-          <h1 className="text-lg sm:text-2xl font-light tracking-tight text-[#2D1B36] mt-1 truncate">
-            {greeting}, {displayName} <span aria-hidden>🌸</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button onClick={() => setIsNotificationOpen(true)} className={headerBtn} title="Reminders" aria-label="Reminders">
-            <Bell weight="duotone" className="w-5 h-5" />
-            {pendingReminders > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">{pendingReminders}</span>}
-          </button>
-          <AccountMenu mode="her" displayName={displayName} onOpenSettings={() => setIsSettingsOpen(true)} />
-        </div>
-      </header>
+      <DashboardHeader
+        mode="her"
+        modeLabel="Her Mode"
+        displayName={displayName}
+        reminderCount={pendingReminders}
+        onOpenReminders={() => setIsNotificationOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pb-28 sm:pb-16">
         <DashboardTabs tabs={TABS} active={tab} onChange={setTab} />
 
-        {/* Chat stays mounted on every tab so a conversation is never lost */}
-        <div className={tab === "today" ? "mb-6" : "hidden"}>
+        {/* Today: where she is in her cycle comes first, then the chat. While a
+            check-in is waiting the chat leads instead. CSS order (not JSX order)
+            so the chat is never remounted and a conversation is never lost. */}
+        <div className={tab === "today" ? "flex flex-col gap-5 sm:gap-6 mb-5 sm:mb-6" : "hidden"}>
+        {tab === "today" && (
+          <div className={`grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 ${showCheckIn ? "order-2" : "order-1"}`}>
+            <PhaseCard info={phase} onPeriodStarted={markPeriodStarted} saving={savingPeriod} />
+            <PainNowCard onOpen={() => openRelief(ctx.pain && ctx.pain > 0 ? ctx.pain : null)} todayPain={ctx.pain || 0} />
+          </div>
+        )}
+        <div className={showCheckIn ? "order-1" : "order-2"}>
           <SakhiAvatar
             aiState={aiState}
             checkInMode={showCheckIn}
@@ -296,6 +295,7 @@ export default function HerModePage() {
             }}
           />
         </div>
+        </div>
 
         <motion.div
           key={tab}
@@ -306,8 +306,6 @@ export default function HerModePage() {
         >
           {tab === "today" && (
             <>
-              <PhaseCard info={phase} onPeriodStarted={markPeriodStarted} saving={savingPeriod} />
-              <PainNowCard onOpen={() => openRelief(ctx.pain && ctx.pain > 0 ? ctx.pain : null)} todayPain={ctx.pain || 0} />
               <TodayTipsCard tips={tips} adapted={Boolean(ctx.lowEnergy || ctx.poorSleep || (ctx.pain ?? 0) >= 5)} />
               <PmsForecastCard forecast={forecast} />
             </>

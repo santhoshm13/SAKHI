@@ -115,7 +115,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col w-full"
         >
-          <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+          <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
             Hi {name} 👋! 🍼 Let&apos;s do your daily morning check-in. How active was your baby&apos;s movement today?
           </div>
 
@@ -137,8 +137,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       fetalMovement === opt
-                        ? "bg-[#2D1B36] text-white"
-                        : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                        ? "bg-plum-900 text-white"
+                        : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                     }`}
                   >
                     {opt}
@@ -163,7 +163,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col w-full"
           >
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
               Did you measure your Blood Pressure today? 🩺 (Helps screen for Preeclampsia)
             </div>
 
@@ -183,8 +183,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       bloodPressure === opt
-                        ? "bg-[#2D1B36] text-white"
-                        : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                        ? "bg-plum-900 text-white"
+                        : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                     }`}
                   >
                     {opt}
@@ -209,7 +209,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col w-full"
           >
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
               How are your Blood Sugar levels today? 🩸 (Monitors Gestational Diabetes)
             </div>
 
@@ -229,8 +229,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       bloodSugar === opt
-                        ? "bg-[#2D1B36] text-white"
-                        : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                        ? "bg-plum-900 text-white"
+                        : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                     }`}
                   >
                     {opt}
@@ -255,7 +255,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col w-full"
           >
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
               How is your mood and emotional wellness today? 🌸
             </div>
 
@@ -270,8 +270,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       mood === opt.split(" ")[0]
-                        ? "bg-[#2D1B36] text-white"
-                        : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                        ? "bg-plum-900 text-white"
+                        : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                     }`}
                   >
                     {opt}
@@ -296,7 +296,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col w-full"
           >
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
               How many hours of restful sleep did you get last night? 🌙
             </div>
 
@@ -311,8 +311,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                     }}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                       sleepHours === hours
-                        ? "bg-[#2D1B36] text-white"
-                        : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                        ? "bg-plum-900 text-white"
+                        : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                     }`}
                   >
                     {hours} {hours === 9 ? "+ hrs" : "hrs"}
@@ -337,7 +337,7 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col w-full"
           >
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3.5 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2">
               Any symptoms to report today? (Tap all that apply)
             </div>
 
@@ -362,8 +362,8 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
                         isSelected
                           ? isWarning 
                             ? "bg-red-500 text-white shadow-sm"
-                            : "bg-[#2D1B36] text-white shadow-sm"
-                          : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"
+                            : "bg-plum-900 text-white shadow-sm"
+                          : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"
                       }`}
                     >
                       {sym}
@@ -393,10 +393,10 @@ export default function PregnancyDailyCheckIn({ onComplete, profileName, onClose
             <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 mb-3 animate-bounce">
               <Sparkle weight="duotone" size={24} />
             </div>
-            <p className="font-medium text-sm text-[#2D1B36]">
+            <p className="font-medium text-sm text-plum-900">
               Thank you, {name}! 🌸
             </p>
-            <p className="text-xs text-[#2D1B36]/60 mt-1">
+            <p className="text-xs text-plum-900/60 mt-1">
               Your maternal logs and vitals are updated in your dashboard.
             </p>
           </motion.div>

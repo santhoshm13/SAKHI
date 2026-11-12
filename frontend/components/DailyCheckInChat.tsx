@@ -45,10 +45,10 @@ const PAIN_CHIPS = [
   { label: "Strong", value: 8 },
 ];
 
-const bubbleBot = "bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3 text-sm text-[#2D1B36] shadow-sm self-start max-w-[90%] border border-white/40 mb-2";
+const bubbleBot = "bg-white/70 backdrop-blur-md rounded-2xl rounded-tl-sm p-3 text-sm text-plum-900 shadow-sm self-start max-w-[90%] border border-white/40 mb-2";
 const bubbleMe = "bg-pink-100 rounded-2xl rounded-tr-sm p-2 px-4 text-xs font-medium text-pink-900 self-end shadow-sm mb-2";
 const chip = (on: boolean) =>
-  `px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${on ? "bg-[#2D1B36] text-white" : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"}`;
+  `px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${on ? "bg-plum-900 text-white" : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"}`;
 
 export default function DailyCheckInChat({ onComplete, profileName, context }: DailyCheckInChatProps) {
   const [stepIdx, setStepIdx] = useState(0);
@@ -140,19 +140,19 @@ export default function DailyCheckInChat({ onComplete, profileName, context }: D
           <motion.div key="pain-step" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col w-full">
             <div className={bubbleBot}>
               {bleeding ? "How strong are your cramps today, from 0 to 10?" : "Any pain or cramps today?"}
-              {!bleeding && painHint && <span className="block text-xs text-[#2D1B36]/55 mt-1">{painHint}</span>}
+              {!bleeding && painHint && <span className="block text-xs text-plum-900/55 mt-1">{painHint}</span>}
             </div>
             {step === "pain" && !done ? (
               bleeding ? (
                 <div className="mt-1 flex flex-col items-end w-full">
                   <input type="range" min="0" max="10" value={pain ?? 0} onChange={e => setPain(parseInt(e.target.value))}
                     aria-label="Cramp strength" className="w-full accent-pink-500 mb-2 cursor-pointer" />
-                  <div className="w-full flex justify-between text-[11px] text-[#2D1B36]/60 font-medium px-1 mb-3">
+                  <div className="w-full flex justify-between text-[11px] text-plum-900/60 font-medium px-1 mb-3">
                     <span>0 None</span>
                     <span className="font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md border border-pink-200">{pain ?? 0}/10</span>
                     <span>10 Severe</span>
                   </div>
-                  <button onClick={() => { if (pain === null) setPain(0); setStepIdx(i => i + 1); }} className="px-4 py-1.5 rounded-full bg-[#2D1B36] text-white text-xs font-medium cursor-pointer hover:bg-black">Next</button>
+                  <button onClick={() => { if (pain === null) setPain(0); setStepIdx(i => i + 1); }} className="px-4 py-1.5 rounded-full bg-plum-900 text-white text-xs font-medium cursor-pointer hover:bg-black">Next</button>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2 justify-end">
@@ -192,9 +192,9 @@ export default function DailyCheckInChat({ onComplete, profileName, context }: D
                 <div className="flex items-center gap-3 w-full mb-3 bg-white/60 p-2 px-3 rounded-xl border border-white/40">
                   <input type="range" min="3" max="12" step="0.5" value={sleepHours} onChange={e => setSleepHours(parseFloat(e.target.value))}
                     aria-label="Hours of sleep" className="w-full accent-pink-500 cursor-pointer" />
-                  <span className="font-semibold text-xs text-[#2D1B36] shrink-0 w-12 text-right">{sleepHours} hrs</span>
+                  <span className="font-semibold text-xs text-plum-900 shrink-0 w-12 text-right">{sleepHours} hrs</span>
                 </div>
-                <button onClick={() => setStepIdx(i => i + 1)} className="px-4 py-1.5 rounded-full bg-[#2D1B36] text-white text-xs font-medium cursor-pointer hover:bg-black">Next</button>
+                <button onClick={() => setStepIdx(i => i + 1)} className="px-4 py-1.5 rounded-full bg-plum-900 text-white text-xs font-medium cursor-pointer hover:bg-black">Next</button>
               </div>
             ) : <div className={bubbleMe}>Sleep: {sleepHours} hrs</div>}
           </motion.div>
@@ -208,16 +208,16 @@ export default function DailyCheckInChat({ onComplete, profileName, context }: D
               <div className="flex flex-wrap gap-2 justify-end mb-2">
                 {[...symptomList, "None"].map(sym => (
                   <button key={sym} onClick={() => toggleSymptom(sym)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-[background-color,color,box-shadow] cursor-pointer ${symptoms.includes(sym) ? "bg-pink-500 text-white shadow-sm" : "bg-white/60 text-[#2D1B36] hover:bg-white border border-white/40"}`}>
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-[background-color,color,box-shadow] cursor-pointer ${symptoms.includes(sym) ? "bg-pink-500 text-white shadow-sm" : "bg-white/60 text-plum-900 hover:bg-white border border-white/40"}`}>
                     {sym}
                   </button>
                 ))}
               </div>
               {!showAllSymptoms && (
-                <button onClick={() => setShowAllSymptoms(true)} className="text-[11px] text-[#2D1B36]/55 hover:text-[#2D1B36] underline underline-offset-2 mb-3 cursor-pointer">More symptoms</button>
+                <button onClick={() => setShowAllSymptoms(true)} className="text-[11px] text-plum-900/55 hover:text-plum-900 underline underline-offset-2 mb-3 cursor-pointer">More symptoms</button>
               )}
               <button onClick={handleSubmit}
-                className="px-5 py-2 rounded-full bg-gradient-to-r from-[#2D1B36] to-pink-950 text-white text-xs font-semibold self-end flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg">
+                className="px-5 py-2 rounded-full bg-gradient-to-r from-plum-900 to-pink-950 text-white text-xs font-semibold self-end flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg">
                 <CheckCircle weight="bold" size={15} /> Complete check-in
               </button>
             </div>

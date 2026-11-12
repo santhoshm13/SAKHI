@@ -26,10 +26,10 @@ export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) 
 
   if (data.length === 0) {
     return (
-      <div className="w-full h-64 flex flex-col items-center justify-center text-[#2D1B36]/50 text-xs p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80">
+      <div className="w-full h-64 flex flex-col items-center justify-center text-plum-900/50 text-xs p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩸</span>
         <p className="font-semibold text-xs">Not enough log data to chart.</p>
-        <p className="text-[11px] text-[#2D1B36]/40 mt-1">Complete your check-in to correlate flow with cramps.</p>
+        <p className="text-[11px] text-plum-900/40 mt-1">Complete your check-in to correlate flow with cramps.</p>
       </div>
     );
   }

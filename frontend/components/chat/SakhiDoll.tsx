@@ -23,9 +23,9 @@ export default function SakhiDoll({ mouthOpen, talking, status }: { mouthOpen: b
       </div>
       <div className="mt-3 sm:mt-5 md:mt-6 flex items-center gap-2">
         <Sparkle weight="duotone" className="text-pink-500 w-5 h-5 sm:w-6 sm:h-6" />
-        <h3 className="text-[#2D1B36] font-semibold text-xl sm:text-2xl tracking-tight">Sakhi</h3>
+        <h3 className="text-plum-900 font-semibold text-xl sm:text-2xl tracking-tight">Sakhi</h3>
       </div>
-      {status && <p className="mt-1 text-xs text-[#2D1B36]/55" aria-live="polite">{status}</p>}
+      {status && <p className="mt-1 text-xs text-plum-900/55" aria-live="polite">{status}</p>}
     </div>
   );
 }

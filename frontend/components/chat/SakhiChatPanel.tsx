@@ -58,14 +58,14 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
     <div className="flex flex-col h-full">
       {(headerText || headerAction || chat.messages.length > 0) && (
         <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
-          <span className="text-[11px] sm:text-xs text-[#2D1B36]/55 truncate">{headerText}</span>
+          <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText}</span>
           <div className="flex items-center gap-1.5 shrink-0">
             {headerAction}
             {chat.messages.length > 0 && (
               <button
                 type="button"
                 onClick={() => { if (window.confirm("Clear this conversation? Your logged data stays saved.")) chat.clearChat(); }}
-                className="p-1.5 rounded-full text-[#2D1B36]/40 hover:text-pink-600 hover:bg-pink-50 transition-colors"
+                className="p-1.5 rounded-full text-plum-900/40 hover:text-pink-600 hover:bg-pink-50 transition-colors"
                 title="Clear conversation"
                 aria-label="Clear conversation"
               >
@@ -91,13 +91,13 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
                 m.role === "user"
                   ? "bg-pink-100/90 text-pink-900 self-end rounded-tr-sm border-white/40 whitespace-pre-wrap"
                   : m.engine === "safety"
-                  ? "bg-rose-50 text-[#2D1B36] self-start rounded-tl-sm border-rose-200"
-                  : "bg-white/90 backdrop-blur-md text-[#2D1B36] self-start rounded-tl-sm border-white/40"
+                  ? "bg-rose-50 text-plum-900 self-start rounded-tl-sm border-rose-200"
+                  : "bg-white/90 backdrop-blur-md text-plum-900 self-start rounded-tl-sm border-white/40"
               }`}
             >
               {m.role === "assistant" ? <ChatMarkdown text={m.text} /> : m.text}
               {tag && (
-                <span className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-[#2D1B36]/45">
+                <span className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-plum-900/45">
                   {tag.icon} {tag.label}
                 </span>
               )}
@@ -110,7 +110,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
           </div>
         )}
         {chat.isLoading && (
-          <div className="bg-white/90 text-[#2D1B36] self-start rounded-2xl rounded-tl-sm p-3 sm:p-4 shadow-sm border border-white/40 flex gap-1.5 items-center" aria-label="Sakhi is typing">
+          <div className="bg-white/90 text-plum-900 self-start rounded-2xl rounded-tl-sm p-3 sm:p-4 shadow-sm border border-white/40 flex gap-1.5 items-center" aria-label="Sakhi is typing">
             {[0, 150, 300].map(d => <div key={d} className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
           </div>
         )}
@@ -146,7 +146,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
           onChange={e => setInput(e.target.value)}
           placeholder={chat.handsFree ? "Hands-free is on, just talk…" : "Type or tap the mic to talk…"}
           aria-label="Message Sakhi"
-          className="w-full bg-white/60 border border-[#2D1B36]/10 rounded-2xl pl-3.5 sm:pl-5 pr-36 sm:pr-40 py-3 sm:py-4 text-[#2D1B36] placeholder:text-[#2D1B36]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[border-color,background-color,box-shadow] text-xs sm:text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+          className="w-full bg-white/60 border border-plum-900/10 rounded-2xl pl-3.5 sm:pl-5 pr-36 sm:pr-40 py-3 sm:py-4 text-plum-900 placeholder:text-plum-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[border-color,background-color,box-shadow] text-xs sm:text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
         />
         <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-1.5">
           <button
@@ -162,7 +162,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             <button
               type="button"
               onClick={() => chat.setHandsFree(!chat.handsFree)}
-              className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.handsFree ? "bg-pink-500 text-white" : "bg-[#2D1B36]/5 text-[#2D1B36]/70 hover:bg-pink-100 hover:text-pink-600"}`}
+              className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.handsFree ? "bg-pink-500 text-white" : "bg-plum-900/5 text-plum-900/70 hover:bg-pink-100 hover:text-pink-600"}`}
               title={chat.handsFree ? "Hands-free on: Sakhi listens again after she replies" : "Hands-free conversation"}
               aria-pressed={chat.handsFree}
               aria-label="Hands-free conversation"
@@ -173,7 +173,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
           <button
             type="button"
             onClick={chat.toggleListening}
-            className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.listening ? "bg-pink-200 text-pink-600 shadow-[0_0_15px_rgba(244,114,182,0.5)] animate-pulse" : "bg-[#2D1B36]/5 text-[#2D1B36] hover:bg-pink-100 hover:text-pink-600"}`}
+            className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.listening ? "bg-pink-200 text-pink-600 shadow-[0_0_15px_rgba(244,114,182,0.5)] animate-pulse" : "bg-plum-900/5 text-plum-900 hover:bg-pink-100 hover:text-pink-600"}`}
             title={chat.listening ? "Stop listening" : "Speak to Sakhi"}
             aria-label={chat.listening ? "Stop listening" : "Speak to Sakhi"}
           >
@@ -183,7 +183,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             type="submit"
             disabled={!input.trim() || chat.isLoading}
             aria-label="Send"
-            className="p-2 sm:p-2.5 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:bg-[#2D1B36]/10 disabled:text-[#2D1B36]/30 shadow-md"
+            className="p-2 sm:p-2.5 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:bg-plum-900/10 disabled:text-plum-900/30 shadow-md"
           >
             <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13" />

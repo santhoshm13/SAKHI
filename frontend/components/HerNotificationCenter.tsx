@@ -44,7 +44,7 @@ export default function HerNotificationCenter({
       case 'irregular_cycle':
         return <Brain weight="fill" className="text-purple-500 w-6 h-6" />;
       case 'missed_period': return <WarningCircle weight="fill" className="text-red-600 w-6 h-6" />;
-      default: return <BellRinging weight="fill" className="text-[#2D1B36]/60 w-6 h-6" />;
+      default: return <BellRinging weight="fill" className="text-plum-900/60 w-6 h-6" />;
     }
   };
 
@@ -64,8 +64,8 @@ export default function HerNotificationCenter({
           >
             {/* Header */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-purple-50/50">
-              <h2 className="text-2xl font-semibold text-[#2D1B36]">Cycle Notifications</h2>
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#2D1B36]/60">
+              <h2 className="text-2xl font-semibold text-plum-900">Cycle Notifications</h2>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60">
                 <X weight="bold" className="w-6 h-6" />
               </button>
             </div>
@@ -73,8 +73,8 @@ export default function HerNotificationCenter({
             {/* Master Toggle */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white">
               <div>
-                <h3 className="font-medium text-[#2D1B36]">Enable Notifications</h3>
-                <p className="text-sm text-[#2D1B36]/60">Receive cycle & fertile reminders.</p>
+                <h3 className="font-medium text-plum-900">Enable Notifications</h3>
+                <p className="text-sm text-plum-900/60">Receive cycle & fertile reminders.</p>
               </div>
               <button 
                 onClick={onToggleMaster}
@@ -92,7 +92,7 @@ export default function HerNotificationCenter({
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab as any)}
-                      className={`flex-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-purple-500 text-purple-600' : 'border-transparent text-[#2D1B36]/60 hover:text-[#2D1B36]'}`}
+                      className={`flex-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-purple-500 text-purple-600' : 'border-transparent text-plum-900/60 hover:text-plum-900'}`}
                     >
                       {tab}
                       {(tab === 'missed' && reminders.filter(r => r.status === 'missed').length > 0) && (
@@ -108,7 +108,7 @@ export default function HerNotificationCenter({
                     <div className="space-y-4">
                       {['period_alerts', 'fertile_alerts', 'daily_checkins', 'health_tips'].map(key => (
                         <div key={key} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5">
-                          <span className="font-medium capitalize text-[#2D1B36]">{key.replace('_', ' ')}</span>
+                          <span className="font-medium capitalize text-plum-900">{key.replace('_', ' ')}</span>
                           <button 
                             onClick={() => onUpdatePref(key as keyof HerNotificationPreferences, !preferences[key as keyof HerNotificationPreferences])}
                             className={`w-12 h-6 rounded-full p-1 transition-colors ${preferences[key as keyof HerNotificationPreferences] ? 'bg-purple-400' : 'bg-gray-200'}`}
@@ -119,7 +119,7 @@ export default function HerNotificationCenter({
                       ))}
                     </div>
                   ) : filteredReminders.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-[#2D1B36]/40">
+                    <div className="h-full flex flex-col items-center justify-center text-plum-900/40">
                       <BellZ className="w-16 h-16 mb-4 opacity-20" />
                       <p>No {activeTab} notifications.</p>
                     </div>
@@ -130,10 +130,10 @@ export default function HerNotificationCenter({
                           <div className="flex gap-4">
                             <div className="mt-1">{getIcon(reminder.category)}</div>
                             <div className="flex-1">
-                              <h4 className="font-medium text-[#2D1B36]">{reminder.title}</h4>
-                              <p className="text-sm text-[#2D1B36]/70 mt-1">{reminder.message}</p>
+                              <h4 className="font-medium text-plum-900">{reminder.title}</h4>
+                              <p className="text-sm text-plum-900/70 mt-1">{reminder.message}</p>
                               
-                              <div className="mt-3 flex items-center gap-3 text-xs text-[#2D1B36]/50">
+                              <div className="mt-3 flex items-center gap-3 text-xs text-plum-900/50">
                                 {reminder.status === 'snoozed' ? (
                                   <span className="text-amber-500 font-medium">Snoozed until {new Date(reminder.snoozedUntil || 0).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                 ) : (
@@ -165,7 +165,7 @@ export default function HerNotificationCenter({
             )}
             
             {!preferences.enabled && (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-[#2D1B36]/50">
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-plum-900/50">
                 <BellRinging className="w-16 h-16 mb-4 opacity-20" />
                 <p>Notifications are disabled. Turn them on to receive personalized menstrual tracking reminders.</p>
               </div>

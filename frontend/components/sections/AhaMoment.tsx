@@ -5,12 +5,7 @@ import { AhaChart } from "@/components/AhaChart";
 import { Reveal } from "@/components/Reveal";
 
 /**
- * AhaMoment — the core differentiator.
- * Visually distinct: a full-width tinted panel (lavender mist) that
- * breaks the page rhythm, holding the self-drawing correlation chart.
- *
- * The message lands first, then the chart draws to prove it.
- * Single focused message, no split-header.
+ * AhaMoment: mood laid against the cycle, shown with sample data.
  */
 export function AhaMoment() {
   const reduce = useReducedMotion();
@@ -35,46 +30,38 @@ export function AhaMoment() {
             {/* Left: the message */}
             <div>
               <Reveal>
-                <p className="mb-4 text-xs font-medium text-ink-soft">
-                  The pattern Sakhi sees
-                </p>
-              </Reveal>
-
-              <Reveal delay={0.08}>
-                <h2 className="text-balance text-3xl leading-[1.1] tracking-tight text-plum-900 sm:text-4xl lg:text-[2.7rem]">
-                  Your anxiety spikes{" "}
-                  <span className="display-serif text-blush-500">correlate</span>{" "}
-                  with your luteal phase.
+                <h2 className="text-balance text-3xl font-semibold leading-[1.1] tracking-tight text-plum-900 sm:text-4xl lg:text-[2.7rem]">
+                  Feeling heavier before your period?{" "}
+                  <span className="display-serif font-normal text-blush-500">Now you&rsquo;ll know why.</span>
                 </h2>
               </Reveal>
 
-              <Reveal delay={0.16}>
+              <Reveal delay={0.08}>
                 <p className="mt-6 max-w-md text-pretty leading-relaxed text-ink-soft">
-                  Most apps track your cycle and your mood in two separate
-                  silos. Sakhi connects them. So when your body enters its
-                  luteal phase, you stop wondering why everything feels heavier.
-                  You already know.
+                  Most apps keep your cycle and your mood in separate boxes. Sakhi lays
+                  them side by side, so the low days stop feeling random and start
+                  feeling expected, and easier to plan around.
                 </p>
               </Reveal>
 
-              <Reveal delay={0.24}>
-                <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
-                  <div>
-                    <p className="text-3xl font-semibold text-plum-900">+0.81</p>
-                    <p className="text-xs text-ink-soft">anxiety / luteal r-value</p>
-                  </div>
-                  <div className="h-10 w-px bg-plum-700/15" />
-                  <div>
-                    <p className="text-3xl font-semibold text-plum-900">14 days</p>
-                    <p className="text-xs text-ink-soft">average window</p>
-                  </div>
-                </div>
+              <Reveal delay={0.16}>
+                <dl className="mt-8 grid max-w-md grid-cols-3 gap-3">
+                  {[
+                    ["Period", "Rest, warmth, iron"],
+                    ["Follicular", "Energy climbs"],
+                    ["Luteal", "Slower, more sensitive"],
+                  ].map(([phase, hint]) => (
+                    <div key={phase} className="rounded-2xl bg-white/60 px-3 py-3">
+                      <dt className="text-sm font-semibold text-plum-900">{phase}</dt>
+                      <dd className="mt-0.5 text-xs leading-snug text-ink-soft">{hint}</dd>
+                    </div>
+                  ))}
+                </dl>
               </Reveal>
 
-              <Reveal delay={0.32}>
-                <p className="mt-6 text-[11px] text-ink-faint">
-                  Illustrative sample data shown. Sakhi learns your personal
-                  baseline over time.
+              <Reveal delay={0.24}>
+                <p className="mt-6 text-xs text-ink-faint">
+                  Sample chart. Yours fills in from your own check-ins over a couple of cycles.
                 </p>
               </Reveal>
             </div>
@@ -91,11 +78,11 @@ export function AhaMoment() {
                 <div className="flex items-center gap-4 text-[11px] text-ink-soft">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-2 w-4 rounded-full bg-gradient-to-r from-lavender-400 to-blush-400" />
-                    anxiety
+                    low mood
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-0.5 w-4 rounded-full bg-blush-300" style={{ borderTop: "1px dashed" }} />
-                    progesterone
+                    progesterone (rises after ovulation)
                   </span>
                 </div>
               </div>

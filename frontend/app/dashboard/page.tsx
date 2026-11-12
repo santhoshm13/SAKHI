@@ -30,7 +30,7 @@ import PainFlowCorrelation from "@/components/charts/PainFlowCorrelation";
 // --- KOKONUT STYLE HELPERS ---
 const cardClass = "bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-[border-color,box-shadow] duration-300 p-8 relative overflow-hidden";
 const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-6 flex flex-col justify-between";
-const iconWrapClass = "w-12 h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-4";
+const iconWrapClass = "w-12 h-12 rounded-full bg-plum-900/5 flex items-center justify-center text-plum-900 mb-4";
 
 // --- DASHBOARD PANELS ---
 function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
@@ -61,10 +61,10 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
-            <span className="text-sm font-medium text-[#2D1B36]/60">Cycle intelligence</span>
+            <span className="text-sm font-medium text-plum-900/60">Cycle intelligence</span>
           </div>
-          <h2 className="text-4xl font-light tracking-tight text-[#2D1B36]">Your Cycle Timeline</h2>
-          <p className="text-[#2D1B36]/70 mt-4 max-w-md leading-relaxed">Mapping your hormonal rhythm based on your personalized data.</p>
+          <h2 className="text-4xl font-light tracking-tight text-plum-900">Your Cycle Timeline</h2>
+          <p className="text-plum-900/70 mt-4 max-w-md leading-relaxed">Mapping your hormonal rhythm based on your personalized data.</p>
         </div>
         
         {profile && (
@@ -78,59 +78,59 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
           <div className={innerCardClass}>
             <Calendar weight="duotone" className="w-8 h-8 text-pink-400 mb-6" />
             <div>
-              <h4 className="text-2xl font-semibold text-[#2D1B36] tracking-tight">{daysUntilNext > 0 ? `${daysUntilNext} Days` : 'Due'}</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Next Period</p>
+              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">{daysUntilNext > 0 ? `${daysUntilNext} Days` : 'Due'}</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Next Period</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Sparkle weight="duotone" className="w-8 h-8 text-purple-400 mb-6" />
             <div>
-              <h4 className="text-xl font-semibold text-[#2D1B36] tracking-tight">{profile?.cycle_length_avg || 28} Days</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Avg Cycle</p>
+              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.cycle_length_avg || 28} Days</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Avg Cycle</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Heartbeat weight="duotone" className="w-8 h-8 text-rose-400 mb-6" />
             <div>
-              <h4 className="text-xl font-semibold text-[#2D1B36] tracking-tight">{profile?.period_duration || 5} Days</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Avg Duration</p>
+              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.period_duration || 5} Days</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Avg Duration</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={`${cardClass} md:col-span-4 flex flex-col items-center justify-center text-center bg-gradient-to-b from-[#2D1B36]/5 to-transparent group`}>
+      <div className={`${cardClass} md:col-span-4 flex flex-col items-center justify-center text-center bg-gradient-to-b from-plum-900/5 to-transparent group`}>
         <div className="w-24 h-24 rounded-full bg-white/60 shadow-[0_0_40px_rgba(201,168,247,0.3)] flex items-center justify-center mb-6 cursor-pointer group-hover:scale-105 transition-transform duration-500">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#2D1B36]">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-plum-900">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 16v-4M12 8h.01" />
           </svg>
         </div>
-        <h3 className="text-xl font-medium text-[#2D1B36]">AI Triage</h3>
-        <p className="text-sm text-[#2D1B36]/60 mt-2">Tap to report symptoms via voice</p>
+        <h3 className="text-xl font-medium text-plum-900">AI Triage</h3>
+        <p className="text-sm text-plum-900/60 mt-2">Tap to report symptoms via voice</p>
       </div>
 
       {/* Secondary Data Row */}
       <div className={`${cardClass} md:col-span-6`}>
         <div className="flex items-center justify-between mb-2">
           <div className={iconWrapClass}><Drop weight="duotone" className="w-6 h-6" /></div>
-          <span className="text-xs font-medium text-[#2D1B36]/55">Flow &amp; pain (last 7 days)</span>
+          <span className="text-xs font-medium text-plum-900/55">Flow &amp; pain (last 7 days)</span>
         </div>
-        <h3 className="text-xl font-medium text-[#2D1B36]">Correlation History</h3>
+        <h3 className="text-xl font-medium text-plum-900">Correlation History</h3>
         <PainFlowCorrelation logs={logs} />
       </div>
 
       <div className={`${cardClass} md:col-span-6`}>
         <div className="flex items-center justify-between mb-2">
           <div className={iconWrapClass}><Heartbeat weight="duotone" className="w-6 h-6" /></div>
-          <span className="text-xs font-medium text-[#2D1B36]/55">Symptom tracking</span>
+          <span className="text-xs font-medium text-plum-900/55">Symptom tracking</span>
         </div>
-        <h3 className="text-xl font-medium text-[#2D1B36]">Symptom Frequency</h3>
+        <h3 className="text-xl font-medium text-plum-900">Symptom Frequency</h3>
         <SymptomRadar logs={logs} />
       </div>
 
       {/* Tertiary Row */}
-      <div className={`${cardClass} md:col-span-4 bg-[#2D1B36] text-[#FAF8F5]`}>
-        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-6"><Brain weight="duotone" className="w-6 h-6 text-[#FAF8F5]" /></div>
+      <div className={`${cardClass} md:col-span-4 bg-plum-900 text-cream`}>
+        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-6"><Brain weight="duotone" className="w-6 h-6 text-cream" /></div>
         <h3 className="text-2xl font-light tracking-tight mb-3">Pattern Detected</h3>
         <p className="text-sm text-white/70 leading-relaxed">
           Based on your real data, we noticed patterns correlating your mood and fatigue. Consider resting more during the first two days of your cycle.
@@ -139,8 +139,8 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
 
       <div className={`${cardClass} md:col-span-4`}>
         <div className={iconWrapClass}><WarningCircle weight="duotone" className="w-6 h-6 text-orange-500" /></div>
-        <h3 className="text-xl font-medium text-[#2D1B36] mb-2">PCOS Risk Indicator</h3>
-        <div className="h-3 w-full bg-[#2D1B36]/5 rounded-full overflow-hidden mt-8">
+        <h3 className="text-xl font-medium text-plum-900 mb-2">PCOS Risk Indicator</h3>
+        <div className="h-3 w-full bg-plum-900/5 rounded-full overflow-hidden mt-8">
           <motion.div 
             initial={{ width: 0 }} 
             animate={{ width: isPcosRisk ? '75%' : '20%' }} 
@@ -148,17 +148,17 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
             className={`h-full bg-gradient-to-r ${isPcosRisk ? 'from-amber-400 to-red-500' : 'from-emerald-400 to-amber-400'}`} 
           />
         </div>
-        <p className="text-sm font-medium text-[#2D1B36]/60 mt-4 text-right">
+        <p className="text-sm font-medium text-plum-900/60 mt-4 text-right">
           {isPcosRisk ? 'Elevated Risk (75%)' : 'Low Risk (20%)'}
         </p>
       </div>
 
       <div className={`${cardClass} md:col-span-4 flex flex-col justify-center items-center text-center group cursor-pointer`}>
         <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-[transform,box-shadow] duration-500">
-          <FilePdf weight="duotone" className="w-8 h-8 text-[#2D1B36]" />
+          <FilePdf weight="duotone" className="w-8 h-8 text-plum-900" />
         </div>
-        <h3 className="text-lg font-medium text-[#2D1B36]">Doctor Summary</h3>
-        <p className="text-sm text-[#2D1B36]/60 mt-2">Generate your real data PDF report for your next visit.</p>
+        <h3 className="text-lg font-medium text-plum-900">Doctor Summary</h3>
+        <p className="text-sm text-plum-900/60 mt-2">Generate your real data PDF report for your next visit.</p>
       </div>
     </motion.div>
   );
@@ -178,38 +178,38 @@ function PregnancyDashboard() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-sm font-medium text-[#2D1B36]/60">Pregnancy journey</span>
+            <span className="text-sm font-medium text-plum-900/60">Pregnancy journey</span>
           </div>
-          <h2 className="text-4xl font-light tracking-tight text-[#2D1B36]">Week 24 <span className="text-[#2D1B36]/40">· Trimester 2</span></h2>
-          <p className="text-[#2D1B36]/70 mt-4 max-w-md leading-relaxed">Your little one is the size of a cantaloupe. They are beginning to hear sounds from the outside world! 🍈</p>
+          <h2 className="text-4xl font-light tracking-tight text-plum-900">Week 24 <span className="text-plum-900/40">· Trimester 2</span></h2>
+          <p className="text-plum-900/70 mt-4 max-w-md leading-relaxed">Your little one is the size of a cantaloupe. They are beginning to hear sounds from the outside world! 🍈</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
           <div className={innerCardClass}>
             <Baby weight="duotone" className="w-8 h-8 text-blue-400 mb-6" />
             <div>
-              <h4 className="text-2xl font-semibold text-[#2D1B36] tracking-tight">30 cm</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Estimated Length</p>
+              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">30 cm</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Estimated Length</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Calendar weight="duotone" className="w-8 h-8 text-emerald-400 mb-6" />
             <div>
-              <h4 className="text-2xl font-semibold text-[#2D1B36] tracking-tight">112 Days</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Until Due Date</p>
+              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">112 Days</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Until Due Date</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Heartbeat weight="duotone" className="w-8 h-8 text-rose-400 mb-6" />
             <div>
-              <h4 className="text-2xl font-semibold text-[#2D1B36] tracking-tight">Normal</h4>
-              <p className="text-sm text-[#2D1B36]/60 mt-1">Fetal Movement</p>
+              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">Normal</h4>
+              <p className="text-sm text-plum-900/60 mt-1">Fetal Movement</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={`${cardClass} md:col-span-4 bg-[#2D1B36] text-[#FAF8F5] flex flex-col justify-between`}>
+      <div className={`${cardClass} md:col-span-4 bg-plum-900 text-cream flex flex-col justify-between`}>
         <div>
           <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-6"><Stethoscope weight="duotone" className="w-6 h-6 text-white" /></div>
           <h3 className="text-2xl font-light tracking-tight">Next ANC Visit</h3>
@@ -226,8 +226,8 @@ function PregnancyDashboard() {
           <WarningCircle weight="fill" className="w-8 h-8 text-orange-600" />
         </div>
         <div className="text-center sm:text-left">
-          <h3 className="text-xl font-medium text-[#2D1B36]">Emergency Alerts</h3>
-          <p className="text-sm text-[#2D1B36]/60 mt-2 leading-relaxed">No risk factors detected. Tap to review danger signs to watch out for.</p>
+          <h3 className="text-xl font-medium text-plum-900">Emergency Alerts</h3>
+          <p className="text-sm text-plum-900/60 mt-2 leading-relaxed">No risk factors detected. Tap to review danger signs to watch out for.</p>
         </div>
       </div>
     </motion.div>
@@ -348,7 +348,7 @@ export default function Dashboard() {
 
   if (!mounted || isCheckingData) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+      <div className="min-h-screen bg-cream flex items-center justify-center">
         <Sparkle weight="duotone" className="w-12 h-12 text-pink-400 animate-pulse opacity-50" />
       </div>
     );
@@ -357,7 +357,7 @@ export default function Dashboard() {
   const displayName = profile?.preferred_name || session?.user?.name?.split(" ")[0] || "Beautiful";
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+    <div className="min-h-[100dvh] bg-cream selection:bg-plum-900/10 font-sans relative">
       <ConsentGate />
       
       {/* Sakhi Avatar Widget */}
@@ -380,25 +380,25 @@ export default function Dashboard() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-[#2D1B36]/30">
+              <div className="w-full h-full flex items-center justify-center text-plum-900/30">
                 <Baby className="w-6 h-6" />
               </div>
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-light tracking-tight text-[#2D1B36] flex items-center gap-2">
+            <h1 className="text-2xl font-light tracking-tight text-plum-900 flex items-center gap-2">
               Good morning, {displayName} 
               <span className="inline-block hover:rotate-12 hover:scale-110 cursor-pointer transition-transform duration-300">🌸</span>
             </h1>
-            <p className="text-sm text-[#2D1B36]/50 mt-1">Your daily wellness summary.</p>
+            <p className="text-sm text-plum-900/50 mt-1">Your daily wellness summary.</p>
           </div>
         </div>
         
         <div className="hidden sm:flex items-center gap-3">
-          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
+          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-plum-900/60 hover:text-plum-900 hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
             <Bell weight="duotone" className="w-5 h-5" />
           </button>
-          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
+          <button className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-plum-900/60 hover:text-plum-900 hover:bg-white/80 transition-[background-color,color,transform] hover:scale-105 active:scale-95 shadow-sm">
             <GearSix weight="duotone" className="w-5 h-5" />
           </button>
         </div>
@@ -410,7 +410,7 @@ export default function Dashboard() {
           <button
             onClick={() => setMode("menstrual")}
             className={`relative z-10 px-8 py-3.5 rounded-full text-sm font-semibold transition-colors duration-500 tracking-wide ${
-              mode === "menstrual" ? "text-white" : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
+              mode === "menstrual" ? "text-white" : "text-plum-900/60 hover:text-plum-900"
             }`}
           >
             HER MODE
@@ -418,7 +418,7 @@ export default function Dashboard() {
           <button
             onClick={() => setMode("pregnancy")}
             className={`relative z-10 px-8 py-3.5 rounded-full text-sm font-semibold transition-colors duration-500 tracking-wide ${
-              mode === "pregnancy" ? "text-white" : "text-[#2D1B36]/60 hover:text-[#2D1B36]"
+              mode === "pregnancy" ? "text-white" : "text-plum-900/60 hover:text-plum-900"
             }`}
           >
             MOM MODE

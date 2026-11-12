@@ -124,8 +124,8 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] sm:w-full max-w-lg bg-white border-2 border-pink-200/90 shadow-[0_20px_60px_rgba(244,114,182,0.22)] z-50 rounded-3xl md:rounded-[2.5rem] overflow-hidden max-h-[90vh] flex flex-col"
           >
             <div className="p-4 sm:p-6 border-b border-black/5 flex items-center justify-between bg-pink-50/50 shrink-0">
-              <h2 className="text-xl sm:text-2xl font-semibold text-[#2D1B36]">Settings</h2>
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#2D1B36]/60">
+              <h2 className="text-xl sm:text-2xl font-semibold text-plum-900">Settings</h2>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60">
                 <X weight="bold" className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
@@ -134,13 +134,13 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
               
               {/* Voice Settings */}
               <div>
-                <h3 className="text-base sm:text-lg font-medium text-[#2D1B36] flex items-center gap-2 mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-medium text-plum-900 flex items-center gap-2 mb-3 sm:mb-4">
                   <User weight="duotone" className="text-pink-500" /> Sakhi Voice
                 </h3>
                 <div className="flex items-center justify-between p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
                   <div>
-                    <p className="font-medium text-sm sm:text-base text-[#2D1B36]">Auto-Play Voice</p>
-                    <p className="text-xs sm:text-sm text-[#2D1B36]/60">Sakhi will read her replies aloud.</p>
+                    <p className="font-medium text-sm sm:text-base text-plum-900">Auto-Play Voice</p>
+                    <p className="text-xs sm:text-sm text-plum-900/60">Sakhi will read her replies aloud.</p>
                   </div>
                   <button 
                     type="button"
@@ -162,8 +162,8 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
                   <div className="min-w-0">
-                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-[#2D1B36]">Voice &amp; accent</label>
-                    <p className="text-xs sm:text-sm text-[#2D1B36]/60">Used for Sakhi&apos;s voice and for understanding you.</p>
+                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-plum-900">Voice &amp; accent</label>
+                    <p className="text-xs sm:text-sm text-plum-900/60">Used for Sakhi&apos;s voice and for understanding you.</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <select
@@ -173,7 +173,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                         setVoiceLang(e.target.value);
                         try { localStorage.setItem(VOICE_LANG_KEY, e.target.value); } catch { /* ignore */ }
                       }}
-                      className="rounded-xl border border-black/10 bg-white px-2 py-2 text-sm text-[#2D1B36] focus:ring-2 focus:ring-pink-300 outline-none"
+                      className="rounded-xl border border-black/10 bg-white px-2 py-2 text-sm text-plum-900 focus:ring-2 focus:ring-pink-300 outline-none"
                     >
                       {VOICE_LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
                     </select>
@@ -190,14 +190,14 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
 
               {/* Profile Data - Only Name can be changed */}
               <div>
-                <h3 className="text-base sm:text-lg font-medium text-[#2D1B36] flex items-center gap-2 mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-medium text-plum-900 flex items-center gap-2 mb-3 sm:mb-4">
                   <User weight="duotone" className="text-pink-500" /> 
                   Personal Profile
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-[#2D1B36]/80 mb-1">Preferred Name</label>
+                    <label className="block text-xs sm:text-sm font-medium text-plum-900/80 mb-1">Preferred Name</label>
                     <input 
                       type="text" name="preferred_name"
                       value={formData.preferred_name || ''} 
@@ -205,7 +205,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                       placeholder="Enter your name"
                       className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none text-sm sm:text-base"
                     />
-                    <p className="text-[11px] sm:text-xs text-[#2D1B36]/50 mt-1">
+                    <p className="text-[11px] sm:text-xs text-plum-900/50 mt-1">
                       Sakhi will address you with this name in your conversations and dashboards.
                     </p>
                   </div>
@@ -217,11 +217,11 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 <div className="p-4 sm:p-5 rounded-2xl border-2 border-pink-200/90 bg-pink-50/60 shadow-sm flex flex-col justify-between">
                   <div className="flex items-center gap-2 mb-1.5">
                     <ArrowsLeftRight weight="bold" className="text-pink-600 w-5 h-5" />
-                    <h3 className="text-sm sm:text-base font-semibold text-[#2D1B36]">
+                    <h3 className="text-sm sm:text-base font-semibold text-plum-900">
                       {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
                     </h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[#2D1B36]/70 mb-3 sm:mb-4 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-plum-900/70 mb-3 sm:mb-4 leading-relaxed">
                     {mode === 'her' 
                       ? 'Transition your dashboard to pregnancy wellness tracking, weekly baby progress, and maternal care.' 
                       : 'Transition back to cycle rhythm, ovulation prediction, and hormonal balance.'}
@@ -246,15 +246,15 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 </div>
 
                 {/* Privacy & data controls */}
-                <div className="rounded-2xl border border-[#2D1B36]/10 bg-white/70 p-4 sm:p-5">
+                <div className="rounded-2xl border border-plum-900/10 bg-white/70 p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-1">
                     <ShieldCheck weight="duotone" className="w-5 h-5 text-pink-500" />
-                    <h3 className="font-semibold text-[#2D1B36] text-sm sm:text-base">Privacy &amp; your data</h3>
+                    <h3 className="font-semibold text-plum-900 text-sm sm:text-base">Privacy &amp; your data</h3>
                   </div>
                   <div className="flex items-center justify-between gap-3 mb-3 p-3 rounded-xl bg-pink-50/60 border border-pink-100">
                     <div>
-                      <p className="font-medium text-sm text-[#2D1B36]">Private mode</p>
-                      <p className="text-xs text-[#2D1B36]/60">Chats are never sent to Google. Sakhi uses a private model if one is set up, otherwise simple mode.</p>
+                      <p className="font-medium text-sm text-plum-900">Private mode</p>
+                      <p className="text-xs text-plum-900/60">Chats are never sent to Google. Sakhi uses a private model if one is set up, otherwise simple mode.</p>
                     </div>
                     <button
                       type="button"
@@ -267,14 +267,14 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                       <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${privateMode ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                   </div>
-                  {privacyMsg && <p className="text-xs text-[#2D1B36]/70 mb-3" aria-live="polite">{privacyMsg}</p>}
-                  <p className="text-xs sm:text-sm text-[#2D1B36]/60 mb-3">
+                  {privacyMsg && <p className="text-xs text-plum-900/70 mb-3" aria-live="polite">{privacyMsg}</p>}
+                  <p className="text-xs sm:text-sm text-plum-900/60 mb-3">
                     Download a copy of everything Sakhi stores about you, or permanently delete it.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <a
                       href="/api/export-data"
-                      className="flex items-center justify-center gap-2 rounded-xl border border-[#2D1B36]/15 py-2.5 text-sm font-medium text-[#2D1B36] hover:bg-[#2D1B36]/5"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-plum-900/15 py-2.5 text-sm font-medium text-plum-900 hover:bg-plum-900/5"
                     >
                       <DownloadSimple weight="bold" className="w-4 h-4" /> Download my data
                     </a>
@@ -296,7 +296,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
 
             <div className="p-4 sm:p-6 border-t border-black/5 bg-gray-50 flex items-center justify-end shrink-0">
               <div className="flex gap-2">
-                <button onClick={onClose} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-[#2D1B36]/70 hover:bg-black/5 transition-colors cursor-pointer">
+                <button onClick={onClose} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-plum-900/70 hover:bg-black/5 transition-colors cursor-pointer">
                   Cancel
                 </button>
                 <button onClick={handleSave} disabled={isSaving || showSuccess} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-white bg-pink-500 hover:bg-pink-600 transition-colors flex items-center gap-2 cursor-pointer">

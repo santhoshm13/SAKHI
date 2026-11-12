@@ -53,7 +53,7 @@ const ChartAnimationDefs = () => (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-[#2D1B36] transition-[opacity,transform] transform scale-105">
+      <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-[0_10px_30px_rgba(244,114,182,0.25)] border border-pink-200/90 text-sm text-plum-900 transition-[opacity,transform] transform scale-105">
         <p className="font-semibold mb-1 text-xs text-plum-900/75">{label}</p>
         {payload.map((p: any, i: number) => (
           <p key={i} className="flex items-center gap-2 font-medium" style={{ color: p.color || p.fill || chartConfig.text }}>
@@ -72,7 +72,7 @@ export const PregnancyWeekProgress = ({ weeks }: { weeks: number }) => {
   const progressPercent = Math.min((weeks / 40) * 100, 100);
   return (
     <div className="w-full">
-      <div className="flex justify-between text-sm font-semibold text-[#2D1B36] mb-2">
+      <div className="flex justify-between text-sm font-semibold text-plum-900 mb-2">
         <span className="flex items-center gap-1.5 font-bold text-pink-700">
           <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
           Week {weeks} of 40
@@ -96,15 +96,16 @@ export const PregnancyWeekProgress = ({ weeks }: { weeks: number }) => {
 // B. Baby Growth Timeline
 export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
   const fruits = [
-    { w: 8, fruit: "🫐 Blueberry" },
-    { w: 12, fruit: "🍋 Plum" },
+    // Matches sizeFor() in lib/chat/offline/knowledge.ts so the chat and the timeline agree
+    { w: 8, fruit: "🫘 Rajma bean" },
+    { w: 12, fruit: "🍋 Lime" },
     { w: 16, fruit: "🥑 Avocado" },
-    { w: 20, fruit: "🥭 Mango" },
-    { w: 24, fruit: "🌽 Ear of Corn" },
-    { w: 28, fruit: "🍆 Eggplant" },
-    { w: 32, fruit: "🍈 Squash" },
-    { w: 36, fruit: "🍉 Watermelon" },
-    { w: 40, fruit: "🎃 Pumpkin" }
+    { w: 20, fruit: "🍌 Banana" },
+    { w: 24, fruit: "🌽 Corn cob" },
+    { w: 28, fruit: "🍆 Brinjal" },
+    { w: 32, fruit: "🥥 Coconut" },
+    { w: 36, fruit: "🍈 Large papaya" },
+    { w: 40, fruit: "🍉 Watermelon" }
   ];
 
   return (
@@ -120,15 +121,15 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
             transition={{ duration: 0.2 }}
             className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl sm:rounded-[2rem] border-2 transition-[background-color,border-color,box-shadow,transform] ${
               isCurrent 
-                ? "border-pink-400 bg-pink-50/90 scale-105 shadow-[0_8px_25px_rgba(244,114,182,0.3)] ring-4 ring-pink-300/40 animate-pulse" 
+                ? "border-pink-400 bg-pink-50/90 scale-105 shadow-[0_8px_25px_rgba(244,114,182,0.3)] ring-4 ring-pink-300/40" 
                 : isPast 
                   ? "border-pink-200/60 bg-white/70 shadow-sm" 
                   : "border-black/5 bg-black/5 opacity-40 grayscale"
             }`}
           >
-            <span className={`text-[11px] sm:text-xs font-bold ${isCurrent ? "text-pink-700" : "text-[#2D1B36]/60"}`}>Week {f.w}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${isCurrent ? "text-pink-700" : "text-plum-900/60"}`}>Week {f.w}</span>
             <span className="text-2xl sm:text-3xl mt-0.5 sm:mt-1 select-none">{f.fruit.split(" ")[0]}</span>
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#2D1B36]/50 mt-0.5 sm:mt-1 truncate max-w-[70px] sm:max-w-[80px]">{f.fruit.split(" ")[1]}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-plum-900/55 mt-0.5 sm:mt-1 truncate max-w-[72px] sm:max-w-[86px]">{f.fruit.split(" ").slice(1).join(" ")}</span>
           </motion.div>
         );
       })}
@@ -141,10 +142,10 @@ export const WeightGainChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.weight === 'number' && !isNaN(l.weight));
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">⚖️</span>
         <p className="text-sm font-medium">No weight logs recorded yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Complete your daily check-in or log weight with Sakhi.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Complete your daily check-in or log weight with Sakhi.</p>
       </div>
     );
   }
@@ -195,10 +196,10 @@ export const BloodPressureChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.blood_pressure_systolic === 'number' && typeof l.blood_pressure_diastolic === 'number');
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩺</span>
         <p className="text-sm font-medium">No blood pressure logs recorded yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Log your first BP measurement in daily check-in.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Log your first BP measurement in daily check-in.</p>
       </div>
     );
   }
@@ -259,10 +260,10 @@ export const BloodSugarChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.blood_sugar === 'number');
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩸</span>
         <p className="text-sm font-medium">No fasting blood sugar logs yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Log your blood sugar reading to monitor trends.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Log your blood sugar reading to monitor trends.</p>
       </div>
     );
   }
@@ -319,10 +320,10 @@ export const BabyMovementChart = ({ data }: { data: any[] }) => {
 
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">👣</span>
         <p className="text-sm font-medium">No fetal kick counts recorded yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Record baby movement in morning check-in or chat with Sakhi.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Record baby movement in morning check-in or chat with Sakhi.</p>
       </div>
     );
   }
@@ -408,9 +409,9 @@ export const AppointmentTimeline = ({
 }) => {
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="py-8 flex flex-col items-center justify-center text-center text-[#2D1B36]/50">
+      <div className="py-8 flex flex-col items-center justify-center text-center text-plum-900/50">
         <p className="text-sm font-medium">No upcoming appointments scheduled.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Tell Sakhi about your next ANC visit to set a reminder.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Tell Sakhi about your next ANC visit to set a reminder.</p>
       </div>
     );
   }
@@ -447,13 +448,13 @@ export const AppointmentTimeline = ({
             <div>
               <div className={`text-base font-medium transition-colors ${
                 apt.completed 
-                  ? "text-[#2D1B36]/40 line-through" 
-                  : "text-[#2D1B36]"
+                  ? "text-plum-900/40 line-through" 
+                  : "text-plum-900"
               }`}>
                 {apt.name}
               </div>
               {apt.date && apt.date !== "Upcoming" && (
-                <div className="text-xs text-[#2D1B36]/50 mt-0.5">
+                <div className="text-xs text-plum-900/50 mt-0.5">
                   {apt.date}
                 </div>
               )}
@@ -478,10 +479,10 @@ export const MoodTrackerChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => l.mood);
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🌸</span>
         <p className="text-sm font-medium">No mood logs recorded yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Check in daily to track emotional wellness.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Check in daily to track emotional wellness.</p>
       </div>
     );
   }
@@ -533,10 +534,10 @@ export const MoodTrackerChart = ({ data }: { data: any[] }) => {
 export const NutritionScoreChart = ({ nutrition }: { nutrition: any }) => {
   if (!nutrition || Object.values(nutrition).every(v => !v || v === 0)) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🥗</span>
         <p className="text-sm font-medium">No nutrition logged for today.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Track balanced meals, water, and iron intake.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Track balanced meals, water, and iron intake.</p>
       </div>
     );
   }
@@ -583,10 +584,10 @@ export const PregnancySleepGraph = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => l.sleep_hours !== null && l.sleep_hours !== undefined && !isNaN(Number(l.sleep_hours)));
   if (validLogs.length === 0) {
     return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-[#2D1B36]/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🌙</span>
         <p className="text-sm font-medium">No sleep logs recorded yet.</p>
-        <p className="text-xs text-[#2D1B36]/40 mt-1">Log your sleep hours in daily check-in or chat with Sakhi.</p>
+        <p className="text-xs text-plum-900/40 mt-1">Log your sleep hours in daily check-in or chat with Sakhi.</p>
       </div>
     );
   }
