@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight, ShieldCheck, DownloadSimple, Trash } from '@phosphor-icons/react';
-import { VOICE_LANGS, VOICE_LANG_KEY, getVoiceLang, speak } from '@/lib/voice';
+import DiscreetSettings from '@/components/DiscreetSettings';
+import { VOICE_LANGS, VOICE_LANG_KEY, VOICE_STYLES, VOICE_STYLE_KEY, getVoiceLang, getVoiceStyle, speak, type VoiceStyle } from '@/lib/voice';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [voiceLang, setVoiceLang] = useState('en-IN');
+  const [voiceStyle, setVoiceStyle] = useState<VoiceStyle>('girl');
   const [privateMode, setPrivateMode] = useState(false);
   const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
 
@@ -29,6 +31,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
       const storedVoice = localStorage.getItem('sakhi_voice_enabled');
       setVoiceEnabled(storedVoice !== 'false');
       setVoiceLang(getVoiceLang());
+      setVoiceStyle(getVoiceStyle());
       setPrivacyMsg(null);
       fetch('/api/consent').then(r => r.json()).then(d => setPrivateMode(d?.consent?.privateMode === true)).catch(() => {});
     }
@@ -132,6 +135,8 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
 
             <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 flex-1 overflow-y-auto custom-scrollbar">
               
+              <DiscreetSettings />
+
               {/* Voice Settings */}
               <div>
                 <h3 className="text-base sm:text-lg font-medium text-plum-900 flex items-center gap-2 mb-3 sm:mb-4">
@@ -162,8 +167,8 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
                   <div className="min-w-0">
-                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-plum-900">Voice &amp; accent</label>
-                    <p className="text-xs sm:text-sm text-plum-900/60">Used for Sakhi&apos;s voice and for understanding you.</p>
+                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-plum-900">Language</label>
+                    <p className="text-xs sm:text-sm text-plum-900/60">Sakhi chats, speaks and listens in this language.</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <select
@@ -184,6 +189,32 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     >
                       Test
                     </button>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
+                  <div className="min-w-0">
+                    <p id="voice-style-label" className="font-medium text-sm sm:text-base text-plum-900">Sakhi sounds like</p>
+                    <p className="text-xs sm:text-sm text-plum-900/60">Tap Test above to hear it.</p>
+                  </div>
+                  <div role="radiogroup" aria-labelledby="voice-style-label" className="inline-flex shrink-0 rounded-xl border border-black/10 bg-white p-1">
+                    {VOICE_STYLES.map(s => {
+                      const on = s.code === voiceStyle;
+                      return (
+                        <button
+                          key={s.code}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          onClick={() => {
+                            setVoiceStyle(s.code);
+                            try { localStorage.setItem(VOICE_STYLE_KEY, s.code); } catch { /* ignore */ }
+                          }}
+                          className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300 ${on ? 'bg-pink-500 text-white' : 'text-plum-900/70 hover:bg-pink-50'}`}
+                        >
+                          {s.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

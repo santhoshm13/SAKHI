@@ -10,11 +10,14 @@
  *   4. Offline rules, which always work.
  */
 import { Owner, readDoc, storageMode, writeDoc } from '@/lib/store';
+import { logTabletsFromChat } from '@/lib/tabletChat';
+import { extractHer, extractMom, normalize } from '@/lib/chat/offline/extract';
 import { executeGeminiWithAutoSwitch, getGeminiKeyPool } from '@/lib/gemini';
 import { onceper, runHerTool, runPregnancyTool } from '@/lib/sakhiTools';
 import { offlineHerReply, offlinePregnancyReply } from '@/lib/offlineChat';
 import { checkSafety } from './safety';
 import { TONE_RULES } from './tone';
+import { languageRule, replyLang, type ReplyLang } from './language';
 import { herContext, pregContext } from './context';
 import { localChat, localLlmConfigured } from './localLlm';
 import * as her from './herSpec';
@@ -82,11 +85,11 @@ STYLE:
 const isModelMissing = (err: any) => /not found|404|is not supported|unknown model/i.test(String(err?.message || err));
 
 async function geminiReply(opts: {
-  mode: ChatMode; message: string; owner: Owner; name: string; history: ChatTurn[]; context: string;
+  mode: ChatMode; message: string; owner: Owner; name: string; history: ChatTurn[]; context: string; lang: ReplyLang;
 }): Promise<{ reply: string; chartUpdates: any[] }> {
-  const { mode, message, owner, name, history, context } = opts;
+  const { mode, message, owner, name, history, context, lang } = opts;
   const prompt = mode === 'her' ? her.SYSTEM_PROMPT(name || 'friend') : preg.SYSTEM_PROMPT(name || 'Mama');
-  const systemInstruction = `${prompt}\n${TONE_RULES(mode)}\n${STYLE_RULES(today())}\n\nPRIVATE DATA SUMMARY (for your understanding only):\n${context}`;
+  const systemInstruction = `${prompt}\n${TONE_RULES(mode)}\n${STYLE_RULES(today())}${languageRule(lang)}\n\nPRIVATE DATA SUMMARY (for your understanding only):\n${context}`;
   const tools = mode === 'her'
     ? [her.log_health_entry_declaration, her.update_period_info_declaration, her.analyze_cycle_declaration]
     : [preg.log_pregnancy_vital_declaration, preg.update_pregnancy_progress_declaration,
@@ -144,16 +147,16 @@ async function geminiReply(opts: {
 }
 
 async function localReply(opts: {
-  mode: ChatMode; message: string; name: string; history: ChatTurn[]; context: string; draft: string;
+  mode: ChatMode; message: string; name: string; history: ChatTurn[]; context: string; draft: string; lang: ReplyLang;
 }): Promise<string | null> {
-  const { mode, message, name, history, context, draft } = opts;
+  const { mode, message, name, history, context, draft, lang } = opts;
   const persona = mode === 'her'
     ? `You are Sakhi, a warm menstrual health companion talking with ${name || 'a friend'}.`
     : `You are Sakhi, a warm pregnancy companion talking with ${name || 'a mother'}.`;
   const system = `${persona}
 You will see her message and a DRAFT reply that is already correct. Rewrite the draft so it sounds soft, soothing and natural and refers to what she said, in 2-4 short sentences. Use one gentle endearment such as "dear", "sweetheart" or "princess".
 Rules: keep every number, every safety instruction and every relief step from the draft. Do not add medicines, doses or diagnoses. Do not mention the draft.
-About her: ${context.replace(/\n/g, ' ')}`;
+About her: ${context.replace(/\n/g, ' ')}${languageRule(lang)}`;
   const messages = [
     { role: 'system' as const, content: system },
     ...history.slice(-6).map(t => ({ role: t.role, content: t.text })),
@@ -163,9 +166,10 @@ About her: ${context.replace(/\n/g, ' ')}`;
 }
 
 export async function runSakhiChat(input: {
-  mode: ChatMode; message: string; owner: Owner; name: string; clientHistory?: any;
+  mode: ChatMode; message: string; owner: Owner; name: string; clientHistory?: any; lang?: string;
 }): Promise<ChatResult> {
   const { mode, message, owner, name } = input;
+  const lang = replyLang(input.lang, message);
   const offline = mode === 'her' ? offlineHerReply : offlinePregnancyReply;
 
   // Without database/file storage, history lives in the browser and is sent along
@@ -178,12 +182,24 @@ export async function runSakhiChat(input: {
     if (hit) {
       const saved = await offline(message, owner, name).catch(() => null);
       const chartUpdates = saved?.chartData ? [saved.chartData] : [];
-      if (mode === 'pregnancy' && hit.level === 'emergency') chartUpdates.push({ type: 'emergency', data: true, reason: hit.reason });
+      if (hit.level === 'emergency' || hit.level === 'crisis') chartUpdates.push({ type: 'emergency', data: true, reason: hit.reason, level: hit.level });
       return { reply: hit.reply, chartUpdates, engine: 'safety' };
     }
 
+    // Tablet ledger: "took my iron tablet" is saved the same way whatever answers
+    const tablet = await logTabletsFromChat(owner, message).catch(() => null);
+    const tabletUpdates = tablet?.chartUpdate ? [tablet.chartUpdate] : [];
+    if (tablet) {
+      const other = mode === 'her'
+        ? (() => { const r = extractHer(normalize(message)); return Object.keys(r.entry).length > 0 || r.periodStarted; })()
+        : (() => { const r = extractMom(normalize(message)); return Object.keys(r.vitals).length > 0 || r.week !== undefined; })();
+      if (!other) return { reply: tablet.reply, chartUpdates: tabletUpdates, engine: 'offline' };
+    }
+
     const consent = await readDoc<any>('consent', null, owner);
-    const context = mode === 'her' ? await herContext(owner) : (await pregContext(owner)).text;
+    const baseContext = mode === 'her' ? await herContext(owner) : (await pregContext(owner)).text;
+    const context = tablet ? `${baseContext}
+${tablet.summary} Mention this briefly in your reply.` : baseContext;
 
     let notice: string | undefined;
     if (consent?.aiProcessing === false) notice = 'no-consent';
@@ -194,9 +210,9 @@ export async function runSakhiChat(input: {
     // 2. Gemini
     if (!notice) {
       try {
-        const g = await geminiReply({ mode, message, owner, name, history, context });
+        const g = await geminiReply({ mode, message, owner, name, history, context, lang });
         await bumpUsage(owner);
-        return { ...g, engine: 'gemini' };
+        return { ...g, chartUpdates: [...tabletUpdates, ...g.chartUpdates], engine: 'gemini' };
       } catch (err: any) {
         counters.geminiErrors++;
         console.warn('[chat] Gemini unavailable:', err?.message || err);
@@ -206,13 +222,14 @@ export async function runSakhiChat(input: {
 
     // 3 + 4. Rules save the data; a local model (if any, and if she allowed AI) phrases it
     const off = await offline(message, owner, name, history);
-    const chartUpdates = off.chartData ? [off.chartData] : [];
+    if (tablet) off.reply = `${tablet.reply} ${off.reply}`;
+    const chartUpdates = [...tabletUpdates, ...(off.chartData ? [off.chartData] : [])];
     const keepAsIs = /hospital|emergency|112|haven't saved/i.test(off.reply);
     if (notice !== 'no-consent' && localLlmConfigured() && !keepAsIs) {
-      const text = await localReply({ mode, message, name, history, context, draft: off.reply });
+      const text = await localReply({ mode, message, name, history, context, draft: off.reply, lang });
       if (text) return { reply: text, chartUpdates, engine: 'local', notice };
     }
-    return { reply: off.reply, chartUpdates, engine: 'offline', notice };
+    return { reply: off.reply, chartUpdates, engine: 'offline', notice: lang !== 'en' ? 'english-only' : notice };
   })();
 
   counters[result.engine]++;

@@ -38,6 +38,17 @@ import PregnancyNotificationCenter from "@/components/PregnancyNotificationCente
 import SettingsModal from "@/components/SettingsModal";
 import WeightTracker from "@/components/WeightTracker";
 import ContractionTimer from "@/components/ContractionTimer";
+import { LabResultsCard } from "@/components/LabReport";
+import TabletsCard from "@/components/TabletsCard";
+import HospitalBagCard from "@/components/HospitalBagCard";
+import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
+import MoodCheckCard from "@/components/MoodCheckCard";
+import { BabyArrivedCard, BabyHeader, NewbornCard, RecoveryCard, VaccineCard } from "@/components/Postpartum";
+import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
+import { sendOrQueue } from "@/lib/outbox";
+import SchemesCard from "@/components/SchemesCard";
+import NearbyHelpCard from "@/components/NearbyHelpCard";
+import { EMPTY_POSTPARTUM, babyAge, type PostpartumDoc } from "@/lib/postpartum";
 
 interface RiskExplainFactor {
   title: string;
@@ -55,8 +66,14 @@ const getPreeclampsiaExplainability = (
   const factors: RiskExplainFactor[] = [];
   const latestBpLog = [...(logs || [])].reverse().find(l => l.blood_pressure_systolic && l.blood_pressure_diastolic);
   const hasLoggedBp = Boolean(latestBpLog);
-  const systolic = latestBpLog?.blood_pressure_systolic ? Number(latestBpLog.blood_pressure_systolic) : 120;
-  const diastolic = latestBpLog?.blood_pressure_diastolic ? Number(latestBpLog.blood_pressure_diastolic) : 80;
+  if (!hasLoggedBp) {
+    return {
+      summary: "No blood pressure logged yet, so this risk isn't scored. Add a reading in your check-in, or tell Sakhi something like \"BP 118 over 76\".",
+      factors: [],
+    };
+  }
+  const systolic = Number(latestBpLog.blood_pressure_systolic);
+  const diastolic = Number(latestBpLog.blood_pressure_diastolic);
   
   const conditions: string[] = profile?.maternal_conditions || [];
   const hasHypertensionHistory = conditions.some((c: string) => 
@@ -197,7 +214,13 @@ const getGdmExplainability = (
   const factors: RiskExplainFactor[] = [];
   const latestSugarLog = [...(logs || [])].reverse().find(l => l.blood_sugar !== null && l.blood_sugar !== undefined && Number(l.blood_sugar) > 0);
   const hasLoggedSugar = Boolean(latestSugarLog);
-  const bloodSugar = latestSugarLog?.blood_sugar ? Number(latestSugarLog.blood_sugar) : 85.0;
+  if (!hasLoggedSugar) {
+    return {
+      summary: "No blood sugar logged yet, so this risk isn't scored. Add a fasting reading in your check-in, or tell Sakhi something like \"fasting sugar 88\".",
+      factors: [],
+    };
+  }
+  const bloodSugar = Number(latestSugarLog.blood_sugar);
 
   const conditions: string[] = profile?.maternal_conditions || [];
   const hasDiabetesHistory = conditions.some((c: string) => 
@@ -270,6 +293,13 @@ const getGdmExplainability = (
 
   // 4. Model score + guideline flags
   factors.push(...modelExplainFactors(gdmMl, "Diabetes"));
+  factors.push({
+    title: "About this model",
+    detail: "Trained on general diabetes data from adult women who were not pregnant, so it is a guide only. The glucose tolerance test (OGTT) your doctor offers around weeks 24 to 28 is what diagnoses gestational diabetes.",
+    impact: "Guide only",
+    type: "neutral",
+    source: "Health Analysis"
+  });
   const level = gdmMl?.risk_level;
 
   return {
@@ -347,14 +377,22 @@ export default function PregnancyModePage() {
   const [showExplainability, setShowExplainability] = useState(false);
   const [explainTab, setExplainTab] = useState<"preeclampsia" | "gdm">("preeclampsia");
   const [tab, setTab] = useHashTab<MomTab>(MOM_TAB_IDS, "today");
+  // After the birth, Mom Mode turns into after-birth care
+  const pp = useUserDoc<PostpartumDoc>("postpartum", EMPTY_POSTPARTUM);
+  const born = pp.loaded && Boolean(pp.doc.birth_date);
   const [mlPredictions, setMlPredictions] = useState<{
     preeclampsia: any;
     gdm: any;
     isLoading: boolean;
+    /** date of the reading each score is based on; null = nothing logged, so not scored */
+    bpDate: string | null;
+    sugarDate: string | null;
   }>({
     preeclampsia: null,
     gdm: null,
-    isLoading: false
+    isLoading: false,
+    bpDate: null,
+    sugarDate: null,
   });
 
   // Initialize notification hook
@@ -374,45 +412,37 @@ export default function PregnancyModePage() {
         c.toLowerCase().includes("diabetes") || c.toLowerCase().includes("sugar")
       );
 
+      // Only score readings she actually logged: a stand-in "normal" value would
+      // show a reassuring Low risk built on numbers she never entered.
       const latestBpLog = [...(logList || [])].reverse().find(l => l.blood_pressure_systolic && l.blood_pressure_diastolic);
-      const systolic = latestBpLog?.blood_pressure_systolic ? Number(latestBpLog.blood_pressure_systolic) : 120;
-      const diastolic = latestBpLog?.blood_pressure_diastolic ? Number(latestBpLog.blood_pressure_diastolic) : 80;
-
       const latestSugarLog = [...(logList || [])].reverse().find(l => l.blood_sugar !== null && l.blood_sugar !== undefined && Number(l.blood_sugar) > 0);
-      const bloodSugar = latestSugarLog?.blood_sugar ? Number(latestSugarLog.blood_sugar) : 85.0;
+      const post = (task: string, body: any) =>
+        fetch(`/api/predict/${task}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+          .then(r => (r.ok ? r.json() : null)).catch(() => null);
 
-      const [preeclampsiaRes, gdmRes] = await Promise.all([
-        fetch("/api/predict/preeclampsia", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systolic,
-            diastolic,
-            hypertension_history: hasHypertensionHistory ? 1 : 0,
-            ...(latestSugarLog ? { blood_sugar: bloodSugar } : {}),
-            ...(prof?.age ? { age: Number(prof.age) } : {}),
-            symptoms: [...(logList || [])].slice(-3).flatMap((l: any) => l.symptoms || [])
-          })
-        }),
-        fetch("/api/predict/gdm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            blood_sugar: bloodSugar,
-            diabetes_history: hasDiabetesHistory ? 1 : 0,
-            ...(prof?.age ? { age: Number(prof.age) } : {}),
-            ...(prof?.bmi ? { bmi: Number(prof.bmi) } : {})
-          })
-        })
+      const [preeclampsiaData, gdmData] = await Promise.all([
+        latestBpLog ? post("preeclampsia", {
+          systolic: Number(latestBpLog.blood_pressure_systolic),
+          diastolic: Number(latestBpLog.blood_pressure_diastolic),
+          hypertension_history: hasHypertensionHistory ? 1 : 0,
+          ...(latestSugarLog ? { blood_sugar: Number(latestSugarLog.blood_sugar) } : {}),
+          ...(prof?.age ? { age: Number(prof.age) } : {}),
+          symptoms: [...(logList || [])].slice(-3).flatMap((l: any) => l.symptoms || []),
+        }) : null,
+        latestSugarLog ? post("gdm", {
+          blood_sugar: Number(latestSugarLog.blood_sugar),
+          diabetes_history: hasDiabetesHistory ? 1 : 0,
+          ...(prof?.age ? { age: Number(prof.age) } : {}),
+          ...(prof?.bmi ? { bmi: Number(prof.bmi) } : {}),
+        }) : null,
       ]);
-
-      const preeclampsiaData = preeclampsiaRes.ok ? await preeclampsiaRes.json() : null;
-      const gdmData = gdmRes.ok ? await gdmRes.json() : null;
 
       setMlPredictions({
         preeclampsia: preeclampsiaData,
         gdm: gdmData,
-        isLoading: false
+        isLoading: false,
+        bpDate: latestBpLog ? String(latestBpLog.log_date).slice(0, 10) : null,
+        sugarDate: latestSugarLog ? String(latestSugarLog.log_date).slice(0, 10) : null,
       });
     } catch (err) {
       console.warn("Failed to fetch ML risk assessments:", err);
@@ -472,7 +502,7 @@ export default function PregnancyModePage() {
     if (!isCheckingData) {
       const todayStr = new Date().toISOString().split("T")[0];
       const lastCheckIn = localStorage.getItem("sakhi_last_checkin_mom");
-      const hasTodayLog = (logs || []).some((l: any) => (l.log_date || '').split('T')[0] === todayStr);
+      const hasTodayLog = (logs || []).some((l: any) => l.source !== 'lab' && (l.log_date || '').split('T')[0] === todayStr);
       if (lastCheckIn !== todayStr && !hasTodayLog) {
         setShowCheckIn(true);
         setAiState("talking");
@@ -483,10 +513,12 @@ export default function PregnancyModePage() {
   const handleCheckInComplete = async (data: any) => {
     if (data.isEmergency) {
       setEmergency(true);
+      window.dispatchEvent(new CustomEvent('sakhi-chart-update', { detail: { type: 'emergency', reason: null, level: 'emergency' } }));
     }
 
     const newEntry = {
-      log_date: data.log_date,
+      // Dated now, so a log sent later from the outbox lands on the right day
+      log_date: data.log_date || dayKey(),
       weight: logs.length > 0 && logs[logs.length - 1].weight ? logs[logs.length - 1].weight : null,
       blood_pressure_systolic: data.blood_pressure_systolic,
       blood_pressure_diastolic: data.blood_pressure_diastolic,
@@ -507,11 +539,8 @@ export default function PregnancyModePage() {
     });
 
     try {
-      await fetch('/api/pregnancy-log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newEntry)
-      });
+      // With no signal it waits on the phone and is sent later
+      await sendOrQueue('/api/pregnancy-log', 'POST', newEntry);
     } catch (err) {
       console.error("Failed to save pregnancy log:", err);
     }
@@ -618,7 +647,7 @@ export default function PregnancyModePage() {
       <ConsentGate />
       <DashboardHeader
         mode="pregnancy"
-        modeLabel={`Mom Mode · Week ${weeks}`}
+        modeLabel={born ? `Mom Mode · Baby ${babyAge(pp.doc.birth_date!, new Date().toISOString().slice(0, 10)).replace(" old", "")}` : `Mom Mode · Week ${weeks}`}
         displayName={displayName}
         reminderCount={(reminders || []).filter((r: any) => r.status === "upcoming").length}
         onOpenReminders={() => setIsNotificationOpen(true)}
@@ -626,24 +655,7 @@ export default function PregnancyModePage() {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4">
-        {emergency && (
-          <motion.div
-            role="alert"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-rose-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg mb-6 flex flex-col sm:flex-row sm:items-start gap-4 no-print"
-          >
-            <WarningCircle weight="fill" className="w-8 h-8 shrink-0" aria-hidden="true" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg">This needs a doctor now, mama</h3>
-              <p className="mt-1 text-white/90">What you shared can be a sign of a serious problem in pregnancy. Please call your doctor or go to the nearest hospital now.</p>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <a href="tel:112" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 transition-colors">Call 112</a>
-              <button type="button" onClick={() => setEmergency(false)} className="rounded-full bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-medium transition-colors cursor-pointer">Dismiss</button>
-            </div>
-          </motion.div>
-        )}
+        <RedFlagBanner mode="pregnancy" />
 
         <DashboardTabs tabs={MOM_TABS} active={tab} onChange={setTab} />
 
@@ -671,7 +683,15 @@ export default function PregnancyModePage() {
 
           {tab === "today" && (<>
           {/* From 28 weeks the contraction timer sits on Today, where she'll look first */}
-          {weeks >= 28 && (
+          {born && (<>
+            <BabyHeader pp={pp} className="md:col-span-12 order-1" />
+            <NewbornCard pp={pp} className="md:col-span-7 order-2" />
+            <RecoveryCard pp={pp} className="md:col-span-5 order-2" />
+          </>)}
+          {!born && pp.loaded && (weeks >= 36 || (daysToGo !== null && daysToGo <= 21)) && (
+            <BabyArrivedCard pp={pp} compact className="md:col-span-12 order-2" />
+          )}
+          {!born && weeks >= 28 && (
             <div className={`${cardClass} md:col-span-12 order-4`}>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-xl font-semibold tracking-tight text-plum-900">Contraction timer</h3>
@@ -681,7 +701,7 @@ export default function PregnancyModePage() {
           </div>
           )}
           {/* Where she is this week: comes first on Today */}
-          <div className={`${cardClass} md:col-span-12 order-1`}>
+          {!born && <div className={`${cardClass} md:col-span-12 order-1`}>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-6">
               <div>
                 <p className="text-sm text-ink-soft">{weeks <= 13 ? "First trimester" : weeks <= 27 ? "Second trimester" : "Third trimester"}</p>
@@ -700,9 +720,10 @@ export default function PregnancyModePage() {
               <h3 className="text-sm font-medium text-plum-900/60 mb-4">Baby growth timeline</h3>
               <BabyGrowthTimeline weeks={weeks} />
             </div>
-          </div>
+          </div>}
 
           <LatestVitalsCard logs={logs} onOpenVitals={() => setTab("vitals")} />
+          <TabletsCard mode="pregnancy" weeks={weeks} className="md:col-span-12 order-5" />
           </>)}
 
           {tab === "vitals" && (<>
@@ -770,6 +791,12 @@ export default function PregnancyModePage() {
             <NutritionScoreChart nutrition={nutrition} />
           </div>
 
+          {born ? <VaccineCard pp={pp} className="md:col-span-12" /> : (<>
+            {weeks >= 28 && <HospitalBagCard weeks={weeks} className="md:col-span-12" />}
+            {pp.loaded && <BabyArrivedCard pp={pp} compact className="md:col-span-12" />}
+          </>)}
+          <SchemesCard className="md:col-span-12" />
+
 
           </>)}
 
@@ -788,7 +815,11 @@ export default function PregnancyModePage() {
           </>)}
 
           {tab === "care" && (<>
-          {weeks < 28 && (
+          <MoodCheckCard pregnant className="md:col-span-6" />
+          <FamilyContactsCard className="md:col-span-6" />
+          <NearbyHelpCard mode="pregnancy" className="md:col-span-12" />
+          <LabResultsCard mode="pregnancy" pregnant className="md:col-span-12" onChanged={fetchDashboardData} />
+          {!born && weeks < 28 && (
           <div className={`${cardClass} md:col-span-12`}>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-xl font-semibold tracking-tight text-plum-900">Contraction timer</h3>
@@ -797,124 +828,93 @@ export default function PregnancyModePage() {
             <ContractionTimer weeks={weeks} />
           </div>
           )}
-          {/* Machine Learning Maternal Risk Assessment */}
-          <div className={`${cardClass} md:col-span-6 border ${
-            (mlPredictions.preeclampsia?.risk_level === "High" || mlPredictions.gdm?.risk_level === "High") 
-              ? "border-rose-200 bg-rose-50/30" 
-              : (mlPredictions.preeclampsia?.risk_level === "Moderate" || mlPredictions.gdm?.risk_level === "Moderate")
-              ? "border-amber-200 bg-amber-50/20"
-              : "border-emerald-200 bg-emerald-50/20"
-          } print:hidden`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className={iconWrapClass}><ShieldCheck weight="duotone" className="w-6 h-6 text-emerald-600" /></div>
+          {/* Machine Learning Maternal Risk Assessment: scores only readings she logged */}
+          {(() => {
+            const pe = mlPredictions.preeclampsia, gd = mlPredictions.gdm;
+            const levels = [pe?.risk_level, gd?.risk_level];
+            const shortDate = (d: string | null) => d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";
+            const levelCls = (l: string) => l === "High" ? "bg-rose-100 text-rose-700" : l === "Moderate" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
+            const RiskTile = ({ title, ml, reading, date, notes, missing }: {
+              title: string; ml: any; reading: string; date: string | null;
+              notes: { High: string; Moderate: string; Low: string }; missing: string;
+            }) => (
+              <div className="flex-1 bg-white/80 p-4 rounded-2xl border border-plum-900/[0.07] flex flex-col justify-between min-w-0">
                 <div>
-                  <h3 className="text-xl font-semibold tracking-tight text-plum-900">Maternal Risk Assessment</h3>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                      <Brain weight="bold" className="w-3 h-3" /> Clinical intelligence
-                    </span>
-                    <span className="text-[10px] text-plum-900/60">
-                      {mlPredictions.isLoading ? "Evaluating..." : "Real-time health assessment"}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-xs font-semibold text-plum-900/65">{title}</span>
+                    {ml ? (
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${levelCls(ml.risk_level)}`}>{ml.risk_level}</span>
+                    ) : !mlPredictions.isLoading && (
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-plum-900/5 text-plum-900/55">Not scored</span>
+                    )}
                   </div>
+                  {ml ? (
+                    <>
+                      <p className="mt-1 text-2xl font-semibold text-plum-900 tabular-nums">
+                        {Math.round(ml.probability * 100)}% <span className="text-xs font-normal text-plum-900/50">model estimate</span>
+                      </p>
+                      <p className="text-xs text-plum-900/65 mt-2 leading-relaxed">{notes[ml.risk_level as "High" | "Moderate" | "Low"] ?? notes.Low}</p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-plum-900/65 mt-2 leading-relaxed">{mlPredictions.isLoading ? "Checking…" : missing}</p>
+                  )}
                 </div>
+                <div className="mt-3 pt-2.5 border-t border-plum-900/5 text-[11px] text-plum-900/50 flex items-center justify-between gap-2">
+                  <span>Based on</span>
+                  <span className="font-medium text-plum-900/75 tabular-nums">{ml ? `${reading}${date ? ` · ${shortDate(date)}` : ""}` : "No reading yet"}</span>
+                </div>
+              </div>
+            );
+            return (
+          <div className={`${cardClass} md:col-span-6 ${
+            levels.includes("High") ? "border-rose-200 bg-rose-50/30"
+              : levels.includes("Moderate") ? "border-amber-200 bg-amber-50/20"
+              : ""
+          } print:hidden`}>
+            <div className="flex items-center gap-3 mb-2">
+              <div className={iconWrapClass}><ShieldCheck weight="duotone" className="w-6 h-6 text-lavender-600" /></div>
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight text-plum-900">Pregnancy risk check</h3>
+                <p className="text-xs text-plum-900/60 mt-0.5">
+                  {mlPredictions.isLoading ? "Checking your latest readings…" : "From your own logged readings · a screening guide, not a diagnosis"}
+                </p>
               </div>
             </div>
 
-            <p className="text-xs text-plum-900/70 mb-4">
-              {profile?.pregnancy_experience || "First-time Mother"} | Trimester {weeks <= 13 ? "1" : weeks <= 27 ? "2" : "3"} | Evaluated from medical profile & daily vitals
+            <p className="text-xs text-plum-900/60 mb-4">
+              {profile?.pregnancy_experience || "First-time mother"} · Trimester {weeks <= 13 ? "1" : weeks <= 27 ? "2" : "3"}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Preeclampsia Card */}
-              <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-plum-900/60">Preeclampsia risk</span>
-                    {mlPredictions.preeclampsia && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        mlPredictions.preeclampsia.risk_level === "High" ? "bg-red-100 text-red-700" :
-                        mlPredictions.preeclampsia.risk_level === "Moderate" ? "bg-amber-100 text-amber-700" :
-                        "bg-emerald-100 text-emerald-700"
-                      }`}>
-                        {mlPredictions.preeclampsia.risk_level}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-2xl font-semibold text-plum-900">
-                      {mlPredictions.preeclampsia 
-                        ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` 
-                        : "—"}
-                    </p>
-                    <span className="text-xs text-plum-900/50">Probability</span>
-                  </div>
-
-                  <p className="text-[11px] text-plum-900/60 mt-2 leading-relaxed">
-                    {mlPredictions.preeclampsia?.risk_level === "High" 
-                      ? "Elevated blood pressure pattern detected. Priority vascular monitoring recommended."
-                      : mlPredictions.preeclampsia?.risk_level === "Moderate"
-                      ? "Borderline blood pressure reading. Continue regular daily check-ins."
-                      : "Blood pressure vitals within optimal gestational baseline."}
-                  </p>
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-plum-900/50 flex items-center justify-between">
-                  <span>Input Vitals:</span>
-                  <span className="font-mono text-plum-900/70">
-                    {mlPredictions.preeclampsia?.factors 
-                      ? `${mlPredictions.preeclampsia.factors.systolic}/${mlPredictions.preeclampsia.factors.diastolic} mmHg`
-                      : "120/80 mmHg"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Gestational Diabetes Card */}
-              <div className="flex-1 bg-white/80 p-4 rounded-2xl shadow-[0_4px_20px_rgba(244,114,182,0.08)] border border-pink-200/80 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-plum-900/60">Gestational diabetes</span>
-                    {mlPredictions.gdm && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        mlPredictions.gdm.risk_level === "High" ? "bg-red-100 text-red-700" :
-                        mlPredictions.gdm.risk_level === "Moderate" ? "bg-amber-100 text-amber-700" :
-                        "bg-emerald-100 text-emerald-700"
-                      }`}>
-                        {mlPredictions.gdm.risk_level}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-2xl font-semibold text-plum-900">
-                      {mlPredictions.gdm 
-                        ? `${Math.round(mlPredictions.gdm.probability * 100)}%` 
-                        : "—"}
-                    </p>
-                    <span className="text-xs text-plum-900/50">Probability</span>
-                  </div>
-
-                  <p className="text-[11px] text-plum-900/60 mt-2 leading-relaxed">
-                    {mlPredictions.gdm?.risk_level === "High"
-                      ? "Elevated fasting blood sugar observed. Glucose tolerance evaluation suggested."
-                      : mlPredictions.gdm?.risk_level === "Moderate"
-                      ? "Mild glycemic elevation. Dietary carbohydrate balancing recommended."
-                      : "Fasting blood sugar within healthy gestational target."}
-                  </p>
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-black/5 text-[10px] text-plum-900/50 flex items-center justify-between">
-                  <span>Input Vitals:</span>
-                  <span className="font-mono text-plum-900/70">
-                    {mlPredictions.gdm?.factors 
-                      ? `${mlPredictions.gdm.factors.blood_sugar} mg/dL`
-                      : "85 mg/dL"}
-                  </span>
-                </div>
-              </div>
+              <RiskTile
+                title="Preeclampsia (high BP)"
+                ml={pe}
+                reading={pe?.factors ? `${pe.factors.systolic}/${pe.factors.diastolic} mmHg` : ""}
+                date={mlPredictions.bpDate}
+                notes={{
+                  High: "Your blood pressure reading is high. Please contact your doctor today.",
+                  Moderate: "A little above the ideal range. Recheck in a day or two and keep logging.",
+                  Low: "Your latest reading is in a healthy range. Keep checking at each visit.",
+                }}
+                missing='Log a blood pressure reading in your check-in, or tell Sakhi "BP 118 over 76", to see this.'
+              />
+              <RiskTile
+                title="Blood sugar"
+                ml={gd}
+                reading={gd?.factors ? `${gd.factors.blood_sugar} mg/dL` : ""}
+                date={mlPredictions.sugarDate}
+                notes={{
+                  High: "Your sugar reading is high. Mention it to your doctor and ask about a glucose test (OGTT).",
+                  Moderate: "Slightly above the fasting target. Balanced, fibre-rich meals and a short walk after eating help.",
+                  Low: "Your latest reading is within the fasting target.",
+                }}
+                missing='Log a fasting sugar reading, or tell Sakhi "fasting sugar 88", to see this.'
+              />
             </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-plum-900/50">
+              The blood sugar estimate comes from a general diabetes model (trained on women who were not pregnant), so treat it as a guide.
+              Gestational diabetes is diagnosed with the glucose tolerance test around weeks 24 to 28.
+            </p>
 
             {/* Expandable Explainability Accordion */}
             <div className="mt-5 pt-3 border-t border-plum-900/10">
@@ -925,7 +925,7 @@ export default function PregnancyModePage() {
               >
                 <span className="flex items-center gap-2">
                   <Info weight="bold" className="w-4 h-4 text-purple-600" />
-                  Why this score? (Health Factors Breakdown)
+                  Why this score?
                 </span>
                 {showExplainability ? <CaretUp weight="bold" className="w-4 h-4" /> : <CaretDown weight="bold" className="w-4 h-4" />}
               </button>
@@ -949,7 +949,7 @@ export default function PregnancyModePage() {
                             : "text-plum-900/60 hover:text-plum-900"
                         }`}
                       >
-                        Preeclampsia Factors ({mlPredictions.preeclampsia ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` : "—"})
+                        Preeclampsia factors ({mlPredictions.preeclampsia ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` : "not scored"})
                       </button>
                       <button
                         type="button"
@@ -960,7 +960,7 @@ export default function PregnancyModePage() {
                             : "text-plum-900/60 hover:text-plum-900"
                         }`}
                       >
-                        Gestational Diabetes Factors ({mlPredictions.gdm ? `${Math.round(mlPredictions.gdm.probability * 100)}%` : "—"})
+                        Blood sugar factors ({mlPredictions.gdm ? `${Math.round(mlPredictions.gdm.probability * 100)}%` : "not scored"})
                       </button>
                     </div>
 
@@ -1010,6 +1010,8 @@ export default function PregnancyModePage() {
               </AnimatePresence>
             </div>
           </div>
+            );
+          })()}
 
           <a
             href="/doctor-summary?mode=pregnancy"

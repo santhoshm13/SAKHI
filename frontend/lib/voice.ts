@@ -12,6 +12,9 @@ export const VOICE_ENABLED_KEY = 'sakhi_voice_enabled';
 export const VOICE_LANG_KEY = 'sakhi_voice_lang';
 export const VOICE_LANGS = [
   { code: 'en-IN', label: 'English (India)' },
+  { code: 'hi-IN', label: 'हिन्दी (Hindi)' },
+  { code: 'ta-IN', label: 'தமிழ் (Tamil)' },
+  { code: 'te-IN', label: 'తెలుగు (Telugu)' },
   { code: 'en-GB', label: 'English (UK)' },
   { code: 'en-US', label: 'English (US)' },
 ];
@@ -59,21 +62,61 @@ export function splitSentences(text: string): string[] {
   return out;
 }
 
-// Female, natural-sounding voices that ship with common browsers / OSes
-const PREFERRED = /neerja|heera|veena|kalpana|google uk english female|sonia|libby|aria|jenny|samantha|tessa|victoria|zira|female/i;
+/** "girl" is a young girl's voice (the default); "woman" is the grown-up one. */
+export type VoiceStyle = 'girl' | 'woman';
+export const VOICE_STYLE_KEY = 'sakhi_voice_style';
+export const VOICE_STYLES: { code: VoiceStyle; label: string }[] = [
+  { code: 'girl', label: 'Young girl' },
+  { code: 'woman', label: 'Woman' },
+];
+export const getVoiceStyle = (): VoiceStyle => (read(VOICE_STYLE_KEY) === 'woman' ? 'woman' : 'girl');
 
-export function pickVoice(lang: string): SpeechSynthesisVoice | null {
+// Female, natural-sounding voices that ship with common browsers / OSes
+const PREFERRED = /neerja|heera|veena|kalpana|swara|lekha|pallavi|shruti|google हिन्दी|google uk english female|sonia|libby|aria|jenny|samantha|tessa|victoria|zira|female/i;
+// Real child voices: Microsoft Ana (US) and Maisie (UK) come with Edge's online voices
+const GIRL = /\b(ana|maisie)\b/i;
+
+const norm = (l: string) => l.replace('_', '-').toLowerCase();
+
+/** A real girl's voice if this browser has one. */
+function childVoice(voices: SpeechSynthesisVoice[], lang: string): SpeechSynthesisVoice | null {
+  const kids = voices.filter(v => GIRL.test(v.name) && norm(v.lang).startsWith('en'));
+  return kids.find(v => norm(v.lang) === lang.toLowerCase()) || kids[0] || null;
+}
+
+export function pickVoice(lang: string, style: VoiceStyle = 'woman'): SpeechSynthesisVoice | null {
   if (!speechSupported()) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-  const norm = (l: string) => l.replace('_', '-').toLowerCase();
+  const isEnglish = lang.toLowerCase().startsWith('en');
+  // The girl voices (Ana, Maisie) only speak English
+  if (style === 'girl' && isEnglish) {
+    const kid = childVoice(voices, lang);
+    if (kid) return kid;
+  }
   const exact = voices.filter(v => norm(v.lang) === lang.toLowerCase());
+  // Same language from another region (e.g. hi) before falling back to English
+  const family = voices.filter(v => norm(v.lang).split('-')[0] === lang.toLowerCase().split('-')[0]);
+  if (!isEnglish && (exact.length || family.length)) {
+    const pool = exact.length ? exact : family;
+    return pool.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name)) || pool.find(v => PREFERRED.test(v.name)) || pool[0];
+  }
   const english = voices.filter(v => norm(v.lang).startsWith('en'));
   return exact.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name))
     || exact.find(v => PREFERRED.test(v.name))
     || english.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name))
     || english.find(v => PREFERRED.test(v.name))
     || exact[0] || english[0] || null;
+}
+
+/**
+ * How to say it. A real child voice is used as it is; otherwise a girl's voice is
+ * made from a woman's by raising the pitch and speeding up a touch.
+ */
+function delivery(style: VoiceStyle, voice: SpeechSynthesisVoice | null) {
+  if (style === 'woman') return { pitch: 1.05, rate: 0.97 };
+  if (voice && GIRL.test(voice.name)) return { pitch: 1.1, rate: 1 };
+  return { pitch: 1.6, rate: 1.04 };
 }
 
 let session = 0;
@@ -89,7 +132,9 @@ export function speak(text: string, handlers: { onStart?: () => void; onEnd?: ()
   stopSpeaking();
   const mine = ++session;
   const lang = getVoiceLang();
-  const voice = pickVoice(lang);
+  const style = getVoiceStyle();
+  const voice = pickVoice(lang, style);
+  const { pitch, rate } = delivery(style, voice);
   const chunks = splitSentences(cleanForSpeech(text));
   if (!chunks.length) return Promise.resolve();
 
@@ -102,8 +147,8 @@ export function speak(text: string, handlers: { onStart?: () => void; onEnd?: ()
       const u = new SpeechSynthesisUtterance(chunk);
       if (voice) u.voice = voice;
       u.lang = voice?.lang || lang;
-      u.rate = 0.97;
-      u.pitch = 1.05;
+      u.rate = rate;
+      u.pitch = pitch;
       u.volume = 1;
       u.onstart = () => { if (!started && mine === session) { started = true; handlers.onStart?.(); } };
       u.onboundary = (e: any) => { if (mine === session && (!e.name || e.name === 'word')) handlers.onWord?.(); };

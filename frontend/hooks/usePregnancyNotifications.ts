@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { discreetNotice, isDiscreet } from '@/lib/discreet';
 
 export type ReminderStatus = 'upcoming' | 'completed' | 'snoozed' | 'missed';
 export type ReminderCategory = 'progress' | 'development' | 'health_check' | 'water' | 'meal' | 'vitamins' | 'exercise' | 'sleep' | 'movement' | 'appointment' | 'ultrasound' | 'blood_test' | 'vaccine' | 'weight' | 'bp' | 'sugar' | 'due_date' | 'hospital_bag' | 'emergency' | 'ai_insight';
@@ -209,7 +210,8 @@ export function usePregnancyNotifications(profile: any, logs: any[], appointment
 
   const fireNativeNotification = (title: string, body: string) => {
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, icon: '/sakhi-doll.png' });
+      const shown = discreetNotice(title, body);
+      new Notification(shown.title, { body: shown.body, icon: isDiscreet() ? undefined : '/sakhi-doll.png' });
     }
   };
 

@@ -1,6 +1,8 @@
 "use client";
 
-import { Bell } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { Bell, EyeSlash } from "@phosphor-icons/react";
+import { DISCREET_CHANGED, isDiscreet, lockNow } from "@/lib/discreet";
 import AccountMenu from "@/components/AccountMenu";
 
 /**
@@ -27,6 +29,13 @@ export default function DashboardHeader({
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const date = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
   const dot = mode === "her" ? "bg-lavender-500" : "bg-blush-500";
+  const [discreet, setDiscreet] = useState(false);
+  useEffect(() => {
+    const sync = () => setDiscreet(isDiscreet());
+    sync();
+    window.addEventListener(DISCREET_CHANGED, sync);
+    return () => window.removeEventListener(DISCREET_CHANGED, sync);
+  }, []);
 
   return (
     <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-4 sm:pt-7 sm:pb-6 flex items-center justify-between gap-3 print:hidden">
@@ -42,6 +51,17 @@ export default function DashboardHeader({
         </h1>
       </div>
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {discreet && (
+          <button
+            type="button"
+            onClick={lockNow}
+            aria-label="Hide screen now"
+            title="Hide screen (or press Esc twice)"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-plum-900 flex items-center justify-center text-cream hover:bg-plum-800 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
+          >
+            <EyeSlash weight="bold" className="w-5 h-5" aria-hidden="true" />
+          </button>
+        )}
         <button
           type="button"
           onClick={onOpenReminders}

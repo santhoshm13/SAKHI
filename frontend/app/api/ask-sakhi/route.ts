@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       body.userName || profile?.preferred_name || cookieStore.get('sakhi_preferred_name')?.value || owner.name?.split(' ')[0] || ''
     ).slice(0, 60);
 
-    const result = await runSakhiChat({ mode: 'her', message, owner, name, clientHistory: body.history });
+    const result = await runSakhiChat({ mode: 'her', message, owner, name, clientHistory: body.history, lang: typeof body.lang === 'string' ? body.lang.slice(0, 8) : undefined });
     return NextResponse.json({
       reply: result.reply,
       chartUpdates: result.chartUpdates,

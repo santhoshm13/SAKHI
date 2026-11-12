@@ -10,10 +10,11 @@ const day = (v: any) => String(v || '').slice(0, 10);
 const symptoms = (l: any) => (l?.symptoms || []).filter((s: string) => s && s !== 'None').join(', ');
 
 export async function herContext(owner: Owner): Promise<string> {
-  const [profile, logs, cycleHistory] = await Promise.all([
+  const [profile, logs, cycleHistory, goal] = await Promise.all([
     readDoc<any>('her_profile', null, owner),
     readDoc<any[]>('daily_logs', [], owner),
     readDoc<any[]>('cycle_history', [], owner),
+    readDoc<any>('her_goal', null, owner),
   ]);
   const list = Array.isArray(logs) ? logs : [];
   if (!profile && list.length === 0) return 'No cycle data yet.';
@@ -27,6 +28,8 @@ export async function herContext(owner: Owner): Promise<string> {
   else lines.push(`Cycle day ${p.cycleDay} of about ${p.cycleLength}, ${phase} phase; next period in about ${p.daysUntilPeriod} days.`);
   if (p.status === 'period-ended-early') lines.push('Her period ended earlier than usual this cycle.');
   lines.push(`Prediction confidence: ${p.confidence}.`);
+  if (goal?.goal === 'ttc') lines.push(`Goal: trying to conceive${goal.ttc_since ? ` since ${goal.ttc_since}` : ''}${goal.folic ? ', taking folic acid' : ''}. Fertile window is about 5 days before ovulation (cycle day ${p.ovulationDay}) and the day after.`);
+  if (goal?.goal === 'peri') lines.push('Goal: managing perimenopause symptoms (hot flashes, sleep, mood, irregular periods).');
 
   const recent = list.slice(-3).reverse();
   for (const l of recent) {
@@ -43,16 +46,23 @@ export async function herContext(owner: Owner): Promise<string> {
 }
 
 export async function pregContext(owner: Owner): Promise<{ text: string; weeks: number | null }> {
-  const [profile, logs, appointments] = await Promise.all([
+  const [profile, logs, appointments, pp] = await Promise.all([
     readDoc<any>('preg_profile', null, owner),
     readDoc<any[]>('pregnancy_logs', [], owner),
     readDoc<any[]>('pregnancy_appointments', [], owner),
+    readDoc<any>('postpartum', null, owner),
   ]);
   const p = profile || {};
   const list = Array.isArray(logs) ? logs : [];
   const weeks = Number(p.weeks_pregnant) || null;
   const lines: string[] = [];
-  lines.push(weeks ? `${weeks} weeks pregnant.` : 'Pregnant, week unknown.');
+  if (pp?.birth_date) {
+    // After the birth: she is no longer pregnant, so answer as postnatal care
+    const days = Math.max(0, Math.round((Date.now() - Date.parse(pp.birth_date + 'T00:00:00Z')) / 86_400_000));
+    lines.push(`Baby born ${pp.birth_date} (${days} days ago) by ${pp.delivery === 'csection' ? 'C-section' : 'normal delivery'}${pp.baby_name ? `, named ${pp.baby_name}` : ''}. She is now in the postnatal period, NOT pregnant: answer about her recovery, breastfeeding and the newborn.`);
+    const recent = Array.isArray(pp.recovery) ? pp.recovery[pp.recovery.length - 1] : null;
+    if (recent) lines.push(`Recovery check ${recent.date}: bleeding ${recent.bleeding}, pain ${recent.pain}/10.`);
+  } else lines.push(weeks ? `${weeks} weeks pregnant.` : 'Pregnant, week unknown.');
   if (p.expected_due_date) lines.push(`Due date ${day(p.expected_due_date)}.`);
   const conditions = Array.isArray(p.maternal_conditions) ? p.maternal_conditions.filter(Boolean) : [];
   if (conditions.length) lines.push(`Reported conditions: ${conditions.join(', ')}.`);

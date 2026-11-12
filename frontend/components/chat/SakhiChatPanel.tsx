@@ -18,6 +18,7 @@ const NOTICE: Record<string, string> = {
   "no-consent": "AI processing is off in your privacy choices, so Sakhi uses simple mode.",
   unavailable: "Sakhi's AI is busy right now, so she's answering in simple mode. Logging still works.",
   "no-key": "Sakhi is in simple mode: she can log what you tell her and give basic guidance.",
+  "english-only": "Sakhi is in simple mode, which replies in English for now. Your readings are still saved.",
 };
 
 interface Props {

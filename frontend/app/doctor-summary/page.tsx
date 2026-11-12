@@ -28,6 +28,17 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
 
 function Screen({ title, data, detail }: { title: string; data: any; detail?: string }) {
   if (!data) return null;
+  if (data.not_scored) {
+    return (
+      <div className="rounded-lg border border-plum-900/10 p-3 break-inside-avoid">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-semibold text-plum-900">{title}</span>
+          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-plum-900/5 text-plum-900/60 border-plum-900/10">Not scored</span>
+        </div>
+        <p className="text-xs text-plum-900/70 mt-1">{data.reason}</p>
+      </div>
+    );
+  }
   const level = data.risk_level || "—";
   const tone = level === "High" ? "bg-red-50 text-red-800 border-red-200" : level === "Moderate" ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-emerald-50 text-emerald-800 border-emerald-200";
   return (
@@ -168,6 +179,35 @@ export default function DoctorSummaryPage() {
               <List items={data.stats.moods} />
             </Section>
 
+            {data.pcosPattern && data.pcosPattern.rows.some((r: any) => r.checkIns > 0) && (
+              <Section title="Month by month (PCOS pattern)">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-plum-900/50">
+                      <th className="py-1 font-medium">Month</th><th className="font-medium">Period</th><th className="font-medium">Cycle</th>
+                      <th className="font-medium">Bleed days</th><th className="font-medium">Acne</th><th className="font-medium">Hair growth</th>
+                      <th className="font-medium">Hair loss</th><th className="font-medium">Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.pcosPattern.rows.map((r: any) => (
+                      <tr key={r.label} className="border-t border-plum-900/5">
+                        <td className="py-1">{r.label}</td>
+                        <td className={!r.periodStarted && r.checkIns >= 10 ? "font-bold text-red-700" : ""}>{r.periodStarted ? "Yes" : r.checkIns ? "No" : "—"}</td>
+                        <td className={r.cycleLength && (r.cycleLength > 35 || r.cycleLength < 21) ? "font-bold text-red-700" : ""}>{r.cycleLength ? `${r.cycleLength} d` : "—"}</td>
+                        <td>{r.checkIns ? r.bleedDays : "—"}</td>
+                        <td>{r.checkIns ? r.acneDays : "—"}</td>
+                        <td>{r.checkIns ? r.hairGrowthDays : "—"}</td>
+                        <td>{r.checkIns ? r.hairLossDays : "—"}</td>
+                        <td>{r.weight ? `${r.weight} kg` : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-[10px] text-plum-900/50 mt-1">Days counted from her daily check-ins. Cycle = days from that month&apos;s period start to the next one.</p>
+              </Section>
+            )}
+
             <Section title="Screening results">
               <div className="grid sm:grid-cols-2 gap-2">
                 <Screen title="PCOS (Rotterdam symptom criteria)" data={data.screens.pcos} detail={data.screens.pcos?.next_step} />
@@ -227,7 +267,7 @@ export default function DoctorSummaryPage() {
             <Section title="Screening results">
               <div className="grid sm:grid-cols-2 gap-2">
                 <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} />
-                <Screen title="Gestational diabetes risk" data={data.screens.gdm} />
+                <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." />
               </div>
             </Section>
 
@@ -243,6 +283,43 @@ export default function DoctorSummaryPage() {
 
         {data && (
           <>
+            {data.labs?.length > 0 && (
+              <Section title="Lab results (latest of each)">
+                <table className="w-full text-xs">
+                  <tbody>
+                    {data.labs.map((l: any) => (
+                      <tr key={l.key} className="border-t border-plum-900/5 align-top">
+                        <td className="py-1 pr-2 font-medium">{l.label}</td>
+                        <td className={`pr-2 tabular-nums ${l.status === "attention" || l.status === "urgent" ? "font-bold text-red-700" : ""}`}>{l.value}</td>
+                        <td className="pr-2 text-plum-900/60">{fmtDate(l.date)}</td>
+                        <td className="text-plum-900/70">{l.note}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Section>
+            )}
+
+            {data.tablets && (
+              <Section title={`Tablets taken, last ${data.tablets.days} days${data.tablets.takenRate !== null ? ` (${data.tablets.takenRate}% of doses)` : ""}`}>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-plum-900/50">
+                      <th className="py-1 font-medium">Tablet</th><th className="font-medium">Schedule</th><th className="font-medium">On time</th><th className="font-medium">Late</th><th className="font-medium">Missed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.tablets.rows.map((t: any) => (
+                      <tr key={t.name} className="border-t border-plum-900/5">
+                        <td className="py-1">{t.name}</td><td>{t.schedule}</td><td>{t.onTime}</td><td>{t.late}</td>
+                        <td className={t.missed > 3 ? "font-bold text-red-700" : ""}>{t.missed}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Section>
+            )}
+
             <Section title="Points to discuss">
               {data.flags.length > 0 && (
                 <div className="flex gap-2 mb-2">

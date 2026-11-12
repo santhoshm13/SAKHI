@@ -20,6 +20,14 @@ import {
 import SettingsModal from "@/components/SettingsModal";
 import DashboardHeader from "@/components/DashboardHeader";
 import DashboardTabs, { useHashTab, type TabDef } from "@/components/DashboardTabs";
+import { LabResultsCard } from "@/components/LabReport";
+import TabletsCard from "@/components/TabletsCard";
+import AnaemiaCard from "@/components/her/AnaemiaCard";
+import GoalCard from "@/components/her/GoalCard";
+import { sendOrQueue } from "@/lib/outbox";
+import NearbyHelpCard from "@/components/NearbyHelpCard";
+import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
+import MoodCheckCard from "@/components/MoodCheckCard";
 import ReliefSheet from "@/components/her/ReliefSheet";
 import {
   PhaseCard, TodayTipsCard, PainNowCard, PmsForecastCard, PhaseInsightsCard, PatternsCard, CareLinksCard, panelCard,
@@ -189,19 +197,15 @@ export default function HerModePage() {
     };
     setLogs(prev => [...prev.filter(l => dayNum(l.log_date) !== todayNum()), newLog]);
     try {
-      const res = await fetch("/api/daily-log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newLog),
-      });
-      if (res.ok) {
+      const { res, queued } = await sendOrQueue("/api/daily-log", "POST", newLog);
+      if (!queued && res?.ok) {
         const saved = await res.json();
         if (saved?.log) {
           setLogs(prev => [...prev.filter(l => dayNum(l.log_date) !== todayNum()), saved.log]);
         }
       }
       try { localStorage.setItem("sakhi_last_checkin", todayStr); } catch {}
-      await fetchDashboardData();
+      if (!queued) await fetchDashboardData();
     } catch (e) {
       console.error(e);
     }
@@ -263,6 +267,7 @@ export default function HerModePage() {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pb-28 sm:pb-16">
+        <RedFlagBanner mode="her" />
         <DashboardTabs tabs={TABS} active={tab} onChange={setTab} />
 
         {/* Today: where she is in her cycle comes first, then the chat. While a
@@ -308,6 +313,14 @@ export default function HerModePage() {
             <>
               <TodayTipsCard tips={tips} adapted={Boolean(ctx.lowEnergy || ctx.poorSleep || (ctx.pain ?? 0) >= 5)} />
               <PmsForecastCard forecast={forecast} />
+              <GoalCard className="md:col-span-12" cycle={{
+                lastStart: phase.lastStart,
+                cycleLength: phase.cycleLength,
+                ovulationDay: phase.ovulationDay,
+                variability: phase.variability,
+                irregular: profile?.cycle_regularity === "No" || profile?.cycle_regularity === "Irregular"
+                  || JSON.stringify(profile?.diagnosed_conditions || "").toLowerCase().includes("pcos"),
+              }} />
             </>
           )}
 
@@ -337,6 +350,12 @@ export default function HerModePage() {
             <>
               <PatternsCard patterns={patterns} logCount={logs.length} />
               <CareLinksCard onOpenRelief={() => openRelief()} onOpenSettings={() => setIsSettingsOpen(true)} favourites={favourites} />
+              <AnaemiaCard logs={logs} className="md:col-span-5" />
+              <TabletsCard mode="her" className="md:col-span-7" />
+              <LabResultsCard mode="her" pregnant={false} className="md:col-span-12" />
+              <MoodCheckCard pregnant={false} className="md:col-span-6" />
+              <FamilyContactsCard className="md:col-span-6" />
+              <NearbyHelpCard mode="her" className="md:col-span-12" />
             </>
           )}
         </motion.div>

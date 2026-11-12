@@ -37,12 +37,20 @@ export type DocKind =
   | 'chat_her'
   | 'chat_mom'
   | 'ai_usage'
-  | 'weight_log';
+  | 'weight_log'
+  | 'lab_results'
+  | 'tablets'
+  | 'checklists'
+  | 'family'
+  | 'mood_checks'
+  | 'postpartum'
+  | 'her_goal';
 
 export const ALL_KINDS: DocKind[] = [
   'her_profile', 'daily_logs', 'cycle_history', 'preg_profile', 'pregnancy_logs',
   'pregnancy_nutrition', 'pregnancy_appointments', 'appointments_month', 'notifications', 'consent',
-  'relief_feedback', 'chat_her', 'chat_mom', 'ai_usage', 'weight_log',
+  'relief_feedback', 'chat_her', 'chat_mom', 'ai_usage', 'weight_log', 'lab_results',
+  'tablets', 'checklists', 'family', 'mood_checks', 'postpartum', 'her_goal',
 ];
 
 /** Kinds too large for a 4 KB cookie; without Postgres/file storage the browser keeps them. */

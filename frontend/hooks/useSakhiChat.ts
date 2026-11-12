@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  VOICE_ENABLED_KEY, createRecognizer, recognitionSupported, speak, speechSupported,
+  VOICE_ENABLED_KEY, createRecognizer, getVoiceLang, recognitionSupported, speak, speechSupported,
   stopSpeaking as stopVoice, voiceEnabled, type Recognizer,
 } from "@/lib/voice";
 
@@ -192,6 +192,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
           message: text,
           prompt: text,
           userName: name,
+          lang: getVoiceLang(),
           // Only needed when the server can't store history itself
           history: serverStores ? undefined : prior.slice(-10).map(m => ({ role: m.role, text: m.text })),
         }),
@@ -201,7 +202,10 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
       setMessages(prev => [...prev, { id: newId(), role: "assistant", text: reply, engine: data.engine }]);
       setNotice(data.notice || null);
       const updates: any[] = Array.isArray(data.chartUpdates) ? data.chartUpdates : data.updatedChartData ? [data.updatedChartData] : [];
-      updates.forEach(u => { try { chartRef.current?.(u); } catch (e) { console.error(e); } });
+      updates.forEach(u => {
+        try { chartRef.current?.(u); } catch (e) { console.error(e); }
+        try { window.dispatchEvent(new CustomEvent('sakhi-chart-update', { detail: u })); } catch { /* ignore */ }
+      });
       setIsLoading(false);
       say(reply, viaVoice);
     } catch {

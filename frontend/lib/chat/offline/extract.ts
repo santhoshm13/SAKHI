@@ -111,6 +111,8 @@ const HER_SYMPTOMS: [RegExp, string][] = [
   [/\b(mood swings?)\b/, 'Mood Swings'],
   [/\b(diarrh?oea|diarrhea|loose motions?)\b/, 'Diarrhoea'],
   [/\b(constipat(ed|ion))\b/, 'Constipation'],
+  [/\b(dizzy|dizziness|lightheaded|light headed|faint(ed|ing)?)\b/, 'Dizziness'],
+  [/\b(breathless|short of breath|out of breath|breathlessness)\b/, 'Breathless'],
 ];
 
 export interface HerReport {

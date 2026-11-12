@@ -62,6 +62,8 @@ const listJoin = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0
 /** Turn a short answer to Sakhi's own question into a full sentence. */
 function expandShortAnswer(t: string, last: string): string | null {
   if (t.split(' ').length > 6) return null;
+  // "BP 121/79" or "sugar 92" after "Have you felt baby moving?" is a reading, not an answer
+  if (/\d\s*\/\s*\d|\b(bp|pressure|sugar|glucose|fasting|kg|kgs|kilos?|weight|mg|tablets?|pills?)\b/.test(t)) return null;
   if (last.includes(ASK.flow)) {
     if (/^(none|no|nothing|not bleeding|no bleeding)\b/.test(t)) return 'no bleeding today';
     const w = t.match(/\b(spotting|light|medium|moderate|heavy|very heavy)\b/)?.[1];
