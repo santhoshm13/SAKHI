@@ -84,10 +84,14 @@ export async function initDatabase() {
         email VARCHAR(255) UNIQUE NOT NULL,
         name VARCHAR(255),
         image VARCHAR(255),
+        password_hash TEXT,
+        auth_provider VARCHAR(50) DEFAULT 'google',
         age INTEGER,
         bmi NUMERIC(5,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) DEFAULT 'google';
     `);
 
     // Create User Health Profiles (One-Time Onboarding)

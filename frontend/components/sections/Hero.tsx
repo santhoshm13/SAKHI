@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight } from "@phosphor-icons/react";
 
@@ -91,6 +92,23 @@ export function Hero() {
         >
           Sakhi bridges menstrual cycle rhythm, clinical AI risk prediction, and maternal care. Seamlessly switch between <strong>Her Mode</strong> (cycle intelligence & hormone screening) and <strong>Mom Mode</strong> (pregnancy tracking, kick counts & gestational risk monitoring).
         </motion.p>
+
+        {/* Primary CTAs */}
+        <motion.div variants={item} className="mt-7 sm:mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/signup"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-plum-900 px-7 py-3.5 text-sm font-medium text-cream hover:bg-plum-800 active:scale-[0.98] transition-[background-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+          >
+            <span>Get started</span>
+            <ArrowRight size={16} weight="bold" aria-hidden="true" />
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center rounded-full border border-plum-700/25 bg-cream/85 px-7 py-3.5 text-sm font-medium text-plum-900 hover:border-plum-700/50 hover:bg-white active:scale-[0.98] transition-[background-color,border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+          >
+            Sign in
+          </Link>
+        </motion.div>
 
         {/* Updated Dual-Mode Feature Pills */}
         <motion.div variants={item} className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">

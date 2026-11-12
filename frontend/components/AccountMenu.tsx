@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  SignOut, GearSix, FileText, House, ArrowsLeftRight, GoogleLogo, DownloadSimple, WarningCircle,
+  SignOut, SignIn, GearSix, FileText, House, ArrowsLeftRight, DownloadSimple, WarningCircle,
 } from "@phosphor-icons/react";
 import { sakhiSignOut } from "@/lib/clientSignOut";
 
@@ -102,8 +102,8 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
                   </button>
                 ) : (
                   <>
-                    <button role="menuitem" className={item} onClick={() => signIn("google", { callbackUrl: mode === "her" ? "/her-mode" : "/pregnancy-mode" })}>
-                      <GoogleLogo className="w-4 h-4" /> Sign in to save across devices
+                    <button role="menuitem" className={item} onClick={() => { setOpen(false); router.push(`/login?callbackUrl=${encodeURIComponent(mode === "her" ? "/her-mode" : "/pregnancy-mode")}`); }}>
+                      <SignIn className="w-4 h-4" /> Sign in to save across devices
                     </button>
                     <button role="menuitem" className={`${item} text-rose-600 hover:text-rose-700 hover:bg-rose-50`} onClick={() => setConfirmGuest(true)}>
                       <SignOut className="w-4 h-4" /> End guest session

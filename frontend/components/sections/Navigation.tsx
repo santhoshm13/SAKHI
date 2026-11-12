@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/kokonut";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { sakhiSignOut } from "@/lib/clientSignOut";
 import { List, X } from "@phosphor-icons/react";
 
@@ -89,7 +89,7 @@ export function Navigation() {
   const goToMode = async () => {
     try {
       if (status !== "authenticated" || !session?.user?.email) {
-        signIn("google", { callbackUrl: "/onboarding" });
+        router.push("/login?callbackUrl=/onboarding");
         return;
       }
 
@@ -174,7 +174,7 @@ export function Navigation() {
       className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-3 sm:px-4 pt-3 sm:pt-4"
     >
       <nav
-        className={`flex w-full max-w-5xl items-center justify-between gap-3 sm:gap-4 rounded-full pl-16 sm:pl-6 pr-3 sm:pr-5 py-2 transition-all duration-500 ease-[var(--ease-soft)]
+        className={`flex w-full max-w-5xl items-center justify-between gap-3 sm:gap-4 rounded-full pl-16 sm:pl-6 pr-3 sm:pr-5 py-2 transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--ease-soft)]
           ${scrolled ? "glass-strong" : "bg-white/40 border border-white/50 backdrop-blur-md shadow-sm"}`}
         style={{ minHeight: "56px" }}
       >
@@ -220,7 +220,7 @@ export function Navigation() {
                 className="px-3.5 py-1.5 text-xs font-semibold"
                 glow
               >
-                Mode
+                Open Portal
               </Button>
               <button
                 onClick={handleSignOut}
@@ -232,7 +232,7 @@ export function Navigation() {
           ) : (
             <Button
               variant="primary"
-              onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
+              onClick={() => router.push("/login")}
               className="px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
               glow
             >
@@ -244,7 +244,7 @@ export function Navigation() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="flex md:hidden w-9 h-9 rounded-full bg-white/60 border border-white/60 items-center justify-center text-[#2D1B36] hover:bg-white/90 transition-all shadow-sm"
+            className="flex md:hidden w-9 h-9 rounded-full bg-white/60 border border-white/60 items-center justify-center text-plum-900 hover:bg-white/90 transition-colors shadow-sm"
             aria-label="Toggle mobile menu"
           >
             {mobileMenuOpen ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}

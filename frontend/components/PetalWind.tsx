@@ -43,7 +43,13 @@ const PALETTE = {
   pink: ["#fbe5ea", "#f6c6d2", "#ee9fb1", "#e2758d"],
 };
 
-export function PetalWind() {
+export function PetalWind({
+  className = "pointer-events-none fixed inset-0 -z-10 h-full w-full",
+  contained = false,
+}: {
+  className?: string;
+  contained?: boolean;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduce = useReducedMotion();
 
@@ -55,13 +61,26 @@ export function PetalWind() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const measure = () => {
+      if (contained && canvas.parentElement) {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        return {
+          w: Math.max(1, Math.round(rect.width)),
+          h: Math.max(1, Math.round(rect.height)),
+        };
+      }
+      return { w: window.innerWidth, h: window.innerHeight };
+    };
+
+    const initial = measure();
+    let width = (canvas.width = initial.w);
+    let height = (canvas.height = initial.h);
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const setSize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      const next = measure();
+      width = next.w;
+      height = next.h;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -74,8 +93,14 @@ export function PetalWind() {
     // ---- Mouse tracking (ref, never React state) ----
     const mouse = { x: width / 2, y: height / 2, active: false };
     const onMove = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      if (contained) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      } else {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      }
       mouse.active = true;
     };
     const onLeave = () => {
@@ -255,6 +280,11 @@ export function PetalWind() {
 
     const onResize = () => setSize();
     window.addEventListener("resize", onResize, { passive: true });
+    let ro: ResizeObserver | null = null;
+    if (contained && canvas.parentElement && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => setSize());
+      ro.observe(canvas.parentElement);
+    }
 
     // ---- Cleanup ----
     return () => {
@@ -263,10 +293,11 @@ export function PetalWind() {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerout", onLeave);
       window.removeEventListener("resize", onResize);
+      ro?.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (windTimeline) windTimeline.pause();
     };
-  }, [reduce]);
+  }, [reduce, contained]);
 
   if (reduce) return null;
 
@@ -274,7 +305,7 @@ export function PetalWind() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
+      className={className}
     />
   );
 }
