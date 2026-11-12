@@ -30,7 +30,6 @@ import {
   BabyMovementChart,
   AppointmentTimeline,
   MoodTrackerChart,
-  NutritionScoreChart,
   PregnancySleepGraph
 } from "@/components/charts/PregnancyCharts";
 import { usePregnancyNotifications } from "@/hooks/usePregnancyNotifications";
@@ -43,12 +42,14 @@ import TabletsCard from "@/components/TabletsCard";
 import HospitalBagCard from "@/components/HospitalBagCard";
 import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
 import MoodCheckCard from "@/components/MoodCheckCard";
-import { BabyArrivedCard, BabyHeader, NewbornCard, RecoveryCard, VaccineCard } from "@/components/Postpartum";
+import { BabyArrivedCard, BabyHeader, BackToHerCard, NewbornCard, RecoveryCard, VaccineCard } from "@/components/Postpartum";
 import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
 import { sendOrQueue } from "@/lib/outbox";
 import SchemesCard from "@/components/SchemesCard";
+import MealsCard from "@/components/MealsCard";
+import { stageFor } from "@/lib/meals";
 import NearbyHelpCard from "@/components/NearbyHelpCard";
-import { EMPTY_POSTPARTUM, babyAge, type PostpartumDoc } from "@/lib/postpartum";
+import { EMPTY_POSTPARTUM, ageDays, babyAge, stageOf, type PostpartumDoc } from "@/lib/postpartum";
 
 interface RiskExplainFactor {
   title: string;
@@ -380,6 +381,8 @@ export default function PregnancyModePage() {
   // After the birth, Mom Mode turns into after-birth care
   const pp = useUserDoc<PostpartumDoc>("postpartum", EMPTY_POSTPARTUM);
   const born = pp.loaded && Boolean(pp.doc.birth_date);
+  // recovery (0-6 wk) → infant (to 6 mo) → older (to 2 yr) → done
+  const ppStage = born ? stageOf(ageDays(pp.doc.birth_date!, dayKey())) : null;
   const [mlPredictions, setMlPredictions] = useState<{
     preeclampsia: any;
     gdm: any;
@@ -685,8 +688,9 @@ export default function PregnancyModePage() {
           {/* From 28 weeks the contraction timer sits on Today, where she'll look first */}
           {born && (<>
             <BabyHeader pp={pp} className="md:col-span-12 order-1" />
-            <NewbornCard pp={pp} className="md:col-span-7 order-2" />
-            <RecoveryCard pp={pp} className="md:col-span-5 order-2" />
+            {(ppStage === "recovery" || ppStage === "infant") && <NewbornCard pp={pp} className="md:col-span-7 order-2" />}
+            {ppStage === "recovery" && <RecoveryCard pp={pp} className="md:col-span-5 order-2" />}
+            {ppStage !== "recovery" && <BackToHerCard pp={pp} name={displayName} className={`${ppStage === "infant" ? "md:col-span-5" : "md:col-span-12"} order-2`} />}
           </>)}
           {!born && pp.loaded && (weeks >= 36 || (daysToGo !== null && daysToGo <= 21)) && (
             <BabyArrivedCard pp={pp} compact className="md:col-span-12 order-2" />
@@ -761,7 +765,7 @@ export default function PregnancyModePage() {
 
           {tab === "plan" && (<>
           {/* Appointments & Nutrition Row */}
-          <div className={`${cardClass} md:col-span-6`}>
+          <div className={`${cardClass} md:col-span-12`}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-xl font-semibold tracking-tight text-plum-900">Appointments</h3>
@@ -786,14 +790,13 @@ export default function PregnancyModePage() {
             />
           </div>
 
-          <div className={`${cardClass} md:col-span-6`}>
-            <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Nutrition Breakdown</h3>
-            <NutritionScoreChart nutrition={nutrition} />
-          </div>
+          {/* Built from what she ate, not typed-in totals */}
+          <MealsCard stage={stageFor(born ? null : weeks, ppStage === "recovery" || ppStage === "infant")} className="md:col-span-12" />
 
           {born ? <VaccineCard pp={pp} className="md:col-span-12" /> : (<>
             {weeks >= 28 && <HospitalBagCard weeks={weeks} className="md:col-span-12" />}
-            {pp.loaded && <BabyArrivedCard pp={pp} compact className="md:col-span-12" />}
+            {/* From 22 weeks, so an early (preterm) birth can still be recorded */}
+            {pp.loaded && weeks >= 22 && <BabyArrivedCard pp={pp} compact className="md:col-span-12" />}
           </>)}
           <SchemesCard className="md:col-span-12" />
 

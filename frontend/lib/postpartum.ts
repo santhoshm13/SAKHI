@@ -92,3 +92,20 @@ export function checkRecovery(r: Recovery, delivery?: string): RecoveryCheck {
   if (soon.length) return { level: 'doctor', reasons: soon, alertReason: null };
   return { level: 'ok', reasons: [], alertReason: null };
 }
+
+/**
+ * How long the baby view lasts, and what it shows:
+ *  - recovery (0–6 weeks): daily recovery check, feeds, vaccines
+ *  - infant (6 weeks–6 months): feeds, vaccines, periods-coming-back card
+ *  - older (6 months–2 years): vaccines and solids; feed log tucked away
+ *  - done (after 2 years, last UIP visit): Sakhi suggests going back to Her Mode
+ */
+export type PostpartumStage = 'recovery' | 'infant' | 'older' | 'done';
+export function stageOf(days: number): PostpartumStage {
+  if (days <= 42) return 'recovery';
+  if (days <= 182) return 'infant';
+  if (days <= 730) return 'older';
+  return 'done';
+}
+/** "Back to pregnancy view" is only for a mistaken tap, so it goes after 2 weeks. */
+export const UNDO_DAYS = 14;

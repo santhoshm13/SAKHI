@@ -5,6 +5,7 @@
  */
 import { Owner, readDoc } from '@/lib/store';
 import { PHASE_META, computePhase } from '@/lib/cyclePhase';
+import { withCurrentWeek } from '@/lib/pregnancyWeeks';
 
 const day = (v: any) => String(v || '').slice(0, 10);
 const symptoms = (l: any) => (l?.symptoms || []).filter((s: string) => s && s !== 'None').join(', ');
@@ -52,7 +53,7 @@ export async function pregContext(owner: Owner): Promise<{ text: string; weeks: 
     readDoc<any[]>('pregnancy_appointments', [], owner),
     readDoc<any>('postpartum', null, owner),
   ]);
-  const p = profile || {};
+  const p = withCurrentWeek(profile) || {};
   const list = Array.isArray(logs) ? logs : [];
   const weeks = Number(p.weeks_pregnant) || null;
   const lines: string[] = [];

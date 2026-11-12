@@ -13,7 +13,6 @@ import {
   SymptomFrequencyChart,
   MoodCycleChart,
   FlowIntensityChart,
-  OvulationCalendar,
   PainTrendChart,
   SleepHoursChart,
 } from "@/components/charts/DashboardCharts";
@@ -24,6 +23,10 @@ import { LabResultsCard } from "@/components/LabReport";
 import TabletsCard from "@/components/TabletsCard";
 import AnaemiaCard from "@/components/her/AnaemiaCard";
 import GoalCard from "@/components/her/GoalCard";
+import FertilityCalendar from "@/components/her/FertilityCalendar";
+import PregnancyTestCard from "@/components/her/PregnancyTestCard";
+import { useUserDoc } from "@/hooks/useUserDoc";
+import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
 import NearbyHelpCard from "@/components/NearbyHelpCard";
 import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
@@ -77,6 +80,7 @@ export default function HerModePage() {
   const [profile, setProfile] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [cycleHistory, setCycleHistory] = useState<any[]>([]);
+  const goal = useUserDoc<GoalDoc>("her_goal", EMPTY_GOAL);
   const [aiState, setAiState] = useState<AIState>("idle");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
@@ -312,12 +316,13 @@ export default function HerModePage() {
           {tab === "today" && (
             <>
               <TodayTipsCard tips={tips} adapted={Boolean(ctx.lowEnergy || ctx.poorSleep || (ctx.pain ?? 0) >= 5)} />
+              {/* Late period (or due day while trying): the way into Mom Mode */}
+              {(phase.late || (goal.doc.goal === "ttc" && phase.cycleDay >= phase.cycleLength + 1)) && (
+                <PregnancyTestCard lastStart={phase.lastStart} daysLate={phase.daysLate} name={displayName} className="md:col-span-12 order-first" />
+              )}
               <PmsForecastCard forecast={forecast} />
-              <GoalCard className="md:col-span-12" cycle={{
-                lastStart: phase.lastStart,
-                cycleLength: phase.cycleLength,
-                ovulationDay: phase.ovulationDay,
-                variability: phase.variability,
+              <GoalCard className="md:col-span-12" goal={goal} cycle={{
+                phase, profile, logs, cycleHistory,
                 irregular: profile?.cycle_regularity === "No" || profile?.cycle_regularity === "Irregular"
                   || JSON.stringify(profile?.diagnosed_conditions || "").toLowerCase().includes("pcos"),
               }} />
@@ -326,8 +331,8 @@ export default function HerModePage() {
 
           {tab === "cycle" && (
             <>
-              <ChartCard title="Your window calendar" span={12} active={pulsingChart === "calendar"} glow="rgba(16,185,129,0.4)">
-                <OvulationCalendar profile={profile} />
+              <ChartCard title={goal.doc.goal === "ttc" ? "Your fertility calendar" : "Your cycle calendar"} span={12} active={pulsingChart === "calendar"} glow="rgba(16,185,129,0.4)">
+                <FertilityCalendar phase={phase} profile={profile} logs={logs} cycleHistory={cycleHistory} tried={goal.doc.intimacy} trying={goal.doc.goal === "ttc"} />
               </ChartCard>
               <ChartCard title="Cycle length trend" active={pulsingChart === "cycle_length"}><CycleLengthChart data={cycleHistory} /></ChartCard>
               <ChartCard title="Period duration trend" active={pulsingChart === "cycle_length"} glow="rgba(244,63,94,0.4)"><PeriodDurationChart data={cycleHistory} /></ChartCard>

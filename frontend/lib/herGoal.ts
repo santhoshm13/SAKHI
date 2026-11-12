@@ -13,35 +13,12 @@ export interface GoalDoc {
   folic?: boolean;            // taking folic acid
   intimacy: string[];         // days, optional
   peri: PeriDay[];
+  tests?: { date: string; result: 'positive' | 'negative' }[];
 }
 export const EMPTY_GOAL: GoalDoc = { goal: 'track', intimacy: [], peri: [] };
 
 const DAY = 86_400_000;
-const iso = (n: number) => new Date(n * DAY).toISOString().slice(0, 10);
 const num = (d: string) => Math.floor(Date.parse(d + 'T00:00:00Z') / DAY);
-
-export interface FertileWindow {
-  start: string; end: string; ovulation: string;
-  /** where today sits: before the window, in it, peak (ovulation ±1), or after */
-  today: 'before' | 'fertile' | 'peak' | 'after';
-  daysToStart: number;
-  reliable: boolean;
-}
-
-/**
- * Fertile window for the current cycle: the 5 days before ovulation and the day
- * after (sperm live ~5 days, the egg ~1 day). Ovulation ≈ 14 days before the
- * next period. Unreliable when cycles vary by more than 7 days.
- */
-export function fertileWindow(p: { lastStart: number; cycleLength: number; variability: number | null; ovulationDay?: number }, today: string): FertileWindow {
-  const start = p.lastStart;
-  const t = num(today);
-  // Same ovulation day as the cycle ring (cycle day N is lastStart + N - 1)
-  const ov = start + (p.ovulationDay ?? p.cycleLength - 14) - 1;
-  const ws = ov - 5, we = ov + 1;
-  const state: FertileWindow['today'] = t < ws ? 'before' : t > we ? 'after' : Math.abs(t - ov) <= 1 ? 'peak' : 'fertile';
-  return { start: iso(ws), end: iso(we), ovulation: iso(ov), today: state, daysToStart: ws - t, reliable: p.variability === null || p.variability <= 7 };
-}
 
 /** Months she has been trying, from "yyyy-mm". */
 export function monthsTrying(since: string | undefined, today: string): number | null {

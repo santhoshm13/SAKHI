@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { dayNum, dayToIso, type PhaseInfo } from "@/lib/cyclePhase";
+import { planFertility } from "@/lib/fertility";
 import { Target, Plant, Thermometer, Check } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
-import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
+import { dayKey } from "@/hooks/useUserDoc";
 import {
-  EMPTY_GOAL, PERI_SIGNS, fertileWindow, monthsTrying, periRedFlags, periSummary, ttcAdvice,
+  PERI_SIGNS, monthsTrying, periRedFlags, periSummary, ttcAdvice,
   type GoalDoc, type HerGoal, type PeriDay,
 } from "@/lib/herGoal";
 
-interface CycleInfo { lastStart: number; cycleLength: number; variability: number | null; ovulationDay?: number; irregular: boolean }
+interface CycleInfo { phase: PhaseInfo; profile: any; logs: any[]; cycleHistory: any[]; irregular: boolean }
 
 const GOALS: { id: HerGoal; label: string; hint: string }[] = [
   { id: "track", label: "Just tracking", hint: "Periods, symptoms and patterns" },
@@ -21,8 +23,13 @@ const chip = (on: boolean) =>
 const shortDate = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 
 /** Her goal: just tracking, trying to conceive, or perimenopause. */
-export default function GoalCard({ cycle, className = "" }: { cycle: CycleInfo; className?: string }) {
-  const { doc, save, loaded } = useUserDoc<GoalDoc>("her_goal", EMPTY_GOAL);
+export default function GoalCard({ cycle, goal, className = "" }: {
+  cycle: CycleInfo;
+  /** shared with the page, so the calendar and test card follow her choice at once */
+  goal: { doc: GoalDoc; save: Save; loaded: boolean };
+  className?: string;
+}) {
+  const { doc, save, loaded } = goal;
   if (!loaded) return null;
   return (
     <section className={`${panelCard} ${className}`} aria-labelledby="goal-title">
@@ -52,28 +59,37 @@ type Save = (next: GoalDoc | ((p: GoalDoc) => GoalDoc)) => Promise<boolean>;
 
 function TtcPanel({ doc, save, cycle }: { doc: GoalDoc; save: Save; cycle: CycleInfo }) {
   const today = dayKey();
-  const w = fertileWindow(cycle, today);
+  const t = dayNum(today);
+  // Same plan as the calendar on the Cycle tab, from her own logged periods
+  const plan = useMemo(() => planFertility({ phase: cycle.phase, profile: cycle.profile, logs: cycle.logs, cycleHistory: cycle.cycleHistory, today: t }), [cycle, t]);
   const advice = ttcAdvice(doc, today, cycle.irregular);
   const months = monthsTrying(doc.ttc_since, today);
   const marked = doc.intimacy.includes(today);
-  const inWindow = doc.intimacy.filter(d => d >= w.start && d <= w.end).length;
+  const w = plan.nextWindow ? { start: dayToIso(plan.nextWindow.start), end: dayToIso(plan.nextWindow.end), ovulation: dayToIso(plan.nextWindow.peak) } : null;
+  const kind = plan.kindOf(t).kind;
+  const state = plan.late ? "late" : kind === "peak" ? "peak" : kind === "fertile" ? "fertile" : w && w.start > today ? "before" : "wait";
+  const inWindow = w ? doc.intimacy.filter(d => d >= w.start && d <= w.end).length : 0;
+  const daysToStart = plan.nextWindow ? plan.nextWindow.start - t : 0;
 
-  const headline = w.today === "peak" ? "Today is one of your most fertile days."
-    : w.today === "fertile" ? "You're in your fertile window now."
-    : w.today === "before" ? `Your fertile window starts in ${w.daysToStart} day${w.daysToStart === 1 ? "" : "s"}.`
-    : "Your fertile window for this cycle has passed.";
+  const headline = state === "late" ? "Your period is late. Take a pregnancy test (see the card above)."
+    : state === "peak" ? "Today is one of your most fertile days."
+    : state === "fertile" ? "You're in your fertile window now."
+    : state === "before" && daysToStart <= 7 ? `Your fertile window starts in ${daysToStart} day${daysToStart === 1 ? "" : "s"}.`
+    : `Waiting for your period. If it doesn't come, test from ${shortDate(dayToIso(plan.testFrom ?? t))}.`;
 
   return (
     <div className="mt-5 space-y-4">
-      <div className={`rounded-2xl p-4 ${w.today === "peak" || w.today === "fertile" ? "bg-emerald-50" : "bg-lavender-50"}`}>
+      <div className={`rounded-2xl p-4 ${state === "peak" || state === "fertile" ? "bg-emerald-50" : "bg-lavender-50"}`}>
         <div className="flex items-start gap-3">
           <Plant weight="duotone" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden="true" />
           <div className="text-sm text-plum-900">
             <p className="font-semibold">{headline}</p>
-            <p className="mt-1 text-ink-soft">
-              Fertile days {shortDate(w.start)} to {shortDate(w.end)}, likely ovulation around {shortDate(w.ovulation)}. Sex every 1 to 2 days in this window gives the best chance.
-            </p>
-            {!w.reliable && <p className="mt-1 text-amber-700">Your cycles vary a lot, so these dates are rough. Ovulation test strips from a chemist can pin it down.</p>}
+            {w && (
+              <p className="mt-1 text-ink-soft">
+                {state === "wait" ? "Next fertile days" : "Fertile days"} {shortDate(w.start)} to {shortDate(w.end)}, likely ovulation around {shortDate(w.ovulation)}. Sex every 1 to 2 days in this window gives the best chance. The full calendar is on the Cycle tab.
+              </p>
+            )}
+            {plan.spread > 7 && <p className="mt-1 text-amber-700">Your cycles vary by {plan.spread} days, so these dates are rough. Ovulation test strips from a chemist can pin it down.</p>}
           </div>
         </div>
       </div>
@@ -123,7 +139,7 @@ function PeriPanel({ doc, save, cycle }: { doc: GoalDoc; save: Save; cycle: Cycl
     save(d => ({ ...d, peri: [...d.peri.filter(x => x.date !== today), next].slice(-120) }));
   };
   const sum = periSummary(doc.peri, today);
-  const daysSince = Math.floor(Date.now() / 86_400_000) - cycle.lastStart;
+  const daysSince = Math.floor(Date.now() / 86_400_000) - cycle.phase.lastStart;
   const flag = periRedFlags(daysSince);
 
   return (

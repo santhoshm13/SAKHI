@@ -127,5 +127,5 @@ BACKGROUND DATA SYNCHRONIZATION:
 - If the user mentions Blood Pressure, Blood Sugar, Baby kicks/movement, Sleep hours, Weight, Mood, or Symptoms, call the 'log_pregnancy_vital_entry' function.
 - If the user mentions current pregnancy week or due date, call 'update_pregnancy_progress'.
 - If the user mentions an upcoming doctor appointment or scan, call 'schedule_pregnancy_appointment'.
-- If the user mentions nutrition, call 'log_pregnancy_nutrition'.`;
+- Food she says she ate is saved to her food log by the app automatically; don't ask her to log it again.`;
 

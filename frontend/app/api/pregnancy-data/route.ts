@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getOwner, readDoc, storageMode, writeDoc } from '@/lib/store';
+import { gestation } from '@/lib/pregnancyWeeks';
 
 const monthKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 
@@ -14,13 +15,11 @@ export async function GET() {
 
     const DAY = 24 * 60 * 60 * 1000;
     const today = new Date();
-    const weeksPregnant = parseInt(saved.weeks_pregnant) || 12;
-    const conceptionDate = new Date(today.getTime() - weeksPregnant * 7 * DAY);
-    const rawDue = saved.expected_due_date || saved.due_date;
-    const parsedDue = rawDue ? new Date(rawDue) : null;
-    const expectedDueDate = parsedDue && !isNaN(parsedDue.getTime())
-      ? parsedDue
-      : new Date(conceptionDate.getTime() + 280 * DAY);
+    // Weeks move on by themselves: worked out from the due date every time
+    const g = gestation(saved);
+    const weeksPregnant = g.weeks;
+    const expectedDueDate = new Date(g.due + 'T00:00:00Z');
+    const conceptionDate = new Date(expectedDueDate.getTime() - 266 * DAY);
 
     const maternalConditions: string[] = saved.maternal_conditions || [];
     const hasRisk = maternalConditions.length > 0 && !maternalConditions.includes('None');

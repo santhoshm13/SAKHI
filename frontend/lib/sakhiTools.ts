@@ -2,6 +2,7 @@
  * Side-effecting tools that Sakhi (Gemini function calling or the offline
  * fallback) can invoke. They all persist through the unified store.
  */
+import { dueFromWeeks } from '@/lib/pregnancyWeeks';
 import { Owner, patchDoc, readDoc, writeDoc } from '@/lib/store';
 import { mergePregnancyLog } from '@/lib/pregnancyLogs';
 import { runPrediction } from '@/lib/ml/client';
@@ -182,8 +183,10 @@ export async function runPregnancyTool(name: string, args: any, owner: Owner): P
 
   if (name === 'update_pregnancy_progress') {
     const patch: Record<string, any> = {};
+    // The due date drives the week from now on, so keep the two in step
+    if (args.expected_due_date) patch.expected_due_date = String(args.expected_due_date).slice(0, 10);
+    else if (args.weeks_pregnant) patch.expected_due_date = dueFromWeeks(Number(args.weeks_pregnant));
     if (args.weeks_pregnant) patch.weeks_pregnant = Number(args.weeks_pregnant);
-    if (args.expected_due_date) patch.expected_due_date = args.expected_due_date;
     const profile = await patchDoc('preg_profile', patch, owner);
     return {
       apiResult: { success: true, message: 'Pregnancy progress updated.', profile },

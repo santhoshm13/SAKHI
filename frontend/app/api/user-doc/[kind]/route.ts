@@ -8,7 +8,7 @@ import { getOwner, readDoc, writeDoc, type DocKind } from '@/lib/store';
  *   GET  /api/user-doc/tablets      -> { doc }
  *   PUT  /api/user-doc/tablets {doc} -> { doc }
  */
-const KINDS: ReadonlySet<string> = new Set(['tablets', 'checklists', 'family', 'mood_checks', 'postpartum', 'her_goal']);
+const KINDS: ReadonlySet<string> = new Set(['tablets', 'checklists', 'family', 'mood_checks', 'postpartum', 'her_goal', 'meals']);
 const MAX_CHARS = 60_000;
 
 type Ctx = { params: Promise<{ kind: string }> };

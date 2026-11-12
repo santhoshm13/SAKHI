@@ -35,6 +35,13 @@ export async function POST(req: Request) {
         await writeDoc('pregnancy_nutrition', null, owner);
         await writeDoc('pregnancy_appointments', [], owner);
         await writeDoc('appointments_month', monthKey(), owner);
+        // A new pregnancy: the last baby's record moves to "previous", so the
+        // dashboard starts in pregnancy view, not the old baby view
+        const pp = await readDoc<any>('postpartum', null, owner);
+        if (pp?.birth_date) {
+          const previous = [...(Array.isArray(pp.previous) ? pp.previous : []), { birth_date: pp.birth_date, baby_name: pp.baby_name, delivery: pp.delivery, vaccines_done: pp.vaccines_done || [] }].slice(-5);
+          await writeDoc('postpartum', { feeds: [], diapers: [], recovery: [], vaccines_done: [], previous }, owner);
+        }
       } else {
         await patchDoc('preg_profile', profile, owner);
       }

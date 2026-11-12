@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Baby, Drop, FirstAid, Syringe, Check, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { Baby, Drop, FirstAid, Syringe, Check, ArrowCounterClockwise, Flower } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
 import { dayKey } from "@/hooks/useUserDoc";
 import {
-  VACCINES, babyAge, babyToday, checkRecovery, dueDate, nextVaccine,
+  UNDO_DAYS, VACCINES, ageDays, babyAge, babyToday, checkRecovery, dueDate, nextVaccine, stageOf,
   type PostpartumDoc, type Recovery,
 } from "@/lib/postpartum";
 
@@ -80,7 +81,7 @@ export function BabyHeader({ pp, className = "" }: { pp: PP; className?: string 
   if (!doc.birth_date) return null;
   const today = dayKey();
   const days = Math.round((Date.parse(today) - Date.parse(doc.birth_date)) / 86_400_000);
-  const stage = days <= 42 ? `Day ${days + 1} of your 6-week recovery` : "Past the 6-week recovery window";
+  const stage = days <= 42 ? `Day ${days + 1} of your 6-week recovery` : days <= 182 ? "Recovery weeks done. Keep up feeds and vaccines." : "Growing up: vaccines, food and play";
   const undo = () => { if (confirm("Go back to the pregnancy view? Baby's logs stay saved.")) pp.save(d => ({ ...d, birth_date: undefined })); };
   return (
     <section className={`${panelCard} ${className}`}>
@@ -92,9 +93,12 @@ export function BabyHeader({ pp, className = "" }: { pp: PP; className?: string 
           </h2>
           <p className="mt-1 text-sm text-ink-soft">Born {shortDate(doc.birth_date)} · {doc.delivery === "csection" ? "C-section" : "Normal delivery"}</p>
         </div>
-        <button type="button" onClick={undo} className="inline-flex items-center gap-1.5 self-start text-xs text-ink-soft hover:text-plum-900 transition-colors cursor-pointer sm:self-end">
-          <ArrowCounterClockwise className="h-3.5 w-3.5" aria-hidden="true" /> Back to pregnancy view
-        </button>
+        {/* Only for a mistaken tap; after 2 weeks the baby view stays */}
+        {days <= UNDO_DAYS && (
+          <button type="button" onClick={undo} className="inline-flex items-center gap-1.5 self-start text-xs text-ink-soft hover:text-plum-900 transition-colors cursor-pointer sm:self-end">
+            <ArrowCounterClockwise className="h-3.5 w-3.5" aria-hidden="true" /> Tapped by mistake? Back to pregnancy view
+          </button>
+        )}
       </div>
     </section>
   );
@@ -294,6 +298,81 @@ export function VaccineCard({ pp, className = "" }: { pp: PP; className?: string
           );
         })}
       </ol>
+    </section>
+  );
+}
+
+/**
+ * From 6 weeks: periods coming back, family planning, and the way back to
+ * Her Mode. After 2 years (the last UIP visit) it suggests switching outright.
+ */
+export function BackToHerCard({ pp, name, className = "" }: { pp: PP; name: string; className?: string }) {
+  const router = useRouter();
+  const [answer, setAnswer] = useState<"yes" | "no" | null>(null);
+  const [date, setDate] = useState(dayKey());
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const birth = pp.doc.birth_date;
+  if (!birth) return null;
+  const today = dayKey();
+  const days = ageDays(birth, today);
+  const stage = stageOf(days);
+  if (stage === "recovery") return null;
+
+  const switchToHer = async () => {
+    if (!date || date > today || date <= birth) return setError("Pick a date after the birth, up to today.");
+    setBusy(true);
+    setError(null);
+    const ok = await fetch("/api/update-profile", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: "her", profile: { preferred_name: name, last_period_start: date, is_pregnancy_mode: false } }),
+    }).then(r => r.ok).catch(() => false);
+    // Record it as a real period start so cycle history and the ring pick it up
+    if (ok) await fetch("/api/period-start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date, correction: true }) }).catch(() => null);
+    if (!ok) { setBusy(false); return setError("Couldn't switch. Check your connection and try again."); }
+    try {
+      localStorage.setItem("sakhi_active_mode", "her");
+      document.cookie = "sakhi_active_mode=her; path=/; max-age=31536000; samesite=lax";
+    } catch { /* ignore */ }
+    router.push("/her-mode");
+  };
+
+  return (
+    <section className={`${panelCard} ${className}`} aria-labelledby="back-her-title">
+      <div className="flex items-center gap-2 mb-1">
+        <Flower weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
+        <h3 id="back-her-title" className="text-xl font-semibold tracking-tight text-plum-900">
+          {stage === "done" ? "Ready to go back to Her Mode?" : "Have your periods come back?"}
+        </h3>
+      </div>
+      <p className="text-sm text-ink-soft mb-4">
+        {stage === "done"
+          ? `${pp.doc.baby_name || "Your baby"} has had all the routine vaccines. Her Mode tracks your cycle and health again; your pregnancy and baby records stay saved.`
+          : "Periods usually return 6 to 8 weeks after birth if you're not breastfeeding, and can take many months if you are. When they start, Sakhi switches back to tracking your cycle."}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" aria-pressed={answer === "yes"} onClick={() => setAnswer("yes")} className={chip(answer === "yes")}>Yes, my period came</button>
+        <button type="button" aria-pressed={answer === "no"} onClick={() => setAnswer("no")} className={chip(answer === "no")}>Not yet</button>
+      </div>
+      {answer === "yes" && (
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <label className="text-sm text-plum-900">
+            <span className="mb-1 block font-medium">First day of this period</span>
+            <input type="date" value={date} min={birth} max={today} onChange={e => setDate(e.target.value)}
+              className="rounded-xl border border-plum-900/12 bg-cream/60 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500" />
+          </label>
+          <button type="button" onClick={switchToHer} disabled={busy} aria-busy={busy}
+            className="rounded-full bg-plum-900 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">
+            {busy ? "Switching…" : "Switch to Her Mode"}
+          </button>
+          {error && <p role="alert" className="w-full text-sm text-rose-700">{error}</p>}
+        </div>
+      )}
+      {answer === "no" && (
+        <p className="mt-4 rounded-2xl bg-lavender-50 px-4 py-3 text-sm text-plum-900">
+          That&apos;s normal, especially while breastfeeding. You can get pregnant again <span className="font-semibold">before</span> your first period returns, so talk to your ASHA or doctor about spacing. Copper-T (PPIUCD), Antara injections and Chhaya pills are free at government health centres.
+        </p>
+      )}
     </section>
   );
 }

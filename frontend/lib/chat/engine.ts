@@ -11,6 +11,7 @@
  */
 import { Owner, readDoc, storageMode, writeDoc } from '@/lib/store';
 import { logTabletsFromChat } from '@/lib/tabletChat';
+import { logMealsFromChat } from '@/lib/mealChat';
 import { extractHer, extractMom, normalize } from '@/lib/chat/offline/extract';
 import { executeGeminiWithAutoSwitch, getGeminiKeyPool } from '@/lib/gemini';
 import { onceper, runHerTool, runPregnancyTool } from '@/lib/sakhiTools';
@@ -93,7 +94,7 @@ async function geminiReply(opts: {
   const tools = mode === 'her'
     ? [her.log_health_entry_declaration, her.update_period_info_declaration, her.analyze_cycle_declaration]
     : [preg.log_pregnancy_vital_declaration, preg.update_pregnancy_progress_declaration,
-       preg.schedule_pregnancy_appointment_declaration, preg.log_pregnancy_nutrition_declaration];
+       preg.schedule_pregnancy_appointment_declaration];
   const runTool = onceper(mode === 'her' ? runHerTool : runPregnancyTool);
 
   // Gemini expects the history to start with a user turn
@@ -186,20 +187,24 @@ export async function runSakhiChat(input: {
       return { reply: hit.reply, chartUpdates, engine: 'safety' };
     }
 
-    // Tablet ledger: "took my iron tablet" is saved the same way whatever answers
+    // Tablet ledger and food log: "took my iron tablet", "had 2 roti and dal"
+    // are saved the same way whatever answers
     const tablet = await logTabletsFromChat(owner, message).catch(() => null);
-    const tabletUpdates = tablet?.chartUpdate ? [tablet.chartUpdate] : [];
-    if (tablet) {
+    const meal = await logMealsFromChat(owner, message, mode).catch(() => null);
+    const pre = [tablet, meal].filter(Boolean) as { reply: string; summary: string; chartUpdate: any }[];
+    const tabletUpdates = pre.map(p => p.chartUpdate).filter(Boolean);
+    const preReply = pre.map(p => p.reply).join(' ');
+    if (pre.length) {
       const other = mode === 'her'
         ? (() => { const r = extractHer(normalize(message)); return Object.keys(r.entry).length > 0 || r.periodStarted; })()
         : (() => { const r = extractMom(normalize(message)); return Object.keys(r.vitals).length > 0 || r.week !== undefined; })();
-      if (!other) return { reply: tablet.reply, chartUpdates: tabletUpdates, engine: 'offline' };
+      if (!other) return { reply: preReply, chartUpdates: tabletUpdates, engine: 'offline' };
     }
 
     const consent = await readDoc<any>('consent', null, owner);
     const baseContext = mode === 'her' ? await herContext(owner) : (await pregContext(owner)).text;
-    const context = tablet ? `${baseContext}
-${tablet.summary} Mention this briefly in your reply.` : baseContext;
+    const context = pre.length ? `${baseContext}
+${pre.map(p => p.summary).join(' ')} Mention this briefly in your reply.` : baseContext;
 
     let notice: string | undefined;
     if (consent?.aiProcessing === false) notice = 'no-consent';
@@ -222,7 +227,7 @@ ${tablet.summary} Mention this briefly in your reply.` : baseContext;
 
     // 3 + 4. Rules save the data; a local model (if any, and if she allowed AI) phrases it
     const off = await offline(message, owner, name, history);
-    if (tablet) off.reply = `${tablet.reply} ${off.reply}`;
+    if (pre.length) off.reply = `${preReply} ${off.reply}`;
     const chartUpdates = [...tabletUpdates, ...(off.chartData ? [off.chartData] : [])];
     const keepAsIs = /hospital|emergency|112|haven't saved/i.test(off.reply);
     if (notice !== 'no-consent' && localLlmConfigured() && !keepAsIs) {

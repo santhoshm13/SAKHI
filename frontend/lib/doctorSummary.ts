@@ -3,6 +3,7 @@
  * Everything here is descriptive statistics plus the same risk screens the
  * dashboards show, so a clinician sees the pattern without reading raw logs.
  */
+import { withCurrentWeek } from '@/lib/pregnancyWeeks';
 import { Owner, readDoc } from '@/lib/store';
 import { runPrediction } from '@/lib/ml/client';
 import { checkLab, formatLab, labTest, latestLabs, type LabResult } from '@/lib/labs';
@@ -227,12 +228,13 @@ export async function buildHerSummary(owner: Owner, days = 90) {
 }
 
 export async function buildPregnancySummary(owner: Owner, days = 90) {
-  const [profile, allLogs, appointments, nutrition] = await Promise.all([
+  const [savedProfile, allLogs, appointments, nutrition] = await Promise.all([
     readDoc<any>('preg_profile', null, owner),
     readDoc<any[]>('pregnancy_logs', [], owner),
     readDoc<any[]>('pregnancy_appointments', [], owner),
     readDoc<any>('pregnancy_nutrition', null, owner),
   ]);
+  const profile = withCurrentWeek(savedProfile);
   const logs = windowOf(Array.isArray(allLogs) ? allLogs : [], days)
     .sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
 

@@ -7,6 +7,7 @@
  * up with one natural question, and understands short answers to its own
  * questions ("light", "6", "yes"). Danger signs still get urgent guidance.
  */
+import { withCurrentWeek } from '@/lib/pregnancyWeeks';
 import { Owner, readDoc, writeDoc } from '@/lib/store';
 import { pickRelief, recordShown, reliefText, type ReliefFeedback } from '@/lib/reliefTips';
 import { runHerTool, runPregnancyTool } from '@/lib/sakhiTools';
@@ -272,7 +273,7 @@ async function momContext(owner: Owner, who: string, pet: string): Promise<MomCt
   const sugar = latest('blood_sugar');
   return {
     who, pet,
-    weeks: Number(profile?.weeks_pregnant) || null,
+    weeks: profile ? withCurrentWeek(profile).weeks_pregnant : null,
     lastBp: bp ? { s: Number(bp.blood_pressure_systolic), d: Number(bp.blood_pressure_diastolic) } : null,
     lastSugar: sugar ? Number(sugar.blood_sugar) : null,
   };
